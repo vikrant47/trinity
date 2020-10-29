@@ -1,1 +1,1 @@
-Front end for casemanager
+Front end for Case Manager
