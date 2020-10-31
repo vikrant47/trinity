@@ -17,23 +17,23 @@ router.beforeEach((to, from, next) => {
   }
   NProgress.start()
   if (getToken()) {
-    // 已登录且要跳转的页面是登录页
+    // The page you have logged in and you want to jump to is the login page
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
     } else {
-      if (store.getters.roles.length === 0) { // 判断当前用户是否已拉取完user_info信息
-        store.dispatch('GetInfo').then(() => { // 拉取user_info
-          // 动态路由，拉取菜单
+      if (store.getters.roles.length === 0) { // Determine whether the current user has pulled user info information
+        store.dispatch('GetInfo').then(() => { // Pull user info
+          // dynamic routing pull menu
           loadMenus(next, to)
         }).catch(() => {
           store.dispatch('LogOut').then(() => {
-            location.reload() // 为了重新实例化vue-router对象 避免bug
+            location.reload() // In order to re-instantiate the vue-router object 避免bug
           })
         })
-      // 登录时未拉取 菜单，在此处拉取
+      // Not pulled when logging in, Menu, pull here
       } else if (store.getters.loadMenus) {
-        // 修改成false，防止死循环
+        // Modify to false to prevent infinite loop
         store.dispatch('updateLoadMenus')
         loadMenus(next, to)
       } else {
@@ -42,10 +42,10 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     /* has no token*/
-    if (whiteList.indexOf(to.path) !== -1) { // 在免登录白名单，直接进入
+    if (whiteList.indexOf(to.path) !== -1) { // In the whitelist without login, enter directly
       next()
     } else {
-      next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
+      next(`/login?redirect=${to.fullPath}`) // Otherwise all redirect to the login page
       NProgress.done()
     }
   }
@@ -55,8 +55,8 @@ export const loadMenus = (next, to) => {
   buildMenus().then(res => {
     const asyncRouter = filterAsyncRouter(res)
     asyncRouter.push({ path: '*', redirect: '/404', hidden: true })
-    store.dispatch('GenerateRoutes', asyncRouter).then(() => { // 存储路由
-      router.addRoutes(asyncRouter) // 动态添加可访问路由表
+    store.dispatch('GenerateRoutes', asyncRouter).then(() => { // Storage routing
+      router.addRoutes(asyncRouter) // Dynamically add accessible routing table
       next({ ...to, replace: true })
     })
   })

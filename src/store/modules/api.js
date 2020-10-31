@@ -1,24 +1,24 @@
 // 适配 Nginx 反向代理
-const baseUrl = process.env.VUE_APP_BASE_API === '/' ? '' : process.env.VUE_APP_BASE_API
+const baseUrl = process.env.VUE_APP_BASE_API === '' ? '' : process.env.VUE_APP_BASE_API
 const api = {
   state: {
-    // 部署包上传
+    // Deployment package upload
     deployUploadApi: baseUrl + '/api/deploy/upload',
-    // SQL脚本上传
+    // SQL script upload
     databaseUploadApi: baseUrl + '/api/database/upload',
-    // 实时控制台
+    // Real-time console
     socketApi: baseUrl + '/websocket?token=kl',
-    // 图片上传
+    // upload picture
     imagesUploadApi: baseUrl + '/api/localStorage/pictures',
-    // 修改头像
+    // Modify avatar
     updateAvatarApi: baseUrl + '/api/users/updateAvatar',
-    // 上传文件到七牛云
+    // Upload files to Qiniu Cloud
     qiNiuUploadApi: baseUrl + '/api/qiNiuContent',
-    // Sql 监控
+    // Sql Monitor
     sqlApi: baseUrl + '/druid/index.html',
     // swagger
     swaggerApi: baseUrl + '/swagger-ui.html',
-    // 文件上传
+    // File Upload
     fileUploadApi: baseUrl + '/api/localStorage',
     // baseUrl，
     baseApi: baseUrl
