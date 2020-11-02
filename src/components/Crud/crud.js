@@ -1,48 +1,57 @@
-import { initData, download } from '@/api/data'
-import { parseTime, downloadFile } from '@/utils/index'
-import Vue from 'vue'
+import { initData, download } from '@/api/data';
+import { parseTime, downloadFile } from '@/utils/index';
+import Vue from 'vue';
+import { ModelService } from '@/modules/engine/services/model.service';
 
 /**
- * CRUD配置
+ * CRUD configuration
  * @author moxun
  * @param {*} options <br>
  * @return crud instance.
  * @example
- * 要使用多crud时，请在关联crud的组件处使用crud-tag进行标记，如：<jobForm :job-status="dict.job_status" crud-tag="job" />
+ * To use multi-crud, please use crud-tag to mark the components associated with the crud, such as: <job Form :job-status="dict.job_status" crud-tag="job" />
  */
 function CRUD(options) {
   const defaultOptions = {
+    // model name
+    modelAlias: '',
+    list: 'default',
     tag: 'default',
-    // id字段名
+    // id field name
     idField: 'id',
-    // 标题
+    // title
     title: '',
-    // 请求数据的url
+    // Request data url
     url: '',
-    // 表格数据
+    // Tabular data
     data: [],
-    // 选择项
+    // Options
     selections: [],
-    // 待查询的对象
+    // Object to be queried
     query: {},
-    // 查询数据的参数
+    // Query data parameters
     params: {},
-    // Form 表单
+    // Form Form
     form: {},
-    // 重置表单
-    defaultForm: () => {},
-    // 排序规则，默认 id 降序， 支持多字段排序 ['id,desc', 'createTime,asc']
+    // Reset form
+    defaultForm: () => {
+    },
+    // Sorting rules, default id Descending order, Support multi-field sorting ['id,desc', 'createTime,asc']
     sort: ['id,desc'],
-    // 等待时间
+    // waiting time
     time: 50,
     // CRUD Method
     crudMethod: {
-      add: (form) => {},
-      del: (id) => {},
-      edit: (form) => {},
-      get: (id) => {}
+      add: (form) => {
+      },
+      del: (id) => {
+      },
+      edit: (form) => {
+      },
+      get: (id) => {
+      }
     },
-    // 主页操作栏显示哪些按钮
+    // Which buttons are displayed on the homepage action bar
     optShow: {
       add: true,
       edit: true,
@@ -50,388 +59,418 @@ function CRUD(options) {
       download: true,
       reset: true
     },
-    // 自定义一些扩展属性
+    // Customize some extended attributes
     props: {},
-    // 在主页准备
+    // Prepare on the homepage
     queryOnPresenterCreated: true,
-    // 调试开关
+    // Debug switch
     debug: false
-  }
-  options = mergeOptions(defaultOptions, options)
+  };
+  options = mergeOptions(defaultOptions, options);
   const data = {
     ...options,
-    // 记录数据状态
+    // Record data status
     dataStatus: {},
     status: {
       add: CRUD.STATUS.NORMAL,
       edit: CRUD.STATUS.NORMAL,
-      // 添加或编辑状态
+      // Add or edit status
       get cu() {
         if (this.add === CRUD.STATUS.NORMAL && this.edit === CRUD.STATUS.NORMAL) {
-          return CRUD.STATUS.NORMAL
+          return CRUD.STATUS.NORMAL;
         } else if (this.add === CRUD.STATUS.PREPARED || this.edit === CRUD.STATUS.PREPARED) {
-          return CRUD.STATUS.PREPARED
+          return CRUD.STATUS.PREPARED;
         } else if (this.add === CRUD.STATUS.PROCESSING || this.edit === CRUD.STATUS.PROCESSING) {
-          return CRUD.STATUS.PROCESSING
+          return CRUD.STATUS.PROCESSING;
         }
-        throw new Error('wrong crud\'s cu status')
+        throw new Error('wrong crud\'s cu status');
       },
-      // 标题
+      // title
       get title() {
-        return this.add > CRUD.STATUS.NORMAL ? `新增${crud.title}` : this.edit > CRUD.STATUS.NORMAL ? `编辑${crud.title}` : crud.title
+        return this.add > CRUD.STATUS.NORMAL ? `Add ${crud.title}` : this.edit > CRUD.STATUS.NORMAL ? `Edit ${crud.title}` : crud.title;
       }
     },
     msg: {
-      submit: '提交成功',
-      add: '新增成功',
-      edit: '编辑成功',
-      del: '删除成功'
+      submit: 'Submitted successfully',
+      add: 'Added successfully',
+      edit: 'Edit successfully',
+      del: 'successfully deleted'
     },
     page: {
-      // 页码
+      // page number
       page: 0,
-      // 每页数据条数
+      // Number of data per page
       size: 10,
-      // 总数据条数
+      // Total number of data
       total: 0
     },
-    // 整体loading
+    definition: {},
+    // Overall loading
     loading: false,
-    // 导出的 Loading
+    // Exported Loading
     downloadLoading: false,
-    // 删除的 Loading
+    // Deleted Loading
     delAllLoading: false
-  }
+  };
   const methods = {
     /**
-     * 通用的提示
+     * General tips
      */
     submitSuccessNotify() {
-      crud.notify(crud.msg.submit, CRUD.NOTIFICATION_TYPE.SUCCESS)
+      crud.notify(crud.msg.submit, CRUD.NOTIFICATION_TYPE.SUCCESS);
     },
     addSuccessNotify() {
-      crud.notify(crud.msg.add, CRUD.NOTIFICATION_TYPE.SUCCESS)
+      crud.notify(crud.msg.add, CRUD.NOTIFICATION_TYPE.SUCCESS);
     },
     editSuccessNotify() {
-      crud.notify(crud.msg.edit, CRUD.NOTIFICATION_TYPE.SUCCESS)
+      crud.notify(crud.msg.edit, CRUD.NOTIFICATION_TYPE.SUCCESS);
     },
     delSuccessNotify() {
-      crud.notify(crud.msg.del, CRUD.NOTIFICATION_TYPE.SUCCESS)
+      crud.notify(crud.msg.del, CRUD.NOTIFICATION_TYPE.SUCCESS);
     },
-    // 搜索
+    // search
     toQuery() {
-      crud.page.page = 1
-      crud.refresh()
+      crud.page.page = 1;
+      crud.refresh();
     },
-    // 刷新
-    refresh() {
-      if (!callVmHook(crud, CRUD.HOOK.beforeRefresh)) {
-        return
+    loadDefinition() {
+      if (!callVmHook(crud, CRUD.HOOK.beforeLoadDefinition)) {
+        return;
       }
       return new Promise((resolve, reject) => {
-        crud.loading = true
-        // 请求数据
-        initData(crud.url, crud.getQueryParams()).then(data => {
-          const table = crud.getTable()
-          if (table && table.lazy) { // 懒加载子节点数据，清掉已加载的数据
-            table.store.states.treeData = {}
-            table.store.states.lazyTreeNodeMap = {}
-          }
-          crud.page.total = data.totalElements
-          crud.data = data.content
-          crud.resetDataStatus()
-          // time 毫秒后显示表格
+        crud.loading = true;
+        // request data
+        new ModelService(crud.modelAlias).requestDefinition({
+          list: crud.list
+        }).then(definition => {
+          crud.definition = definition;
+          // time Show table in milliseconds
           setTimeout(() => {
-            crud.loading = false
-            callVmHook(crud, CRUD.HOOK.afterRefresh)
-          }, crud.time)
-          resolve(data)
+            crud.loading = false;
+            callVmHook(crud, CRUD.HOOK.afterLoadDefinition);
+          }, crud.time);
+          resolve(data);
         }).catch(err => {
-          crud.loading = false
-          reject(err)
-        })
-      })
+          crud.loading = false;
+          reject(err);
+        });
+      });
+    },
+    // Refresh
+    refresh() {
+      if (!callVmHook(crud, CRUD.HOOK.beforeRefresh)) {
+        return;
+      }
+      return new Promise((resolve, reject) => {
+        crud.loading = true;
+        // request data
+        initData(crud.url, crud.getQueryParams()).then(data => {
+          const table = crud.getTable();
+          if (table && table.lazy) { // Lazy load child node data, clear the loaded data
+            table.store.states.treeData = {};
+            table.store.states.lazyTreeNodeMap = {};
+          }
+          crud.page.total = data.totalElements;
+          crud.data = data.content;
+          crud.resetDataStatus();
+          // time Show table in milliseconds
+          setTimeout(() => {
+            crud.loading = false;
+            callVmHook(crud, CRUD.HOOK.afterRefresh);
+          }, crud.time);
+          resolve(data);
+        }).catch(err => {
+          crud.loading = false;
+          reject(err);
+        });
+      });
     },
     /**
-     * 启动添加
+     * Start adding
      */
     toAdd() {
-      crud.resetForm()
+      crud.resetForm();
       if (!(callVmHook(crud, CRUD.HOOK.beforeToAdd, crud.form) && callVmHook(crud, CRUD.HOOK.beforeToCU, crud.form))) {
-        return
+        return;
       }
-      crud.status.add = CRUD.STATUS.PREPARED
-      callVmHook(crud, CRUD.HOOK.afterToAdd, crud.form)
-      callVmHook(crud, CRUD.HOOK.afterToCU, crud.form)
+      crud.status.add = CRUD.STATUS.PREPARED;
+      callVmHook(crud, CRUD.HOOK.afterToAdd, crud.form);
+      callVmHook(crud, CRUD.HOOK.afterToCU, crud.form);
     },
     /**
-     * 启动编辑
+     * start editing
      * @param {*} data 数据项
      */
     toEdit(data) {
-      crud.resetForm(JSON.parse(JSON.stringify(data)))
+      crud.resetForm(JSON.parse(JSON.stringify(data)));
       if (!(callVmHook(crud, CRUD.HOOK.beforeToEdit, crud.form) && callVmHook(crud, CRUD.HOOK.beforeToCU, crud.form))) {
-        return
+        return;
       }
-      crud.status.edit = CRUD.STATUS.PREPARED
-      crud.getDataStatus(crud.getDataId(data)).edit = CRUD.STATUS.PREPARED
-      callVmHook(crud, CRUD.HOOK.afterToEdit, crud.form)
-      callVmHook(crud, CRUD.HOOK.afterToCU, crud.form)
+      crud.status.edit = CRUD.STATUS.PREPARED;
+      crud.getDataStatus(crud.getDataId(data)).edit = CRUD.STATUS.PREPARED;
+      callVmHook(crud, CRUD.HOOK.afterToEdit, crud.form);
+      callVmHook(crud, CRUD.HOOK.afterToCU, crud.form);
     },
     /**
-     * 启动删除
-     * @param {*} data 数据项
+     * Start delete
+     * @param {*} data data item
      */
     toDelete(data) {
-      crud.getDataStatus(crud.getDataId(data)).delete = CRUD.STATUS.PREPARED
+      crud.getDataStatus(crud.getDataId(data)).delete = CRUD.STATUS.PREPARED;
     },
     /**
-     * 取消删除
-     * @param {*} data 数据项
+     * Undelete
+     * @param {*} data data item
      */
     cancelDelete(data) {
       if (!callVmHook(crud, CRUD.HOOK.beforeDeleteCancel, data)) {
-        return
+        return;
       }
-      crud.getDataStatus(crud.getDataId(data)).delete = CRUD.STATUS.NORMAL
-      callVmHook(crud, CRUD.HOOK.afterDeleteCancel, data)
+      crud.getDataStatus(crud.getDataId(data)).delete = CRUD.STATUS.NORMAL;
+      callVmHook(crud, CRUD.HOOK.afterDeleteCancel, data);
     },
     /**
-     * 取消新增/编辑
+     * Cancel add/edit
      */
     cancelCU() {
-      const addStatus = crud.status.add
-      const editStatus = crud.status.edit
+      const addStatus = crud.status.add;
+      const editStatus = crud.status.edit;
       if (addStatus === CRUD.STATUS.PREPARED) {
         if (!callVmHook(crud, CRUD.HOOK.beforeAddCancel, crud.form)) {
-          return
+          return;
         }
-        crud.status.add = CRUD.STATUS.NORMAL
+        crud.status.add = CRUD.STATUS.NORMAL;
       }
       if (editStatus === CRUD.STATUS.PREPARED) {
         if (!callVmHook(crud, CRUD.HOOK.beforeEditCancel, crud.form)) {
-          return
+          return;
         }
-        crud.status.edit = CRUD.STATUS.NORMAL
-        crud.getDataStatus(crud.getDataId(crud.form)).edit = CRUD.STATUS.NORMAL
+        crud.status.edit = CRUD.STATUS.NORMAL;
+        crud.getDataStatus(crud.getDataId(crud.form)).edit = CRUD.STATUS.NORMAL;
       }
-      crud.resetForm()
+      crud.resetForm();
       if (addStatus === CRUD.STATUS.PREPARED) {
-        callVmHook(crud, CRUD.HOOK.afterAddCancel, crud.form)
+        callVmHook(crud, CRUD.HOOK.afterAddCancel, crud.form);
       }
       if (editStatus === CRUD.STATUS.PREPARED) {
-        callVmHook(crud, CRUD.HOOK.afterEditCancel, crud.form)
+        callVmHook(crud, CRUD.HOOK.afterEditCancel, crud.form);
       }
-      // 清除表单验证
+      // Clear form validation
       if (crud.findVM('form').$refs['form']) {
-        crud.findVM('form').$refs['form'].clearValidate()
+        crud.findVM('form').$refs['form'].clearValidate();
       }
     },
     /**
-     * 提交新增/编辑
+     * Submit new/edit
      */
     submitCU() {
       if (!callVmHook(crud, CRUD.HOOK.beforeValidateCU)) {
-        return
+        return;
       }
       crud.findVM('form').$refs['form'].validate(valid => {
         if (!valid) {
-          return
+          return;
         }
         if (!callVmHook(crud, CRUD.HOOK.afterValidateCU)) {
-          return
+          return;
         }
         if (crud.status.add === CRUD.STATUS.PREPARED) {
-          crud.doAdd()
+          crud.doAdd();
         } else if (crud.status.edit === CRUD.STATUS.PREPARED) {
-          crud.doEdit()
+          crud.doEdit();
         }
-      })
+      });
     },
     /**
-     * 执行添加
+     * Perform add
      */
     doAdd() {
       if (!callVmHook(crud, CRUD.HOOK.beforeSubmit)) {
-        return
+        return;
       }
-      crud.status.add = CRUD.STATUS.PROCESSING
+      crud.status.add = CRUD.STATUS.PROCESSING;
       crud.crudMethod.add(crud.form).then(() => {
-        crud.status.add = CRUD.STATUS.NORMAL
-        crud.resetForm()
-        crud.addSuccessNotify()
-        callVmHook(crud, CRUD.HOOK.afterSubmit)
-        crud.toQuery()
+        crud.status.add = CRUD.STATUS.NORMAL;
+        crud.resetForm();
+        crud.addSuccessNotify();
+        callVmHook(crud, CRUD.HOOK.afterSubmit);
+        crud.toQuery();
       }).catch(() => {
-        crud.status.add = CRUD.STATUS.PREPARED
-        callVmHook(crud, CRUD.HOOK.afterAddError)
-      })
+        crud.status.add = CRUD.STATUS.PREPARED;
+        callVmHook(crud, CRUD.HOOK.afterAddError);
+      });
     },
     /**
-     * 执行编辑
+     * Executive edit
      */
     doEdit() {
       if (!callVmHook(crud, CRUD.HOOK.beforeSubmit)) {
-        return
+        return;
       }
-      crud.status.edit = CRUD.STATUS.PROCESSING
+      crud.status.edit = CRUD.STATUS.PROCESSING;
       crud.crudMethod.edit(crud.form).then(() => {
-        crud.status.edit = CRUD.STATUS.NORMAL
-        crud.getDataStatus(crud.getDataId(crud.form)).edit = CRUD.STATUS.NORMAL
-        crud.editSuccessNotify()
-        crud.resetForm()
-        callVmHook(crud, CRUD.HOOK.afterSubmit)
-        crud.refresh()
+        crud.status.edit = CRUD.STATUS.NORMAL;
+        crud.getDataStatus(crud.getDataId(crud.form)).edit = CRUD.STATUS.NORMAL;
+        crud.editSuccessNotify();
+        crud.resetForm();
+        callVmHook(crud, CRUD.HOOK.afterSubmit);
+        crud.refresh();
       }).catch(() => {
-        crud.status.edit = CRUD.STATUS.PREPARED
-        callVmHook(crud, CRUD.HOOK.afterEditError)
-      })
+        crud.status.edit = CRUD.STATUS.PREPARED;
+        callVmHook(crud, CRUD.HOOK.afterEditError);
+      });
     },
     /**
-     * 执行删除
-     * @param {*} data 数据项
+     * Execute delete
+     * @param {*} data data item
      */
     doDelete(data) {
-      let delAll = false
-      let dataStatus
-      const ids = []
+      let delAll = false;
+      let dataStatus;
+      const ids = [];
       if (data instanceof Array) {
-        delAll = true
+        delAll = true;
         data.forEach(val => {
-          ids.push(this.getDataId(val))
-        })
+          ids.push(this.getDataId(val));
+        });
       } else {
-        ids.push(this.getDataId(data))
-        dataStatus = crud.getDataStatus(this.getDataId(data))
+        ids.push(this.getDataId(data));
+        dataStatus = crud.getDataStatus(this.getDataId(data));
       }
       if (!callVmHook(crud, CRUD.HOOK.beforeDelete, data)) {
-        return
+        return;
       }
       if (!delAll) {
-        dataStatus.delete = CRUD.STATUS.PROCESSING
+        dataStatus.delete = CRUD.STATUS.PROCESSING;
       }
       return crud.crudMethod.del(ids).then(() => {
         if (delAll) {
-          crud.delAllLoading = false
-        } else dataStatus.delete = CRUD.STATUS.PREPARED
-        crud.dleChangePage(1)
-        crud.delSuccessNotify()
-        callVmHook(crud, CRUD.HOOK.afterDelete, data)
-        crud.refresh()
+          crud.delAllLoading = false;
+        } else {
+          dataStatus.delete = CRUD.STATUS.PREPARED;
+        }
+        crud.dleChangePage(1);
+        crud.delSuccessNotify();
+        callVmHook(crud, CRUD.HOOK.afterDelete, data);
+        crud.refresh();
       }).catch(() => {
         if (delAll) {
-          crud.delAllLoading = false
-        } else dataStatus.delete = CRUD.STATUS.PREPARED
-      })
+          crud.delAllLoading = false;
+        } else {
+          dataStatus.delete = CRUD.STATUS.PREPARED;
+        }
+      });
     },
     /**
-     * 通用导出
+     * Universal export
      */
     doExport() {
-      crud.downloadLoading = true
+      crud.downloadLoading = true;
       download(crud.url + '/download', crud.getQueryParams()).then(result => {
-        downloadFile(result, crud.title + '数据', 'xlsx')
-        crud.downloadLoading = false
+        downloadFile(result, crud.title + '数据', 'xlsx');
+        crud.downloadLoading = false;
       }).catch(() => {
-        crud.downloadLoading = false
-      })
+        crud.downloadLoading = false;
+      });
     },
     /**
-     * 获取查询参数
+     * Get query parameters
      */
     getQueryParams: function() {
-      // 清除参数无值的情况
+      // Clear the case where the parameter has no value
       Object.keys(crud.query).length !== 0 && Object.keys(crud.query).forEach(item => {
-        if (crud.query[item] === null || crud.query[item] === '') crud.query[item] = undefined
-      })
+        if (crud.query[item] === null || crud.query[item] === '') crud.query[item] = undefined;
+      });
       Object.keys(crud.params).length !== 0 && Object.keys(crud.params).forEach(item => {
-        if (crud.params[item] === null || crud.params[item] === '') crud.params[item] = undefined
-      })
+        if (crud.params[item] === null || crud.params[item] === '') crud.params[item] = undefined;
+      });
       return {
         page: crud.page.page - 1,
         size: crud.page.size,
         sort: crud.sort,
         ...crud.query,
         ...crud.params
-      }
+      };
     },
-    // 当前页改变
+    // Current page change
     pageChangeHandler(e) {
-      crud.page.page = e
-      crud.refresh()
+      crud.page.page = e;
+      crud.refresh();
     },
-    // 每页条数改变
+    // Change the number of items per page
     sizeChangeHandler(e) {
-      crud.page.size = e
-      crud.page.page = 1
-      crud.refresh()
+      crud.page.size = e;
+      crud.page.page = 1;
+      crud.refresh();
     },
-    // 预防删除第二页最后一条数据时，或者多选删除第二页的数据时，页码错误导致请求无数据
+    // Prevent the request for no data due to the wrong page number when deleting the last data on the second page, or when multiple selections are made to delete the data on the second page
     dleChangePage(size) {
       if (crud.data.length === size && crud.page.page !== 1) {
-        crud.page.page -= 1
+        crud.page.page -= 1;
       }
     },
-    // 选择改变
+    // Choice change
     selectionChangeHandler(val) {
-      crud.selections = val
+      crud.selections = val;
     },
     /**
-     * 重置查询参数
-     * @param {Boolean} toQuery 重置后进行查询操作
+     * Reset query parameters
+     * @param {Boolean} toQuery Query operation after reset
      */
     resetQuery(toQuery = true) {
-      const defaultQuery = JSON.parse(JSON.stringify(crud.defaultQuery))
-      const query = crud.query
+      const defaultQuery = JSON.parse(JSON.stringify(crud.defaultQuery));
+      const query = crud.query;
       Object.keys(query).forEach(key => {
-        query[key] = defaultQuery[key]
-      })
-      // 重置参数
-      this.params = {}
+        query[key] = defaultQuery[key];
+      });
+      // Reset parameters
+      this.params = {};
       if (toQuery) {
-        crud.toQuery()
+        crud.toQuery();
       }
     },
     /**
-     * 重置表单
-     * @param {Array} data 数据
+     * Reset form
+     * @param {Array} data Digital
      */
     resetForm(data) {
-      const form = data || (typeof crud.defaultForm === 'object' ? JSON.parse(JSON.stringify(crud.defaultForm)) : crud.defaultForm.apply(crud.findVM('form')))
-      const crudFrom = crud.form
+      const form = data || (typeof crud.defaultForm === 'object' ? JSON.parse(JSON.stringify(crud.defaultForm)) : crud.defaultForm.apply(crud.findVM('form')));
+      const crudFrom = crud.form;
       for (const key in form) {
         if (crudFrom.hasOwnProperty(key)) {
-          crudFrom[key] = form[key]
+          crudFrom[key] = form[key];
         } else {
-          Vue.set(crudFrom, key, form[key])
+          Vue.set(crudFrom, key, form[key]);
         }
       }
     },
     /**
-     * 重置数据状态
+     * Reset data status
      */
     resetDataStatus() {
-      const dataStatus = {}
+      const dataStatus = {};
+
       function resetStatus(datas) {
         datas.forEach(e => {
           dataStatus[crud.getDataId(e)] = {
             delete: 0,
             edit: 0
-          }
+          };
           if (e.children) {
-            resetStatus(e.children)
+            resetStatus(e.children);
           }
-        })
+        });
       }
-      resetStatus(crud.data)
-      crud.dataStatus = dataStatus
+
+      resetStatus(crud.data);
+      crud.dataStatus = dataStatus;
     },
     /**
      * 获取数据状态
      * @param {Number | String} id 数据项id
      */
     getDataStatus(id) {
-      return crud.dataStatus[id]
+      return crud.dataStatus[id];
     },
     /**
      * 用于树形表格多选, 选中所有
@@ -441,10 +480,10 @@ function CRUD(options) {
       // 如果选中的数目与请求到的数目相同就选中子节点，否则就清空选中
       if (selection && selection.length === crud.data.length) {
         selection.forEach(val => {
-          crud.selectChange(selection, val)
-        })
+          crud.selectChange(selection, val);
+        });
       } else {
-        crud.getTable().clearSelection()
+        crud.getTable().clearSelection();
       }
     },
     /**
@@ -454,18 +493,20 @@ function CRUD(options) {
      */
     selectChange(selection, row) {
       // 如果selection中存在row代表是选中，否则是取消选中
-      if (selection.find(val => { return crud.getDataId(val) === crud.getDataId(row) })) {
+      if (selection.find(val => {
+        return crud.getDataId(val) === crud.getDataId(row);
+      })) {
         if (row.children) {
           row.children.forEach(val => {
-            crud.getTable().toggleRowSelection(val, true)
-            selection.push(val)
+            crud.getTable().toggleRowSelection(val, true);
+            selection.push(val);
             if (val.children) {
-              crud.selectChange(selection, val)
+              crud.selectChange(selection, val);
             }
-          })
+          });
         }
       } else {
-        crud.toggleRowSelection(selection, row)
+        crud.toggleRowSelection(selection, row);
       }
     },
     /**
@@ -476,195 +517,195 @@ function CRUD(options) {
     toggleRowSelection(selection, data) {
       if (data.children) {
         data.children.forEach(val => {
-          crud.getTable().toggleRowSelection(val, false)
+          crud.getTable().toggleRowSelection(val, false);
           if (val.children) {
-            crud.toggleRowSelection(selection, val)
+            crud.toggleRowSelection(selection, val);
           }
-        })
+        });
       }
     },
     findVM(type) {
-      return crud.vms.find(vm => vm && vm.type === type).vm
+      return crud.vms.find(vm => vm && vm.type === type).vm;
     },
     notify(title, type = CRUD.NOTIFICATION_TYPE.INFO) {
       crud.vms[0].vm.$notify({
         title,
         type,
         duration: 2500
-      })
+      });
     },
     updateProp(name, value) {
-      Vue.set(crud.props, name, value)
+      Vue.set(crud.props, name, value);
     },
     getDataId(data) {
-      return data[this.idField]
+      return data[this.idField];
     },
     getTable() {
-      return this.findVM('presenter').$refs.table
+      return this.findVM('presenter').$refs.table;
     },
     attchTable() {
-      const table = this.getTable()
-      this.updateProp('table', table)
-      const that = this
+      const table = this.getTable();
+      this.updateProp('table', table);
+      const that = this;
       table.$on('expand-change', (row, expanded) => {
         if (!expanded) {
-          return
+          return;
         }
-        const lazyTreeNodeMap = table.store.states.lazyTreeNodeMap
-        row.children = lazyTreeNodeMap[crud.getDataId(row)]
+        const lazyTreeNodeMap = table.store.states.lazyTreeNodeMap;
+        row.children = lazyTreeNodeMap[crud.getDataId(row)];
         if (row.children) {
           row.children.forEach(ele => {
-            const id = crud.getDataId(ele)
+            const id = crud.getDataId(ele);
             if (that.dataStatus[id] === undefined) {
               that.dataStatus[id] = {
                 delete: 0,
                 edit: 0
-              }
+              };
             }
-          })
+          });
         }
-      })
+      });
     }
-  }
-  const crud = Object.assign({}, data)
-  // 可观测化
-  Vue.observable(crud)
-  // 附加方法
-  Object.assign(crud, methods)
-  // 记录初始默认的查询参数，后续重置查询时使用
+  };
+  const crud = Object.assign({}, data);
+  // Observability
+  Vue.observable(crud);
+  // Additional method
+  Object.assign(crud, methods);
+  // Record the initial default query parameters and use them when resetting the query later
   Object.assign(crud, {
     defaultQuery: JSON.parse(JSON.stringify(data.query)),
-    // 预留4位存储：组件 主页、头部、分页、表单，调试查看也方便找
+    // Reserve 4-bit storage: components Homepage, header, pagination, form, debugging view is also easy to find
     vms: Array(4),
     /**
-     * 注册组件实例
-     * @param {String} type 类型
-     * @param {*} vm 组件实例
-     * @param {Number} index 该参数内部使用
+     * Registered component instance
+     * @param {String} type Type
+     * @param {*} vm Component instance
+     * @param {Number} index This parameter is used internally
      */
     registerVM(type, vm, index = -1) {
       const vmObj = {
         type,
         vm: vm
-      }
+      };
       if (index < 0) {
-        this.vms.push(vmObj)
-        return
+        this.vms.push(vmObj);
+        return;
       }
-      if (index < 4) { // 内置预留vm数
-        this.vms[index] = vmObj
-        return
+      if (index < 4) { // Built-in reserved VM number
+        this.vms[index] = vmObj;
+        return;
       }
-      this.vms.length = Math.max(this.vms.length, index)
-      this.vms.splice(index, 1, vmObj)
+      this.vms.length = Math.max(this.vms.length, index);
+      this.vms.splice(index, 1, vmObj);
     },
     /**
-     * 取消注册组件实例
-     * @param {*} vm 组件实例
+     * Unregister component instance
+     * @param {*} vm Component instance
      */
     unregisterVM(type, vm) {
       for (let i = this.vms.length - 1; i >= 0; i--) {
         if (this.vms[i] === undefined) {
-          continue
+          continue;
         }
         if (this.vms[i].type === type && this.vms[i].vm === vm) {
-          if (i < 4) { // 内置预留vm数
-            this.vms[i] = undefined
+          if (i < 4) { // Built-in reserved VM number
+            this.vms[i] = undefined;
           } else {
-            this.vms.splice(i, 1)
+            this.vms.splice(i, 1);
           }
-          break
+          break;
         }
       }
     }
-  })
-  // 冻结处理，需要扩展数据的话，使用crud.updateProp(name, value)，以crud.props.name形式访问，这个是响应式的，可以做数据绑定
-  Object.freeze(crud)
-  return crud
+  });
+  // Freeze processing, if you need to expand the data, use crud.update Prop(name, value), accessed in the form of crud.props.name, this is responsive and can be used for data binding
+  Object.freeze(crud);
+  return crud;
 }
 
 // hook VM
 function callVmHook(crud, hook) {
   if (crud.debug) {
-    console.log('callVmHook: ' + hook)
+    console.log('callVmHook: ' + hook);
   }
-  const tagHook = crud.tag ? hook + '$' + crud.tag : null
-  let ret = true
-  const nargs = [crud]
+  const tagHook = crud.tag ? hook + '$' + crud.tag : null;
+  let ret = true;
+  const nargs = [crud];
   for (let i = 2; i < arguments.length; ++i) {
-    nargs.push(arguments[i])
+    nargs.push(arguments[i]);
   }
   // 有些组件扮演了多个角色，调用钩子时，需要去重
-  const vmSet = new Set()
-  crud.vms.forEach(vm => vm && vmSet.add(vm.vm))
+  const vmSet = new Set();
+  crud.vms.forEach(vm => vm && vmSet.add(vm.vm));
   vmSet.forEach(vm => {
     if (vm[hook]) {
-      ret = vm[hook].apply(vm, nargs) !== false && ret
+      ret = vm[hook].apply(vm, nargs) !== false && ret;
     }
     if (tagHook && vm[tagHook]) {
-      ret = vm[tagHook].apply(vm, nargs) !== false && ret
+      ret = vm[tagHook].apply(vm, nargs) !== false && ret;
     }
-  })
-  return ret
+  });
+  return ret;
 }
 
 function mergeOptions(src, opts) {
   const optsRet = {
     ...src
-  }
+  };
   for (const key in src) {
     if (opts.hasOwnProperty(key)) {
-      optsRet[key] = opts[key]
+      optsRet[key] = opts[key];
     }
   }
-  return optsRet
+  return optsRet;
 }
 
 /**
- * 查找crud
+ * Find crud
  * @param {*} vm
  * @param {string} tag
  */
 function lookupCrud(vm, tag) {
-  tag = tag || vm.$attrs['crud-tag'] || 'default'
+  tag = tag || vm.$attrs['crud-tag'] || 'default';
   // function lookupCrud(vm, tag) {
   if (vm.$crud) {
-    const ret = vm.$crud[tag]
+    const ret = vm.$crud[tag];
     if (ret) {
-      return ret
+      return ret;
     }
   }
-  return vm.$parent ? lookupCrud(vm.$parent, tag) : undefined
+  return vm.$parent ? lookupCrud(vm.$parent, tag) : undefined;
 }
 
 /**
- * crud主页
+ * crud homepage
  */
 function presenter(crud) {
   if (crud) {
-    console.warn('[CRUD warn]: ' + 'please use $options.cruds() { return CRUD(...) or [CRUD(...), ...] }')
+    console.warn('[CRUD warn]: ' + 'please use $options.cruds() { return CRUD(...) or [CRUD(...), ...] }');
   }
   return {
     data() {
-      // 在data中返回crud，是为了将crud与当前实例关联，组件观测crud相关属性变化
+      // Returning crud in data is to associate crud with the current instance, and the component observes changes in crud-related attributes
       return {
         crud: this.crud
-      }
+      };
     },
     beforeCreate() {
-      this.$crud = this.$crud || {}
-      let cruds = this.$options.cruds instanceof Function ? this.$options.cruds() : crud
+      this.$crud = this.$crud || {};
+      let cruds = this.$options.cruds instanceof Function ? this.$options.cruds() : crud;
       if (!(cruds instanceof Array)) {
-        cruds = [cruds]
+        cruds = [cruds];
       }
       cruds.forEach(ele => {
         if (this.$crud[ele.tag]) {
-          console.error('[CRUD error]: ' + 'crud with tag [' + ele.tag + ' is already exist')
+          console.error('[CRUD error]: ' + 'crud with tag [' + ele.tag + ' is already exist');
         }
-        this.$crud[ele.tag] = ele
-        ele.registerVM('presenter', this, 0)
-      })
-      this.crud = this.$crud['defalut'] || cruds[0]
+        this.$crud[ele.tag] = ele;
+        ele.registerVM('presenter', this, 0);
+      });
+      this.crud = this.$crud['defalut'] || cruds[0];
     },
     methods: {
       parseTime
@@ -672,26 +713,26 @@ function presenter(crud) {
     created() {
       for (const k in this.$crud) {
         if (this.$crud[k].queryOnPresenterCreated) {
-          this.$crud[k].toQuery()
+          this.$crud[k].toQuery();
         }
       }
     },
     destroyed() {
       for (const k in this.$crud) {
-        this.$crud[k].unregisterVM('presenter', this)
+        this.$crud[k].unregisterVM('presenter', this);
       }
     },
     mounted() {
-      // 如果table未实例化（例如使用了v-if），请稍后在适当时机crud.attchTable刷新table信息
+      // If the table is not instantiated (for example, v-if is used), please refresh the table information in the crud.attch Table at an appropriate time later
       if (this.$refs.table !== undefined) {
-        this.crud.attchTable()
+        this.crud.attchTable();
       }
     }
-  }
+  };
 }
 
 /**
- * 头部
+ * Head
  */
 function header() {
   return {
@@ -699,20 +740,68 @@ function header() {
       return {
         crud: this.crud,
         query: this.crud.query
-      }
+      };
     },
     beforeCreate() {
-      this.crud = lookupCrud(this)
-      this.crud.registerVM('header', this, 1)
+      this.crud = lookupCrud(this);
+      this.crud.registerVM('header', this, 1);
     },
     destroyed() {
-      this.crud.unregisterVM('header', this)
+      this.crud.unregisterVM('header', this);
     }
-  }
+  };
 }
 
 /**
- * 分页
+ * Definition
+ */
+function definition() {
+  return {
+    data() {
+      // Returning crud in data is to associate crud with the current instance, and the component observes changes in crud-related attributes
+      return {
+        crud: this.crud
+      };
+    },
+    beforeCreate() {
+      this.$crud = this.$crud || {};
+      let cruds = this.$options.cruds instanceof Function ? this.$options.cruds() : crud;
+      if (!(cruds instanceof Array)) {
+        cruds = [cruds];
+      }
+      cruds.forEach(ele => {
+        ele.registerVM('definition', this, 0);
+      });
+      this.crud = this.$crud['defalut'] || cruds[0];
+    },
+    created() {
+      for (const k in this.$crud) {
+        if (this.$crud[k].queryOnPresenterCreated) {
+          this.$crud[k].modelAlias = this.$route.meta.modelAlias;
+          this.$crud[k].list = this.$route.meta.list || 'default';
+          this.$crud[k].loadDefinition().then((definition) => {
+            this.definition = definition;
+            return;
+          });
+        }
+      }
+    },
+    destroyed() {
+      for (const k in this.$crud) {
+        this.$crud[k].unregisterVM('definition', this);
+      }
+    },
+    mounted() {
+      // If the table is not instantiated (for example, v-if is used), please refresh the table information in the crud.attch Table at an appropriate time later
+      if (this.$refs.table !== undefined) {
+        this.crud.attchTable();
+      }
+    }
+  };
+}
+
+/**
+ * Pagination
  */
 function pagination() {
   return {
@@ -720,20 +809,20 @@ function pagination() {
       return {
         crud: this.crud,
         page: this.crud.page
-      }
+      };
     },
     beforeCreate() {
-      this.crud = lookupCrud(this)
-      this.crud.registerVM('pagination', this, 2)
+      this.crud = lookupCrud(this);
+      this.crud.registerVM('pagination', this, 2);
     },
     destroyed() {
-      this.crud.unregisterVM('pagination', this)
+      this.crud.unregisterVM('pagination', this);
     }
-  }
+  };
 }
 
 /**
- * 表单
+ * Form
  */
 function form(defaultForm) {
   return {
@@ -741,20 +830,20 @@ function form(defaultForm) {
       return {
         crud: this.crud,
         form: this.crud.form
-      }
+      };
     },
     beforeCreate() {
-      this.crud = lookupCrud(this)
-      this.crud.registerVM('form', this, 3)
+      this.crud = lookupCrud(this);
+      this.crud.registerVM('form', this, 3);
     },
     created() {
-      this.crud.defaultForm = defaultForm
-      this.crud.resetForm()
+      this.crud.defaultForm = defaultForm;
+      this.crud.resetForm();
     },
     destroyed() {
-      this.crud.unregisterVM('form', this)
+      this.crud.unregisterVM('form', this);
     }
-  }
+  };
 }
 
 /**
@@ -763,28 +852,30 @@ function form(defaultForm) {
 function crud(options = {}) {
   const defaultOptions = {
     type: undefined
-  }
-  options = mergeOptions(defaultOptions, options)
+  };
+  options = mergeOptions(defaultOptions, options);
   return {
     data() {
       return {
         crud: this.crud
-      }
+      };
     },
     beforeCreate() {
-      this.crud = lookupCrud(this)
-      this.crud.registerVM(options.type, this)
+      this.crud = lookupCrud(this);
+      this.crud.registerVM(options.type, this);
     },
     destroyed() {
-      this.crud.unregisterVM(options.type, this)
+      this.crud.unregisterVM(options.type, this);
     }
-  }
+  };
 }
 
 /**
- * CRUD钩子
+ * CRUD hook
  */
 CRUD.HOOK = {
+  afterLoadDefinition: 'afterLoadDefinition',
+  beforeLoadDefinition: 'beforeLoadDefinition',
   /** 刷新 - 之前 */
   beforeRefresh: 'beforeCrudRefresh',
   /** 刷新 - 之后 */
@@ -827,7 +918,7 @@ CRUD.HOOK = {
   afterSubmit: 'afterCrudSubmitCU',
   afterAddError: 'afterCrudAddError',
   afterEditError: 'afterCrudEditError'
-}
+};
 
 /**
  * CRUD状态
@@ -836,7 +927,7 @@ CRUD.STATUS = {
   NORMAL: 0,
   PREPARED: 1,
   PROCESSING: 2
-}
+};
 
 /**
  * CRUD通知类型
@@ -846,14 +937,15 @@ CRUD.NOTIFICATION_TYPE = {
   WARNING: 'warning',
   INFO: 'info',
   ERROR: 'error'
-}
+};
 
-export default CRUD
+export default CRUD;
 
 export {
   presenter,
   header,
   form,
   pagination,
-  crud
-}
+  crud,
+  definition
+};

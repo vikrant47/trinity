@@ -30,12 +30,12 @@
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
-import PanelGroup from './dashboard/PanelGroup'
-import LineChart from './dashboard/LineChart'
-import RadarChart from '@/components/Echarts/RadarChart'
-import PieChart from '@/components/Echarts/PieChart'
-import BarChart from '@/components/Echarts/BarChart'
+import GithubCorner from '@/components/GithubCorner/index';
+import PanelGroup from '../../../views/dashboard/PanelGroup';
+import LineChart from '../../../views/dashboard/LineChart';
+import RadarChart from '@/components/Echarts/RadarChart';
+import PieChart from '@/components/Echarts/PieChart';
+import BarChart from '@/components/Echarts/BarChart';
 
 const lineChartData = {
   newVisitis: {
@@ -54,7 +54,7 @@ const lineChartData = {
     expectedData: [130, 140, 141, 142, 145, 150, 160],
     actualData: [120, 82, 91, 154, 162, 140, 130]
   }
-}
+};
 
 export default {
   name: 'Dashboard',
@@ -69,14 +69,14 @@ export default {
   data() {
     return {
       lineChartData: lineChartData.newVisitis
-    }
+    };
   },
   methods: {
     handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
+      this.lineChartData = lineChartData[type];
     }
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

@@ -101,21 +101,21 @@
   </div>
 </template>
 <script>
-import CRUD, { crud } from '@crud/crud'
+import CRUD, { crud } from '@crud/crud';
 
 function sortWithRef(src, ref) {
-  const result = Object.assign([], ref)
-  let cursor = -1
+  const result = Object.assign([], ref);
+  let cursor = -1;
   src.forEach(e => {
-    const idx = result.indexOf(e)
+    const idx = result.indexOf(e);
     if (idx === -1) {
-      cursor += 1
-      result.splice(cursor, 0, e)
+      cursor += 1;
+      result.splice(cursor, 0, e);
     } else {
-      cursor = idx
+      cursor = idx;
     }
-  })
-  return result
+  });
+  return result;
 }
 
 export default {
@@ -123,15 +123,15 @@ export default {
   props: {
     permission: {
       type: Object,
-      default: () => { return {} }
+      default: () => { return {}; }
     },
     hiddenColumns: {
       type: Array,
-      default: () => { return [] }
+      default: () => { return []; }
     },
     ignoreColumns: {
       type: Array,
-      default: () => { return [] }
+      default: () => { return []; }
     }
   },
   data() {
@@ -142,52 +142,52 @@ export default {
       tableUnwatcher: null,
       // 忽略下次表格列变动
       ignoreNextTableColumnsChange: false
-    }
+    };
   },
   watch: {
     'crud.props.table'() {
-      this.updateTableColumns()
+      this.updateTableColumns();
       this.tableColumns.forEach(column => {
         if (this.hiddenColumns.indexOf(column.property) !== -1) {
-          column.visible = false
-          this.updateColumnVisible(column)
+          column.visible = false;
+          this.updateColumnVisible(column);
         }
-      })
+      });
     },
     'crud.props.table.store.states.columns'() {
-      this.updateTableColumns()
+      this.updateTableColumns();
     }
   },
   created() {
-    this.crud.updateProp('searchToggle', true)
+    this.crud.updateProp('searchToggle', true);
   },
   methods: {
     updateTableColumns() {
-      const table = this.crud.getTable()
+      const table = this.crud.getTable();
       if (!table) {
-        this.tableColumns = []
-        return
+        this.tableColumns = [];
+        return;
       }
-      let cols = null
-      const columnFilter = e => e && e.type === 'default' && e.property && this.ignoreColumns.indexOf(e.property) === -1
-      const refCols = table.columns.filter(columnFilter)
+      let cols = null;
+      const columnFilter = e => e && e.type === 'default' && e.property && this.ignoreColumns.indexOf(e.property) === -1;
+      const refCols = table.columns.filter(columnFilter);
       if (this.ignoreNextTableColumnsChange) {
-        this.ignoreNextTableColumnsChange = false
-        return
+        this.ignoreNextTableColumnsChange = false;
+        return;
       }
-      this.ignoreNextTableColumnsChange = false
-      const columns = []
-      const fullTableColumns = table.$children.map(e => e.columnConfig).filter(columnFilter)
-      cols = sortWithRef(fullTableColumns, refCols)
+      this.ignoreNextTableColumnsChange = false;
+      const columns = [];
+      const fullTableColumns = table.$children.map(e => e.columnConfig).filter(columnFilter);
+      cols = sortWithRef(fullTableColumns, refCols);
       cols.forEach(config => {
         const column = {
           property: config.property,
           label: config.label,
           visible: refCols.indexOf(config) !== -1
-        }
-        columns.push(column)
-      })
-      this.tableColumns = columns
+        };
+        columns.push(column);
+      });
+      this.tableColumns = columns;
     },
     toDelete(datas) {
       this.$confirm(`确认删除选中的${datas.length}条数据?`, '提示', {
@@ -195,61 +195,61 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.crud.delAllLoading = true
-        this.crud.doDelete(datas)
+        this.crud.delAllLoading = true;
+        this.crud.doDelete(datas);
       }).catch(() => {
-      })
+      });
     },
     handleCheckAllChange(val) {
       if (val === false) {
-        this.allColumnsSelected = true
-        return
+        this.allColumnsSelected = true;
+        return;
       }
       this.tableColumns.forEach(column => {
         if (!column.visible) {
-          column.visible = true
-          this.updateColumnVisible(column)
+          column.visible = true;
+          this.updateColumnVisible(column);
         }
-      })
-      this.allColumnsSelected = val
-      this.allColumnsSelectedIndeterminate = false
+      });
+      this.allColumnsSelected = val;
+      this.allColumnsSelectedIndeterminate = false;
     },
     handleCheckedTableColumnsChange(item) {
-      let totalCount = 0
-      let selectedCount = 0
+      let totalCount = 0;
+      let selectedCount = 0;
       this.tableColumns.forEach(column => {
-        ++totalCount
-        selectedCount += column.visible ? 1 : 0
-      })
+        ++totalCount;
+        selectedCount += column.visible ? 1 : 0;
+      });
       if (selectedCount === 0) {
-        this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING)
+        this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING);
         this.$nextTick(function() {
-          item.visible = true
-        })
-        return
+          item.visible = true;
+        });
+        return;
       }
-      this.allColumnsSelected = selectedCount === totalCount
-      this.allColumnsSelectedIndeterminate = selectedCount !== totalCount && selectedCount !== 0
-      this.updateColumnVisible(item)
+      this.allColumnsSelected = selectedCount === totalCount;
+      this.allColumnsSelectedIndeterminate = selectedCount !== totalCount && selectedCount !== 0;
+      this.updateColumnVisible(item);
     },
     updateColumnVisible(item) {
-      const table = this.crud.props.table
-      const vm = table.$children.find(e => e.prop === item.property)
-      const columnConfig = vm.columnConfig
+      const table = this.crud.props.table;
+      const vm = table.$children.find(e => e.prop === item.property);
+      const columnConfig = vm.columnConfig;
       if (item.visible) {
         // 找出合适的插入点
-        const columnIndex = this.tableColumns.indexOf(item)
-        vm.owner.store.commit('insertColumn', columnConfig, columnIndex + 1, null)
+        const columnIndex = this.tableColumns.indexOf(item);
+        vm.owner.store.commit('insertColumn', columnConfig, columnIndex + 1, null);
       } else {
-        vm.owner.store.commit('removeColumn', columnConfig, null)
+        vm.owner.store.commit('removeColumn', columnConfig, null);
       }
-      this.ignoreNextTableColumnsChange = true
+      this.ignoreNextTableColumnsChange = true;
     },
     toggleSearch() {
-      this.crud.props.searchToggle = !this.crud.props.searchToggle
+      this.crud.props.searchToggle = !this.crud.props.searchToggle;
     }
   }
-}
+};
 </script>
 
 <style>

@@ -8,7 +8,8 @@ indent_size = 2
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-
+ij_javascript_force_semicolon_style = true
+ij_javascript_use_semicolon_after_statement = true
 [*.md]
 insert_final_newline = false
 trim_trailing_whitespace = false

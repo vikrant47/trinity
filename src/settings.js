@@ -2,7 +2,7 @@ module.exports = {
   /**
    * @description 网站标题
    */
-  title: 'EL-ADMIN',
+  title: 'Zion',
   /**
    * @description 是否显示 tagsView
    */
@@ -47,4 +47,4 @@ module.exports = {
    * 备案号
    */
   caseNumber: '浙ICP备18005431号'
-}
+};

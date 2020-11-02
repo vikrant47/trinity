@@ -1,0 +1,77 @@
+<template>
+  <button
+    class="el-button"
+    :disabled="buttonDisabled || loading"
+    :autofocus="autofocus"
+    :type="nativeType"
+    :class="[
+      type ? 'el-button--' + type : '',
+      buttonSize ? 'el-button--' + buttonSize : '',
+      {
+        'is-disabled': buttonDisabled,
+        'is-loading': loading,
+        'is-plain': plain,
+        'is-round': round,
+        'is-circle': circle
+      }
+    ]"
+    @click="handleClick"
+  >
+    <i v-if="loading" class="el-icon-loading" />
+    <i v-if="icon && !loading" :class="icon" />
+    <span v-if="$slots.default"><slot /></span>
+  </button>
+</template>
+<script>
+import { ContextBuilder } from '@/modules/engine/core/context.builder';
+
+export default {
+  name: 'ENButton',
+
+  inject: {
+    elForm: {
+      default: ''
+    },
+    elFormItem: {
+      default: ''
+    }
+  },
+  props: {
+    model: {
+      type: Object,
+      default: () => {
+        return {
+          script: '()=>{}'
+        };
+      }
+    },
+    loading: Boolean,
+    disabled: Boolean,
+    plain: Boolean,
+    autofocus: Boolean,
+    round: Boolean,
+    circle: Boolean
+  },
+
+  computed: {
+    _elFormItemSize() {
+      return (this.elFormItem || {}).elFormItemSize;
+    },
+    buttonSize() {
+      return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
+    },
+    buttonDisabled() {
+      return this.data.disabled;
+    }
+  },
+
+  methods: {
+    disable() {
+      this.model.disabled = true;
+    },
+    handleClick(evt) {
+      this.model.script.call(this, ContextBuilder.buildContext({ event: evt }));
+    }
+  }
+};
+</script>
