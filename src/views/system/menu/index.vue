@@ -4,14 +4,29 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.blurry" clearable size="small" placeholder="模糊搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input
+          v-model="query.blurry"
+          clearable
+          size="small"
+          placeholder="模糊搜索"
+          style="width: 200px;"
+          class="filter-item"
+          @keyup.enter.native="crud.toQuery"
+        />
         <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation />
       </div>
       <crudOperation :permission="permission" />
     </div>
     <!--表单渲染-->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="580px">
+    <el-dialog
+      append-to-body
+      :close-on-click-modal="false"
+      :before-close="crud.cancelCU"
+      :visible.sync="crud.status.cu > 0"
+      :title="crud.status.title"
+      width="580px"
+    >
       <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
         <el-form-item label="菜单类型" prop="type">
           <el-radio-group v-model="form.type" size="mini" style="width: 178px">
@@ -29,7 +44,13 @@
           >
             <IconSelect ref="iconSelect" @selected="selected" />
             <el-input slot="reference" v-model="form.icon" style="width: 450px;" placeholder="点击选择图标" readonly>
-              <svg-icon v-if="form.icon" slot="prefix" :icon-class="form.icon" class="el-input__icon" style="height: 32px;width: 16px;" />
+              <svg-icon
+                v-if="form.icon"
+                slot="prefix"
+                :icon-class="form.icon"
+                class="el-input__icon"
+                style="height: 32px;width: 16px;"
+              />
               <i v-else slot="prefix" class="el-icon-search el-input__icon" />
             </el-input>
           </el-popover>
@@ -53,7 +74,11 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="form.type.toString() !== '2'" label="菜单标题" prop="title">
-          <el-input v-model="form.title" :style=" form.type.toString() === '0' ? 'width: 450px' : 'width: 178px'" placeholder="菜单标题" />
+          <el-input
+            v-model="form.title"
+            :style=" form.type.toString() === '0' ? 'width: 450px' : 'width: 178px'"
+            placeholder="菜单标题"
+          />
         </el-form-item>
         <el-form-item v-if="form.type.toString() === '2'" label="按钮名称" prop="title">
           <el-input v-model="form.title" placeholder="按钮名称" style="width: 178px;" />
@@ -65,7 +90,13 @@
           <el-input v-model="form.path" placeholder="路由地址" style="width: 178px;" />
         </el-form-item>
         <el-form-item label="菜单排序" prop="menuSort">
-          <el-input-number v-model.number="form.menuSort" :min="0" :max="999" controls-position="right" style="width: 178px;" />
+          <el-input-number
+            v-model.number="form.menuSort"
+            :min="0"
+            :max="999"
+            controls-position="right"
+            style="width: 178px;"
+          />
         </el-form-item>
         <el-form-item v-show="!form.iframe && form.type.toString() === '1'" label="组件名称" prop="componentName">
           <el-input v-model="form.componentName" style="width: 178px;" placeholder="匹配组件内Name字段" />
@@ -77,7 +108,7 @@
           <treeselect
             v-model="form.pid"
             :options="menus"
-            :load-options="loadMenus"
+            :load-options="loadNavigations"
             style="width: 450px;"
             placeholder="选择上级类目"
           />
@@ -93,7 +124,7 @@
       ref="table"
       v-loading="crud.loading"
       lazy
-      :load="getMenus"
+      :load="getNavigations"
       :data="crud.data"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       row-key="id"
@@ -138,7 +169,13 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-permission="['admin','menu:edit','menu:del']" label="操作" width="130px" align="center" fixed="right">
+      <el-table-column
+        v-permission="['admin','menu:edit','menu:del']"
+        label="操作"
+        width="130px"
+        align="center"
+        fixed="right"
+      >
         <template slot-scope="scope">
           <udOperation
             :data="scope.row"
@@ -152,24 +189,40 @@
 </template>
 
 <script>
-import crudMenu from '@/api/system/menu'
-import IconSelect from '@/components/IconSelect'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
-import CRUD, { presenter, header, form, crud } from '@crud/crud'
-import rrOperation from '@crud/RR.operation'
-import crudOperation from '@crud/CRUD.operation'
-import udOperation from '@crud/UD.operation'
-import DateRangePicker from '@/components/DateRangePicker'
+import { NavigationService } from '@/modules/navigation/services/navigation.service';
+import IconSelect from '@/components/IconSelect';
+import Treeselect from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect';
+import CRUD, { presenter, header, form, crud } from '@crud/crud';
+import rrOperation from '@crud/RR.operation';
+import crudOperation from '@crud/CRUD.operation';
+import udOperation from '@crud/UD.operation';
+import DateRangePicker from '@/components/DateRangePicker';
 
-// crud交由presenter持有
-const defaultForm = { id: null, title: null, menuSort: 999, path: null, component: null, componentName: null, iframe: false, roles: [], pid: 0, icon: null, cache: false, hidden: false, type: 0, permission: null }
+// crud is held by presenter
+const navService = NavigationService.getInstance();
+const defaultForm = {
+  id: null,
+  title: null,
+  menuSort: 999,
+  path: null,
+  component: null,
+  componentName: null,
+  iframe: false,
+  roles: [],
+  pid: 0,
+  icon: null,
+  cache: false,
+  hidden: false,
+  type: 0,
+  permission: null
+};
 export default {
   name: 'Menu',
   components: { Treeselect, IconSelect, crudOperation, rrOperation, udOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '菜单', url: 'api/menus', crudMethod: { ...crudMenu }})
+    return CRUD({ title: '菜单', url: 'api/menus', crudMethod: { ...navService }});
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   data() {
@@ -188,69 +241,70 @@ export default {
           { required: true, message: '请输入地址', trigger: 'blur' }
         ]
       }
-    }
+    };
   },
   methods: {
-    // 新增与编辑前做的操作
+    // Operations before adding and editing
     [CRUD.HOOK.afterToCU](crud, form) {
-      this.menus = []
+      this.menus = [];
       if (form.id != null) {
         if (form.pid === null) {
-          form.pid = 0
+          form.pid = 0;
         }
-        this.getSupDepts(form.id)
+        this.getSupDepts(form.id);
       } else {
-        this.menus.push({ id: 0, label: '顶级类目', children: null })
+        this.menus.push({ id: 0, label: '顶级类目', children: null });
       }
     },
-    getMenus(tree, treeNode, resolve) {
-      const params = { pid: tree.id }
+    getNavigations(tree, treeNode, resolve) {
+      const params = { pid: tree.id };
       setTimeout(() => {
-        crudMenu.getMenus(params).then(res => {
-          resolve(res.content)
-        })
-      }, 100)
+        navService.getNavigations(params).then(res => {
+          resolve(res.content);
+        });
+      }, 100);
     },
     getSupDepts(id) {
-      crudMenu.getMenuSuperior(id).then(res => {
+      navService.getNavigationSuperior(id).then(res => {
         const children = res.map(function(obj) {
           if (!obj.leaf && !obj.children) {
-            obj.children = null
+            obj.children = null;
           }
-          return obj
-        })
-        this.menus = [{ id: 0, label: '顶级类目', children: children }]
-      })
+          return obj;
+        });
+        this.menus = [{ id: 0, label: 'Top category', children: children }];
+      });
     },
-    loadMenus({ action, parentNode, callback }) {
+    loadNavigations({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
-        crudMenu.getMenusTree(parentNode.id).then(res => {
+        navService.getMenusTree(parentNode.id).then(res => {
           parentNode.children = res.map(function(obj) {
             if (!obj.leaf) {
-              obj.children = null
+              obj.children = null;
             }
-            return obj
-          })
+            return obj;
+          });
           setTimeout(() => {
-            callback()
-          }, 100)
-        })
+            callback();
+          }, 100);
+        });
       }
     },
-    // 选中图标
+    // Check icon
     selected(name) {
-      this.form.icon = name
+      this.form.icon = name;
     }
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
- ::v-deep .el-input-number .el-input__inner {
-    text-align: left;
-  }
- ::v-deep .vue-treeselect__control,::v-deep .vue-treeselect__placeholder,::v-deep .vue-treeselect__single-value {
-    height: 30px;
-    line-height: 30px;
-  }
+::v-deep .el-input-number .el-input__inner {
+  text-align: left;
+}
+
+::v-deep .vue-treeselect__control, ::v-deep .vue-treeselect__placeholder, ::v-deep .vue-treeselect__single-value {
+  height: 30px;
+  line-height: 30px;
+}
 </style>

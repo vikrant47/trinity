@@ -1,58 +1,5 @@
 <template>
   <div class="crud-opts">
-    <span class="crud-opts-left">
-      <!--左侧插槽-->
-      <slot name="left" />
-      <el-button
-        v-if="crud.optShow.add"
-        v-permission="permission.add"
-        class="filter-item"
-        size="mini"
-        type="primary"
-        icon="el-icon-plus"
-        @click="crud.toAdd"
-      >
-        新增
-      </el-button>
-      <el-button
-        v-if="crud.optShow.edit"
-        v-permission="permission.edit"
-        class="filter-item"
-        size="mini"
-        type="success"
-        icon="el-icon-edit"
-        :disabled="crud.selections.length !== 1"
-        @click="crud.toEdit(crud.selections[0])"
-      >
-        修改
-      </el-button>
-      <el-button
-        v-if="crud.optShow.del"
-        slot="reference"
-        v-permission="permission.del"
-        class="filter-item"
-        type="danger"
-        icon="el-icon-delete"
-        size="mini"
-        :loading="crud.delAllLoading"
-        :disabled="crud.selections.length === 0"
-        @click="toDelete(crud.selections)"
-      >
-        删除
-      </el-button>
-      <el-button
-        v-if="crud.optShow.download"
-        :loading="crud.downloadLoading"
-        :disabled="!crud.data.length"
-        class="filter-item"
-        size="mini"
-        type="warning"
-        icon="el-icon-download"
-        @click="crud.doExport"
-      >导出</el-button>
-      <!--右侧-->
-      <slot name="right" />
-    </span>
     <el-button-group class="crud-opts-right">
       <el-button
         size="mini"
@@ -100,38 +47,24 @@
     </el-button-group>
   </div>
 </template>
-<script>
-import CRUD, { crud } from '@crud/crud';
 
-function sortWithRef(src, ref) {
-  const result = Object.assign([], ref);
-  let cursor = -1;
-  src.forEach(e => {
-    const idx = result.indexOf(e);
-    if (idx === -1) {
-      cursor += 1;
-      result.splice(cursor, 0, e);
-    } else {
-      cursor = idx;
-    }
-  });
-  return result;
-}
+<script>
+import CRUD from '@crud/crud';
 
 export default {
-  mixins: [crud()],
+  name: 'EnListToolbar',
   props: {
-    permission: {
-      type: Object,
-      default: () => { return {}; }
-    },
     hiddenColumns: {
       type: Array,
-      default: () => { return []; }
+      default: () => {
+        return [];
+      }
     },
     ignoreColumns: {
       type: Array,
-      default: () => { return []; }
+      default: () => {
+        return [];
+      }
     }
   },
   data() {
@@ -140,7 +73,7 @@ export default {
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
       tableUnwatcher: null,
-      // 忽略下次表格列变动
+      // Ignore the next table column change
       ignoreNextTableColumnsChange: false
     };
   },
@@ -162,44 +95,6 @@ export default {
     this.crud.updateProp('searchToggle', true);
   },
   methods: {
-    updateTableColumns() {
-      const table = this.crud.getTable();
-      if (!table) {
-        this.tableColumns = [];
-        return;
-      }
-      let cols = null;
-      const columnFilter = e => e && e.type === 'default' && e.property && this.ignoreColumns.indexOf(e.property) === -1;
-      const refCols = table.columns.filter(columnFilter);
-      if (this.ignoreNextTableColumnsChange) {
-        this.ignoreNextTableColumnsChange = false;
-        return;
-      }
-      this.ignoreNextTableColumnsChange = false;
-      const columns = [];
-      const fullTableColumns = table.$children.map(e => e.columnConfig).filter(columnFilter);
-      cols = sortWithRef(fullTableColumns, refCols);
-      cols.forEach(config => {
-        const column = {
-          property: config.property,
-          label: config.label,
-          visible: refCols.indexOf(config) !== -1
-        };
-        columns.push(column);
-      });
-      this.tableColumns = columns;
-    },
-    toDelete(datas) {
-      this.$confirm(`确认删除选中的${datas.length}条数据?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.crud.delAllLoading = true;
-        this.crud.doDelete(datas);
-      }).catch(() => {
-      });
-    },
     handleCheckAllChange(val) {
       if (val === false) {
         this.allColumnsSelected = true;
@@ -252,14 +147,6 @@ export default {
 };
 </script>
 
-<style>
-  .crud-opts {
-    padding: 4px 0;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-  }
-  .crud-opts .crud-opts-right {
-    margin-left: auto;
-  }
+<style scoped>
+
 </style>

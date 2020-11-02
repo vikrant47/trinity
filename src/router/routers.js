@@ -1,12 +1,13 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Layout from '../layout/index'
+import Vue from 'vue';
+import Router from 'vue-router';
+import Layout from '../layout/index';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export const constantRouterMap = [
-  { path: '/login',
-    meta: { title: '登录', noCache: true },
+  {
+    path: '/login',
+    meta: { title: 'Log In', noCache: true },
     component: (resolve) => require(['@/views/login'], resolve),
     hidden: true
   },
@@ -38,9 +39,29 @@ export const constantRouterMap = [
     children: [
       {
         path: 'dashboard',
-        component: (resolve) => require(['@/views/home'], resolve),
+        component: (resolve) => require(['@/modules/dashboard/views/index'], resolve),
         name: 'Dashboard',
-        meta: { title: '首页', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+      }, {
+        path: 'models/:modelAlias/list/:list',
+        component: (resolve) => require(['@/modules/list/views/index'], resolve),
+        name: 'List',
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+      }, {
+        path: '/models/:modelAlias/form/:formId/:recordId',
+        component: (resolve) => require(['@/modules/list/views/index'], resolve),
+        name: 'Form',
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+      }, {
+        path: 'widgets/:widgetId/render',
+        component: (resolve) => require(['@/modules/list/views/index'], resolve),
+        name: 'Widget',
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+      }, {
+        path: 'dashboards/:dashboardId/render',
+        component: (resolve) => require(['@/modules/list/views/index'], resolve),
+        name: 'Dashboard',
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
       }
     ]
   },
@@ -58,11 +79,11 @@ export const constantRouterMap = [
       }
     ]
   }
-]
+];
 
 export default new Router({
   // mode: 'hash',
   mode: 'history',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
-})
+});

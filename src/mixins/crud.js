@@ -1,12 +1,12 @@
 import {
   initData,
   download
-} from '@/api/data'
+} from '@/api/data';
 import {
   parseTime,
   downloadFile
-} from '@/utils/index'
-import checkPermission from '@/utils/permission'
+} from '@/utils/index';
+import checkPermission from '@/utils/permission';
 
 export default {
   data() {
@@ -46,7 +46,7 @@ export default {
       resetForm: {},
       // 标题
       title: ''
-    }
+    };
   },
   methods: {
     parseTime,
@@ -54,27 +54,27 @@ export default {
     checkPermission,
     async init() {
       if (!await this.beforeInit()) {
-        return
+        return;
       }
       return new Promise((resolve, reject) => {
-        this.loading = true
+        this.loading = true;
         // 请求数据
         initData(this.url, this.getQueryParame()).then(data => {
-          this.total = data.totalElements
-          this.data = data.content
+          this.total = data.totalElements;
+          this.data = data.content;
           // time 毫秒后显示表格
           setTimeout(() => {
-            this.loading = false
-          }, this.time)
-          resolve(data)
+            this.loading = false;
+          }, this.time);
+          resolve(data);
         }).catch(err => {
-          this.loading = false
-          reject(err)
-        })
-      })
+          this.loading = false;
+          reject(err);
+        });
+      });
     },
     beforeInit() {
-      return true
+      return true;
     },
     getQueryParame: function() {
       return {
@@ -83,96 +83,96 @@ export default {
         sort: this.sort,
         ...this.query,
         ...this.params
-      }
+      };
     },
     // 改变页码
     pageChange(e) {
-      this.page = e - 1
-      this.init()
+      this.page = e - 1;
+      this.init();
     },
     // 改变每页显示数
     sizeChange(e) {
-      this.page = 0
-      this.size = e
-      this.init()
+      this.page = 0;
+      this.size = e;
+      this.init();
     },
     // 预防删除第二页最后一条数据时，或者多选删除第二页的数据时，页码错误导致请求无数据
     dleChangePage(size) {
       if (size === undefined) {
-        size = 1
+        size = 1;
       }
       if (this.data.length === size && this.page !== 0) {
-        this.page = this.page - 1
+        this.page = this.page - 1;
       }
     },
     // 查询方法
     toQuery() {
-      this.page = 0
-      this.init()
+      this.page = 0;
+      this.init();
     },
     /**
      * 通用的提示封装
      */
     submitSuccessNotify() {
       this.$notify({
-        title: '提交成功',
+        title: 'Submitted successfully',
         type: 'success',
         duration: 2500
-      })
+      });
     },
     addSuccessNotify() {
       this.$notify({
-        title: '新增成功',
+        title: 'Added successfully',
         type: 'success',
         duration: 2500
-      })
+      });
     },
     editSuccessNotify() {
       this.$notify({
         title: '编辑成功',
         type: 'success',
         duration: 2500
-      })
+      });
     },
     delSuccessNotify() {
       this.$notify({
         title: '删除成功',
         type: 'success',
         duration: 2500
-      })
+      });
     },
     notify(title, type) {
       this.$notify({
         title: title,
         type: type,
         duration: 2500
-      })
+      });
     },
     /**
      * 删除前可以调用 beforeDelMethod 做一些操作
      */
     beforeDelMethod() {
-      return true
+      return true;
     },
     /**
      * 通用的删除
      */
     delMethod(id) {
       if (!this.beforeDelMethod()) {
-        return
+        return;
       }
-      this.delLoading = true
+      this.delLoading = true;
       this.crudMethod.del(id).then(() => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-        this.dleChangePage()
-        this.delSuccessNotify()
-        this.afterDelMethod()
-        this.init()
+        this.delLoading = false;
+        this.$refs[id].doClose();
+        this.dleChangePage();
+        this.delSuccessNotify();
+        this.afterDelMethod();
+        this.init();
       }).catch(() => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-      })
+        this.delLoading = false;
+        this.$refs[id].doClose();
+      });
     },
     afterDelMethod() {},
     /**
@@ -184,31 +184,31 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.delAllMethod()
-      })
+        this.delAllMethod();
+      });
     },
     /**
      * 多选删除
      */
     delAllMethod() {
-      this.delAllLoading = true
-      const data = this.$refs.table.selection
-      const ids = []
+      this.delAllLoading = true;
+      const data = this.$refs.table.selection;
+      const ids = [];
       for (let i = 0; i < data.length; i++) {
-        ids.push(data[i].id)
+        ids.push(data[i].id);
       }
       this.crudMethod.delAll(ids).then(() => {
-        this.delAllLoading = false
-        this.dleChangePage(ids.length)
-        this.init()
+        this.delAllLoading = false;
+        this.dleChangePage(ids.length);
+        this.init();
         this.$notify({
           title: '删除成功',
           type: 'success',
           duration: 2500
-        })
+        });
       }).catch(() => {
-        this.delAllLoading = false
-      })
+        this.delAllLoading = false;
+      });
     },
     /**
      * 显示新增弹窗前可以调用该方法
@@ -218,10 +218,10 @@ export default {
      * 显示新增弹窗
      */
     showAddFormDialog() {
-      this.isAdd = true
-      this.resetForm = JSON.parse(JSON.stringify(this.form))
-      this.beforeShowAddForm()
-      this.dialog = true
+      this.isAdd = true;
+      this.resetForm = JSON.parse(JSON.stringify(this.form));
+      this.beforeShowAddForm();
+      this.dialog = true;
     },
     /**
      * 显示编辑弹窗前可以调用该方法
@@ -231,28 +231,28 @@ export default {
      * 显示编辑弹窗
      */
     showEditFormDialog(data = '') {
-      this.isAdd = false
+      this.isAdd = false;
       if (data) {
-        this.resetForm = JSON.parse(JSON.stringify(this.form))
-        this.form = JSON.parse(JSON.stringify(data))
+        this.resetForm = JSON.parse(JSON.stringify(this.form));
+        this.form = JSON.parse(JSON.stringify(data));
       }
-      this.beforeShowEditForm(data)
-      this.dialog = true
+      this.beforeShowEditForm(data);
+      this.dialog = true;
     },
     /**
      * 新增方法
      */
     addMethod() {
       this.crudMethod.add(this.form).then(() => {
-        this.addSuccessNotify()
-        this.loading = false
-        this.afterAddMethod()
-        this.cancel()
-        this.init()
+        this.addSuccessNotify();
+        this.loading = false;
+        this.afterAddMethod();
+        this.cancel();
+        this.init();
       }).catch(() => {
-        this.loading = false
-        this.afterAddErrorMethod()
-      })
+        this.loading = false;
+        this.afterAddErrorMethod();
+      });
     },
     /**
      * 新增后可以调用该方法
@@ -267,14 +267,14 @@ export default {
      */
     editMethod() {
       this.crudMethod.edit(this.form).then(() => {
-        this.editSuccessNotify()
-        this.loading = false
-        this.afterEditMethod()
-        this.cancel()
-        this.init()
+        this.editSuccessNotify();
+        this.loading = false;
+        this.afterEditMethod();
+        this.cancel();
+        this.init();
       }).catch(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     /**
      * 编辑后可以调用该方法
@@ -284,54 +284,54 @@ export default {
      * 提交前可以调用该方法
      */
     beforeSubmitMethod() {
-      return true
+      return true;
     },
     /**
      * 提交
      */
     submitMethod() {
       if (!this.beforeSubmitMethod()) {
-        return
+        return;
       }
       if (this.$refs['form']) {
         this.$refs['form'].validate((valid) => {
           if (valid) {
-            this.loading = true
+            this.loading = true;
             if (this.isAdd) {
-              this.addMethod()
-            } else this.editMethod()
+              this.addMethod();
+            } else this.editMethod();
           }
-        })
+        });
       }
     },
     /**
      * 隐藏弹窗
      */
     cancel() {
-      this.dialog = false
+      this.dialog = false;
       if (this.$refs['form']) {
-        this.$refs['form'].clearValidate()
-        this.form = this.resetForm
+        this.$refs['form'].clearValidate();
+        this.form = this.resetForm;
       }
     },
     /**
      * 获取弹窗的标题
      */
     getFormTitle() {
-      return this.isAdd ? `新增${this.title}` : `编辑${this.title}`
+      return this.isAdd ? `新增${this.title}` : `编辑${this.title}`;
     },
     /**
      * 通用导出
      */
     downloadMethod() {
-      this.beforeInit()
-      this.downloadLoading = true
+      this.beforeInit();
+      this.downloadLoading = true;
       download(this.url + '/download', this.params).then(result => {
-        this.downloadFile(result, this.title + '数据', 'xlsx')
-        this.downloadLoading = false
+        this.downloadFile(result, this.title + '数据', 'xlsx');
+        this.downloadLoading = false;
       }).catch(() => {
-        this.downloadLoading = false
-      })
+        this.downloadLoading = false;
+      });
     }
   }
-}
+};
