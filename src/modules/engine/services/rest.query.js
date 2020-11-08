@@ -1,25 +1,19 @@
-import request from '@/utils/request';
 import { MongoParser } from '@/modules/engine/services/mongo.parser';
 import { TenantService } from '@/modules/engine/services/tenant.service';
 
 export class RestQuery {
   static mongoParser = new MongoParser();
 
-  static invokeAPI(options) {
-    return request({
-      url: ui.getBaseTenantUrl() + options.endpoint,
-      data: options.data
-    });
-  }
-
   static toQueryBuilderRules(query) {
     const clonedQuery = JSON.parse(JSON.stringify(query));
     let mongoQuery = clonedQuery.where;
-    if (!mongoQuery.$and && !mongoQuery.$or) {
-      mongoQuery = { $and: [mongoQuery] };
+    if (mongoQuery) {
+      if (!mongoQuery.$and && !mongoQuery.$or) {
+        mongoQuery = { $and: [mongoQuery] };
+      }
+      clonedQuery.where = this.mongoParser.parseMongoQuery(mongoQuery);
     }
-    clonedQuery.where = this.mongoParser.parseMongoQuery(mongoQuery);
-    if (clonedQuery.includes) {
+    if (clonedQuery.includes && clonedQuery.includes.length > 0) {
       clonedQuery.includes = clonedQuery.includes.map((query) => {
         return this.toQueryBuilderRules(query);
       });
@@ -35,8 +29,8 @@ export class RestQuery {
   static merge(queries) {
     const _this = this;
     return queries.slice(1).reduce(function(query, next) {
-      if (next.model !== query.model) {
-        throw new Error('Can not merge querries of different models "' + query.model + '" != "' + next.model + '"');
+      if (next.modelAlias !== query.modelAlias) {
+        throw new Error('Can not merge querries of different modelAliass "' + query.modelAlias + '" != "' + next.modelAlias + '"');
       }
       /** initializing where*/
       let where = query.where;
@@ -52,7 +46,7 @@ export class RestQuery {
           query.include = [];
         }
         for (const include of next.include) {
-          const index = query.include.findIndex(qinclude => qinclude.model === include.model);
+          const index = query.include.findIndex(qinclude => qinclude.modelAlias === include.modelAlias);
           if (index > -1) {
             _this.merge(query.include[index], include);
           } else {
@@ -68,8 +62,8 @@ export class RestQuery {
     }, queries[0]);
   }
 
-  constructor(model) {
-    this.model = model;
+  constructor(modelAlias) {
+    this.modelAlias = modelAlias;
   }
 
   paginate(query) {
@@ -80,7 +74,7 @@ export class RestQuery {
 
   findOne(query) {
     return this.execute({
-      data: {
+      params: {
         query: query,
         queryMethod: 'findOne'
       }
@@ -90,14 +84,18 @@ export class RestQuery {
   findById(id) {
     return this.execute({
       method: 'get',
-      data: {
+      params: {
         query: { where: { id: id }}, queryMethod: 'findById'
       }
     });
   }
 
+  paginate(query) {
+    return this.execute({ method: 'get', params: { query: query, queryMethod: 'paginate' }});
+  }
+
   findAll(query) {
-    return this.execute({ method: 'get', data: { query: query, queryMethod: 'findAll' }});
+    return this.execute({ method: 'get', params: { query: query, queryMethod: 'findAll' }});
   }
 
   create(data) {
@@ -136,9 +134,9 @@ export class RestQuery {
     if (data.query) {
       data.query = RestQuery.toQueryBuilderRules(data.query);
     }
-    data.model = this.model.replaceAll('.', '\\');
+    data.modelAlias = this.modelAlias.replaceAll('.', '\\');
     return TenantService.request(Object.assign({
-      url: '/api/engine/models/' + this.model,
+      url: '/api/engine/models/' + this.modelAlias + '/query',
       queryMethod: 'get'
     }, options));
   }

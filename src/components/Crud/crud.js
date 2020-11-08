@@ -2,6 +2,8 @@ import { initData, download } from '@/api/data';
 import { parseTime, downloadFile } from '@/utils/index';
 import Vue from 'vue';
 import { ModelService } from '@/modules/engine/services/model.service';
+import { RestQuery } from '@/modules/engine/services/rest.query';
+import { ListService } from '@/modules/list/services/list.service';
 
 /**
  * CRUD configuration
@@ -100,11 +102,15 @@ function CRUD(options) {
       // page number
       page: 0,
       // Number of data per page
-      size: 10,
+      limit: 15,
       // Total number of data
       total: 0
     },
-    definition: {},
+    order: {
+      attribute: 'updated_at',
+      direction: 'DESC'
+    },
+    definition: { list: {}, form: {}},
     // Overall loading
     loading: false,
     // Exported Loading
@@ -143,7 +149,7 @@ function CRUD(options) {
         new ModelService(crud.modelAlias).requestDefinition({
           list: crud.list
         }).then(definition => {
-          crud.definition = definition;
+          crud.definition = new ListService(definition).sanitizeDefinition();
           // time Show table in milliseconds
           setTimeout(() => {
             crud.loading = false;
@@ -164,21 +170,25 @@ function CRUD(options) {
       return new Promise((resolve, reject) => {
         crud.loading = true;
         // request data
-        initData(crud.url, crud.getQueryParams()).then(data => {
+        new RestQuery(this.modelAlias).paginate({
+          page: crud.page.page,
+          limit: crud.page.limit,
+          order: [{ attribute: crud.order.attribute, direction: crud.order.direction }]
+        }).then(result => {
           const table = crud.getTable();
           if (table && table.lazy) { // Lazy load child node data, clear the loaded data
             table.store.states.treeData = {};
             table.store.states.lazyTreeNodeMap = {};
           }
-          crud.page.total = data.totalElements;
-          crud.data = data.content;
+          crud.page.total = result.total;
+          crud.data = result.data;
           crud.resetDataStatus();
           // time Show table in milliseconds
           setTimeout(() => {
             crud.loading = false;
             callVmHook(crud, CRUD.HOOK.afterRefresh);
           }, crud.time);
-          resolve(data);
+          resolve(result);
         }).catch(err => {
           crud.loading = false;
           reject(err);
@@ -386,8 +396,8 @@ function CRUD(options) {
       });
       return {
         page: crud.page.page - 1,
-        size: crud.page.size,
-        sort: crud.sort,
+        limit: crud.page.limit,
+        order: crud.order,
         ...crud.query,
         ...crud.params
       };
@@ -399,9 +409,14 @@ function CRUD(options) {
     },
     // Change the number of items per page
     sizeChangeHandler(e) {
-      crud.page.size = e;
+      crud.page.limit = e;
       crud.page.page = 1;
       crud.refresh();
+    },
+    // Change the order order
+    sortHandler(e) {
+      crud.order = { direction: e.order === 'ascending' ? 'ASC' : 'DESC', attribute: e.prop };
+      return crud.refresh();
     },
     // Prevent the request for no data due to the wrong page number when deleting the last data on the second page, or when multiple selections are made to delete the data on the second page
     dleChangePage(size) {
@@ -635,7 +650,7 @@ function callVmHook(crud, hook) {
   for (let i = 2; i < arguments.length; ++i) {
     nargs.push(arguments[i]);
   }
-  // 有些组件扮演了多个角色，调用钩子时，需要去重
+  // Some components play multiple roles and need to be de-duplicated when calling hooks
   const vmSet = new Set();
   crud.vms.forEach(vm => vm && vmSet.add(vm.vm));
   vmSet.forEach(vm => {
@@ -770,18 +785,17 @@ function definition() {
         cruds = [cruds];
       }
       cruds.forEach(ele => {
-        ele.registerVM('definition', this, 0);
+        ele.registerVM('definition', this, 5);
       });
       this.crud = this.$crud['defalut'] || cruds[0];
     },
     created() {
       for (const k in this.$crud) {
         if (this.$crud[k].queryOnPresenterCreated) {
-          this.$crud[k].modelAlias = this.$route.meta.modelAlias;
+          this.$crud[k].modelAlias = this.$route.params.modelAlias;
           this.$crud[k].list = this.$route.meta.list || 'default';
           this.$crud[k].loadDefinition().then((definition) => {
             this.definition = definition;
-            return;
           });
         }
       }

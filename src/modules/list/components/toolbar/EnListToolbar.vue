@@ -1,51 +1,51 @@
 <template>
-  <div class="crud-opts">
-    <el-button-group class="crud-opts-right">
-      <el-button
-        size="mini"
-        plain
-        type="info"
-        icon="el-icon-search"
-        @click="toggleSearch()"
-      />
-      <el-button
-        size="mini"
-        icon="el-icon-refresh"
-        @click="crud.refresh()"
-      />
-      <el-popover
-        placement="bottom-end"
-        width="150"
-        trigger="click"
-      >
-        <el-button
-          slot="reference"
-          size="mini"
-          icon="el-icon-s-grid"
-        >
-          <i
-            class="fa fa-caret-down"
-            aria-hidden="true"
+  <el-row :gutter="10">
+    <el-col :span="18" />
+    <el-col :span="6">
+      <div class="crud-opts">
+        <el-input v-model="search" placeholder="Search" clearable suffix-icon="el-icon-search" style="width: 218px;" />
+        <el-button-group class="crud-opts-right">
+          <el-button
+            size="mini"
+            icon="el-icon-refresh"
+            @click="crud.refresh()"
           />
-        </el-button>
-        <el-checkbox
-          v-model="allColumnsSelected"
-          :indeterminate="allColumnsSelectedIndeterminate"
-          @change="handleCheckAllChange"
-        >
-          全选
-        </el-checkbox>
-        <el-checkbox
-          v-for="item in tableColumns"
-          :key="item.property"
-          v-model="item.visible"
-          @change="handleCheckedTableColumnsChange(item)"
-        >
-          {{ item.label }}
-        </el-checkbox>
-      </el-popover>
-    </el-button-group>
-  </div>
+          <el-popover
+            placement="bottom-end"
+            width="150"
+            trigger="click"
+          >
+            <el-button
+              slot="reference"
+              size="mini"
+              icon="el-icon-s-grid"
+            >
+              <i
+                class="fa fa-caret-down"
+                aria-hidden="true"
+              />
+            </el-button>
+            <el-checkbox
+              v-model="allColumnsSelected"
+              :indeterminate="allColumnsSelectedIndeterminate"
+              @change="handleCheckAllChange"
+            >
+              Select All
+            </el-checkbox>
+            <el-checkbox
+              v-for="item in tableColumns"
+              :key="item.property"
+              v-model="item.visible"
+              @change="handleCheckedTableColumnsChange(item)"
+            >
+              {{ item.label }}
+            </el-checkbox>
+          </el-popover>
+        </el-button-group>
+      </div>
+    </el-col>
+  </el-row>
+
 </template>
 
 <script>
@@ -54,6 +54,10 @@ import CRUD from '@crud/crud';
 export default {
   name: 'EnListToolbar',
   props: {
+    search: {
+      type: String,
+      default: ''
+    },
     hiddenColumns: {
       type: Array,
       default: () => {
@@ -69,6 +73,7 @@ export default {
   },
   data() {
     return {
+      crud: {},
       tableColumns: [],
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
@@ -78,7 +83,7 @@ export default {
     };
   },
   watch: {
-    'crud.props.table'() {
+    'data.crud.props.table'() {
       this.updateTableColumns();
       this.tableColumns.forEach(column => {
         if (this.hiddenColumns.indexOf(column.property) !== -1) {
@@ -87,12 +92,13 @@ export default {
         }
       });
     },
-    'crud.props.table.store.states.columns'() {
+    'data.crud.props.table.store.states.columns'() {
       this.updateTableColumns();
     }
   },
   created() {
-    this.crud.updateProp('searchToggle', true);
+    this.crud = this.$parent.crud;
+    // this.$parent.crud.updateProp('searchToggle', true);
   },
   methods: {
     handleCheckAllChange(val) {
@@ -117,7 +123,7 @@ export default {
         selectedCount += column.visible ? 1 : 0;
       });
       if (selectedCount === 0) {
-        this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING);
+        this.crud.notify('Please select at least one column', CRUD.NOTIFICATION_TYPE.WARNING);
         this.$nextTick(function() {
           item.visible = true;
         });
@@ -132,7 +138,7 @@ export default {
       const vm = table.$children.find(e => e.prop === item.property);
       const columnConfig = vm.columnConfig;
       if (item.visible) {
-        // 找出合适的插入点
+        // Find a suitable insertion point
         const columnIndex = this.tableColumns.indexOf(item);
         vm.owner.store.commit('insertColumn', columnConfig, columnIndex + 1, null);
       } else {
