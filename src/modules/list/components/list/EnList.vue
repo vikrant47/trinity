@@ -8,23 +8,23 @@
     <!--Table rendering-->
     <div class="table-wrapper">
       <el-table
-        v-if="$listService"
+        v-if="listService"
         ref="table"
-        v-loading="$listService.loading"
+        v-loading="listService.loading"
         resizable
         border
         height="480"
         stripe
-        :data="$listService.rows"
+        :data="listService.rows"
         highlight-current-row
         style="width: 100%"
-        @selection-change="$listEventHandler.selectionChangeHandler"
-        @current-change="$listEventHandler.handleCurrentChange"
-        @sort-change="$listEventHandler.sortHandler"
+        @selection-change="listEventHandler.selectionChangeHandler"
+        @current-change="listEventHandler.handleCurrentChange"
+        @sort-change="listEventHandler.sortHandler"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column
-          v-for="column in $listService.definition.list.columns"
+          v-for="column in listService.definition.list.columns"
           :key="column.field"
           fixed
           :prop="column.field"
@@ -52,13 +52,14 @@
     </div>
     <!--Paging component-->
     <div class="pagination-wrapper">
-      <EnPagination v-if="$pagination" :pagination-model="$pagination" />
+      <EnPagination v-if="paginationModel" :pagination-model="paginationModel" />
     </div>
     <slot name="footer" />
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import EnListToolbar from '@/modules/list/components/toolbar/EnListToolbar';
 import EnPagination from '@/modules/list/components/pagination/EnPagination';
 import { ListDataService } from '@/modules/list/services/list.data.service';
@@ -107,17 +108,17 @@ export default {
   },
   data() {
     return {
-      currentRow: null
+      paginationModel: null,
+      listService: null,
     };
   },
   beforeCreate() {
-
+    this.listEventHandler = new ListEventHandler(this);
   },
   created() {
-    this.$pagination = new Pagination(this.pagination);
-    this.$listEventHandler = new ListEventHandler(this);
-    this.$listService = new ListDataService({
-      pagination: this.$pagination,
+    const paginationModel = new Pagination(this.pagination);
+    const listService = new ListDataService({
+      pagination: paginationModel,
       remote: this.remote,
       showLoader: this.showLoader,
       loaderDelay: this.loaderDelay,
@@ -126,9 +127,11 @@ export default {
       columns: this.columns,
       rows: this.rows || []
     });
-    this.$listService.loadDefinition().then(() => {
-      this.$listService.refresh();
+    listService.loadDefinition().then(() => {
+      listService.refresh();
     });
+    Vue.set(this, 'listService', listService);
+    Vue.set(this, 'paginationModel', paginationModel);
   },
   methods: {
     copy() {

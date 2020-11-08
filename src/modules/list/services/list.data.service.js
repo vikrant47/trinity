@@ -95,13 +95,13 @@ export class ListDataService extends EngineObservable {
       this.enableLoading();
       // request rows
       new RestQuery(this.settings.modelAlias).paginate({
-        attributes: this.getColumnNames(),
+        // attributes: this.getColumnNames(),
         page: this.pagination.page,
         limit: this.pagination.limit,
         order: [{ attribute: this.order.attribute, direction: this.order.direction }]
       }).then(result => {
-        this.pagination.page.total = result.total;
-        this.rows = result.rows;
+        this.pagination.total = result.total;
+        this.rows = result.data;
         // time Show table in milliseconds
         setTimeout(() => {
           this.disableLoading();

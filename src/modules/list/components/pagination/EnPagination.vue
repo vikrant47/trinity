@@ -8,8 +8,8 @@
     :page-sizes="paginationModel.pageSizes"
     style="margin-top: 8px;"
     layout="total, sizes, prev, pager, next, jumper"
-    @size-change="paginationModel.sizeChange"
-    @current-change="paginationModel.currentChange"
+    @size-change="paginationModel.currentChange()"
+    @current-change="paginationModel.sizeChange()"
   />
 </template>
 <script>
@@ -25,7 +25,8 @@ export default {
   props: {
     paginationModel: {
       type: Pagination,
-      require: true
+      require: true,
+      default: null
     }
   }
 };
