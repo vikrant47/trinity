@@ -22,9 +22,10 @@
   white-space: nowrap;
 }
 
-.el-row{
+.el-row {
   display: flex;
 }
+
 /**List css*/
 
 .list-container .el-table--border th:not(:first-child) .cell .header-label {
@@ -34,8 +35,8 @@
 }
 
 .list-container .el-table {
-  -webkit-box-shadow: 0 1px 3px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);
+  -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
 }
 
 .list-container .table-wrapper th:not(:first-child) .cell {
@@ -53,6 +54,11 @@
 .list-container .table-wrapper th, .el-table--border td {
   border-right: 0;
 }
+
 .list-container .pagination-wrapper {
   float: right;
+}
+
+.list-container .el-icon-loading {
+  font-size: 40px;
 }

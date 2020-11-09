@@ -8,25 +8,22 @@
     <!--Table rendering-->
     <div class="table-wrapper">
       <el-table
-        v-if="listService"
         ref="table"
         v-loading="listService.loading"
         resizable
         border
-        height="480"
+        height="460"
         stripe
         :data="listService.rows"
         highlight-current-row
-        style="width: 100%"
         @selection-change="listEventHandler.selectionChangeHandler"
-        @current-change="listEventHandler.handleCurrentChange"
-        @sort-change="listEventHandler.sortHandler"
+        @current-change="listEventHandler.handleCurrentChange($event)"
+        @sort-change="listEventHandler.sortHandler($event)"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" fixed />
         <el-table-column
           v-for="column in listService.definition.list.columns"
           :key="column.field"
-          fixed
           :prop="column.field"
           :label="column.label"
           :sortable="column.config.sortable && 'custom'"
@@ -51,8 +48,8 @@
       </el-table>
     </div>
     <!--Paging component-->
-    <div class="pagination-wrapper">
-      <EnPagination v-if="paginationModel" :pagination-model="paginationModel" />
+    <div class="list-footer">
+      <EnPagination :pagination-model="paginationModel" @refresh-click="listService.refresh()" />
     </div>
     <slot name="footer" />
   </div>
@@ -104,12 +101,16 @@ export default {
     list: {
       type: String,
       default: 'default'
+    },
+    showLoader: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
       paginationModel: null,
-      listService: null,
+      listService: null
     };
   },
   beforeCreate() {

@@ -141,7 +141,7 @@ export class ListDataService extends EngineObservable {
       this.enableLoading();
       // request data
       new ModelService(this.settings.modelAlias).requestDefinition({
-        list: this.settings.list
+        list: this.settings.list === 'default' ? 'default' : atob(this.settings.list)
       }).then(definition => {
         this.definition = definition;
         this.sanitizeDefinition();

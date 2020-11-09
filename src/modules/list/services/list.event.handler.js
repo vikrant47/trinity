@@ -13,7 +13,9 @@ export class ListEventHandler {
 
   }
 
-  sortHandler() {
-
+  sortHandler(e) {
+    const listService = this.vm.listService;
+    listService.order = { direction: e.order === 'ascending' ? 'ASC' : 'DESC', attribute: e.prop };
+    return listService.refresh();
   }
 }
