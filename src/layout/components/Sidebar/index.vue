@@ -12,7 +12,7 @@
         :collapse-transition="false"
         mode="vertical"
       >
-        <sidebar-item v-for="route in permission_routers" :key="route.path" :item="route" :base-path="route.path" />
+        <sidebar-item v-for="route in navigations" :key="route.path" :item="route" :base-path="route.path" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -23,9 +23,18 @@ import { mapGetters } from 'vuex';
 import Logo from './Logo';
 import SidebarItem from './SidebarItem';
 import variables from '@/assets/styles/variables.scss';
+import { NavigationService } from '@/modules/navigation/services/navigation.service';
 
 export default {
   components: { SidebarItem, Logo },
+  data() {
+    return { navigations: [] };
+  },
+  created() {
+    NavigationService.getInstance().getNavigations().then(nav => {
+      this.navigations = nav;
+    });
+  },
   computed: {
     ...mapGetters([
       'permission_routers',

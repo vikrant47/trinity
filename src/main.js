@@ -9,16 +9,16 @@ import Element from 'element-ui';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 
-// 数据字典
+// Data Dictionary
 import dict from './components/Dict';
 
-// 权限指令
+// Permission instruction
 import permission from './components/Permission';
 import './assets/styles/element-variables.scss';
 // global css
 import './assets/styles/index.scss';
 
-// 代码高亮
+// Code highlight
 import VueHighlightJS from 'vue-highlightjs';
 import 'highlight.js/styles/atom-one-dark.css';
 
@@ -29,6 +29,9 @@ import router from './router/routers';
 import './assets/icons'; // icon
 import './router/index'; // permission control
 import 'echarts-gl';
+
+// custom css
+import './assets/styles/custom.css';
 
 Vue.use(VueHighlightJS);
 Vue.use(mavonEditor);

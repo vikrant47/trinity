@@ -31,8 +31,8 @@ const elementIcons = [
   'zoom-in',
   'd-caret',
   'sort',
-  'sort-down',
-  'sort-up',
+  'order-down',
+  'order-up',
   'tickets',
   'document',
   'goods',
@@ -69,6 +69,6 @@ const elementIcons = [
   'upload2',
   'download',
   'loading'
-]
+];
 
-export default elementIcons
+export default elementIcons;

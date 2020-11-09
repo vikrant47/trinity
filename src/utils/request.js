@@ -18,7 +18,10 @@ service.interceptors.request.use(
     if (getToken()) {
       config.headers['Authorization'] = getToken(); // Let each request carry a custom token. Please modify according to the actual situation
     }
-    config.headers['Content-Type'] = 'application/json';
+    Object.assign(config.headers, {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    });
     return config;
   },
   error => {
@@ -48,7 +51,7 @@ service.interceptors.response.use(
     } catch (e) {
       if (error.toString().indexOf('Error: timeout') !== -1) {
         Notification.error({
-          title: '网络请求超时',
+          title: 'Network request timed out',
           duration: 5000
         });
         return Promise.reject(error);

@@ -3,6 +3,7 @@ import ListView from '@/modules/list/views/index';
 import * as DashboardView from '@/modules/dashboard/views/index';
 import request from '@/utils/request';
 import { TenantService } from '@/modules/engine/services/tenant.service';
+import el from 'element-ui/src/locale/lang/el';
 
 export const NavComponentMapping = {
   folder: Layout,
@@ -45,6 +46,9 @@ export class NavigationService {
     return NavigationService.instance;
   }
 
+  naviagtions = [];
+  flatNavs = [];
+
   getMenusTree(pid) {
     return request({
       url: 'api/menus/lazy?pid=' + pid,
@@ -53,9 +57,31 @@ export class NavigationService {
   }
 
   getNavigations() {
-    return TenantService.instance.request({
-      url: '/api/engine/navigations',
-      method: 'get'
+    return new Promise((resolve, reject) => {
+      if (this.naviagtions.length === 0) {
+        TenantService.instance.request({
+          url: '/api/engine/navigations',
+          method: 'get'
+        }).then(navs => {
+          this.naviagtions = this.navDataToRoute(navs);
+          resolve(this.naviagtions);
+        }).catch(err => reject(err));
+      } else {
+        resolve(this.naviagtions);
+      }
+    });
+  }
+
+  getFlatNavigations() {
+    return new Promise((resolve, reject) => {
+      if (this.flatNavs.length === 0) {
+        this.getNavigations().then(navs => {
+          this.flatNavs = this.navDataToFlatArray(navs);
+          resolve(this.flatNavs);
+        });
+      } else {
+        resolve(this.flatNavs);
+      }
     });
   }
 
@@ -121,6 +147,19 @@ export class NavigationService {
       route.path = route.path.replace(':dashboardId', nav.dashboard_id);
     }
     return route;
+  }
+
+  navDataToFlatArray(navigation) {
+    return navigation.reduce((result, nav) => {
+      nav = Object.assign({}, nav); // cloning nav
+      const children = nav.children;
+      delete nav.children;
+      result.push(nav);
+      if (children && children.length > 0) {
+        result = result.concat(this.navDataToFlatArray(children));
+      }
+      return result;
+    }, []);
   }
 
   navDataToRoute(navigation) { // Traverse the routing string from the background and convert it into a component object

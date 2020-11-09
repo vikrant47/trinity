@@ -1,0 +1,64 @@
+/*
+ *  STYLE 3
+ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background-color: #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #978e8e59;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #ffffff;
+}
+
+.cell-wrapper {
+  clear: both;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.el-row {
+  display: flex;
+}
+
+/**List css*/
+
+.list-container .el-table--border th:not(:first-child) .cell .header-label {
+  display: inherit;
+  /*background-color: #f3f3f3;*/
+  color: #596859;
+}
+
+.list-container .el-table {
+  -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+}
+
+.list-container .table-wrapper th:not(:first-child) .cell {
+  padding-right: 0;
+}
+
+.list-container .table-wrapper th:not(:first-child) .cell::after {
+  content: "|";
+  float: right;
+  color: #eef2f6;
+  font-size: 29px;
+  font-weight: 100;
+}
+
+.list-container .table-wrapper th, .el-table--border td {
+  border-right: 0;
+}
+
+.list-container .pagination-wrapper {
+  float: right;
+}
+
+.list-container .el-icon-loading {
+  font-size: 40px;
+}

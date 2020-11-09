@@ -5,7 +5,6 @@ import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css';// progress bar style
 import { getToken } from '@/utils/auth'; // getToken from cookie
 import { NavigationService } from '@/modules/navigation/services/navigation.service';
-import { filterAsyncRouter } from '@/store/modules/permission';
 
 NProgress.configure({ showSpinner: false });// NProgress Configuration
 
@@ -23,23 +22,7 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' });
       NProgress.done();
     } else {
-      if (store.getters.roles.length === 0) { // Determine whether the current user has pulled user info information
-        store.dispatch('GetInfo').then(() => { // Pull user info
-          // dynamic routing pull menu
-          loadMenus(next, to);
-        }).catch(() => {
-          store.dispatch('LogOut').then(() => {
-            location.reload(); // In order to re-instantiate the vue-router object 避免bug
-          });
-        });
-        // Not pulled when logging in, Menu, pull here
-      } else if (store.getters.loadMenus) {
-        // Modify to false to prevent infinite loop
-        store.dispatch('updateLoadMenus');
-        loadMenus(next, to);
-      } else {
-        next();
-      }
+      next();
     }
   } else {
     /* has no token*/

@@ -1,59 +1,67 @@
 <template>
-  <div class="crud-opts">
-    <el-button-group class="crud-opts-right">
-      <el-button
-        size="mini"
-        plain
-        type="info"
-        icon="el-icon-search"
-        @click="toggleSearch()"
-      />
-      <el-button
-        size="mini"
-        icon="el-icon-refresh"
-        @click="crud.refresh()"
-      />
-      <el-popover
-        placement="bottom-end"
-        width="150"
-        trigger="click"
-      >
-        <el-button
-          slot="reference"
-          size="mini"
-          icon="el-icon-s-grid"
-        >
-          <i
-            class="fa fa-caret-down"
-            aria-hidden="true"
-          />
-        </el-button>
-        <el-checkbox
-          v-model="allColumnsSelected"
-          :indeterminate="allColumnsSelectedIndeterminate"
-          @change="handleCheckAllChange"
-        >
-          全选
-        </el-checkbox>
-        <el-checkbox
-          v-for="item in tableColumns"
-          :key="item.property"
-          v-model="item.visible"
-          @change="handleCheckedTableColumnsChange(item)"
-        >
-          {{ item.label }}
-        </el-checkbox>
-      </el-popover>
-    </el-button-group>
-  </div>
+  <el-row :gutter="10">
+    <el-col :span="18" />
+    <el-col :span="6">
+      <div class="list-operations">
+        <el-input
+          v-model="search"
+          placeholder="Search"
+          clearable
+          suffix-icon="el-icon-search"
+          style="width: 218px;"
+          @keyup.enter="$emit('onSearch',search)"
+          @keyup="$emit('onSearchKeyUp',search)"
+        />
+        <el-button-group class="crud-opts-right">
+          <el-popover
+            placement="bottom-end"
+            width="150"
+            trigger="click"
+          >
+            <el-button
+              slot="reference"
+              size="mini"
+              icon="el-icon-s-grid"
+            >
+              <i
+                class="fa fa-caret-down"
+                aria-hidden="true"
+              />
+            </el-button>
+            <el-checkbox
+              v-model="allColumnsSelected"
+              :indeterminate="listEventHandler.allColumnsSelectedIndeterminate"
+              @change="handleCheckAllChange"
+            >
+              Select All
+            </el-checkbox>
+            <el-checkbox
+              v-for="item in tableColumns"
+              :key="item.field"
+              v-model="item.visible"
+              @change="listEventHandler.handleCheckedTableColumnsChange(item)"
+            >
+              {{ item.label }}
+            </el-checkbox>
+          </el-popover>
+        </el-button-group>
+      </div>
+    </el-col>
+  </el-row>
+
 </template>
 
 <script>
 import CRUD from '@crud/crud';
+import Vue from 'vue';
 
 export default {
   name: 'EnListToolbar',
   props: {
+    search: {
+      type: String,
+      default: ''
+    },
     hiddenColumns: {
       type: Array,
       default: () => {
@@ -69,30 +77,26 @@ export default {
   },
   data() {
     return {
-      tableColumns: [],
+      listService: null,
+      listEventHandler: null,
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
       tableUnwatcher: null,
       // Ignore the next table column change
-      ignoreNextTableColumnsChange: false
+      ignoreNextTableColumnsChange: false,
+      tableColumns: []
     };
-  },
-  watch: {
-    'crud.props.table'() {
-      this.updateTableColumns();
-      this.tableColumns.forEach(column => {
-        if (this.hiddenColumns.indexOf(column.property) !== -1) {
-          column.visible = false;
-          this.updateColumnVisible(column);
-        }
-      });
-    },
-    'crud.props.table.store.states.columns'() {
-      this.updateTableColumns();
+  }, watch: {
+    'listService.definition.list.columns'() {
+      this.tableColumns = this.listService.definition.list.columns;
     }
   },
   created() {
-    this.crud.updateProp('searchToggle', true);
+    const listService = this.$parent.listService;
+    const listEventHandler = this.$parent.listEventHandler;
+    Vue.set(this, 'listService', listService);
+    Vue.set(this, 'listEventHandler', listEventHandler);
+    // this.$parent.crud.updateProp('searchToggle', true);
   },
   methods: {
     handleCheckAllChange(val) {
@@ -100,12 +104,6 @@ export default {
         this.allColumnsSelected = true;
         return;
       }
-      this.tableColumns.forEach(column => {
-        if (!column.visible) {
-          column.visible = true;
-          this.updateColumnVisible(column);
-        }
-      });
       this.allColumnsSelected = val;
       this.allColumnsSelectedIndeterminate = false;
     },
@@ -114,10 +112,10 @@ export default {
       let selectedCount = 0;
       this.tableColumns.forEach(column => {
         ++totalCount;
-        selectedCount += column.visible ? 1 : 0;
+        selectedCount += column.hidden ? 0 : 1;
       });
       if (selectedCount === 0) {
-        this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING);
+        this.crud.notify('Please select at least one column', CRUD.NOTIFICATION_TYPE.WARNING);
         this.$nextTick(function() {
           item.visible = true;
         });
@@ -131,12 +129,12 @@ export default {
       const table = this.crud.props.table;
       const vm = table.$children.find(e => e.prop === item.property);
       const columnConfig = vm.columnConfig;
-      if (item.visible) {
-        // 找出合适的插入点
+      if (item.hidden) {
+        vm.owner.store.commit('removeColumn', columnConfig, null);
+      } else {
+        // Find a suitable insertion point
         const columnIndex = this.tableColumns.indexOf(item);
         vm.owner.store.commit('insertColumn', columnConfig, columnIndex + 1, null);
-      } else {
-        vm.owner.store.commit('removeColumn', columnConfig, null);
       }
       this.ignoreNextTableColumnsChange = true;
     },
@@ -148,5 +146,7 @@ export default {
 </script>
 
 <style scoped>
-
+.list-operations {
+  float: right;
+}
 </style>
