@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+
 export class Utils {
   /**
    * @callback Utils#OptionsIteratee
@@ -262,6 +263,7 @@ export class Utils {
 }
 
 export class MongoParser {
+  filters = [];
   settings = {
     default_condition: 'AND',
     mongoOperators: {
@@ -450,7 +452,7 @@ export class MongoParser {
   }
 
   /**
-   * Returns rules as a MongoDB query
+   * Returns rules as a MongoDB condition
    * @param {object} [data] - current rules by default
    * @returns {object}
    * @fires module:plugins.MongoDbSupport.changer:getMongoDBField
@@ -463,7 +465,7 @@ export class MongoParser {
       group.condition = this.settings.default_condition;
     }
     if (['AND', 'OR'].indexOf(group.condition.toUpperCase()) === -1) {
-      throw new Error('UndefinedMongoCondition : Unable to build MongoDB query with condition ' + group.condition);
+      throw new Error('UndefinedMongoCondition : Unable to build MongoDB condition with condition ' + group.condition);
     }
 
     if (!group.rules) {
@@ -531,7 +533,7 @@ export class MongoParser {
   }
 
   /**
-   * Converts a MongoDB query to rules
+   * Converts a MongoDB condition to rules
    * @param {object} query
    * @returns {object}
    * @fires module:plugins.MongoDbSupport.changer:parseMongoNode
@@ -569,16 +571,16 @@ export class MongoParser {
 
     const key = this.getMongoCondition(query);
     if (!key) {
-      Utils.error('MongoParse', 'Invalid MongoDB query format');
+      Utils.error('MongoParse', 'Invalid MongoDB condition format');
     }
-
+    const _this = this;
     return (function parse(data, topKey) {
       const rules = data[topKey];
       const parts = [];
 
       rules.forEach(function(data) {
         // allow plugins to manually parse or handle special cases
-        data = this.change('parseMongoNode', data);
+        data = _this.change('parseMongoNode', data);
 
         // a plugin returned a group
         if ('rules' in data && 'condition' in data) {
@@ -592,26 +594,26 @@ export class MongoParser {
           return;
         }
 
-        const key = this.getMongoCondition(data);
+        const key = _this.getMongoCondition(data);
         if (key) {
           parts.push(parse(data, key));
         } else {
           const field = Object.keys(data)[0];
           const value = data[field];
 
-          const operator = this.getMongoOperator(value);
+          const operator = _this.getMongoOperator(value);
           if (operator === undefined) {
-            Utils.error('MongoParse', 'Invalid MongoDB query format');
+            Utils.error('MongoParse', 'Invalid MongoDB condition format');
           }
 
-          const mdbrl = this.settings.mongoRuleOperators[operator];
+          const mdbrl = _this.settings.mongoRuleOperators[operator];
           if (mdbrl === undefined) {
             Utils.error('UndefinedMongoOperator', 'JSON Rule operation unknown for operator "{0}"', operator);
           }
 
           const opVal = mdbrl.call(this, value);
 
-          const id = this.getMongoDBFieldID(field, value);
+          const id = _this.getMongoDBFieldID(field, value);
 
           /**
            * Modifies the rule generated from the MongoDB expression
@@ -621,7 +623,7 @@ export class MongoParser {
            * @param {object} expression
            * @returns {object}
            */
-          const rule = this.change('mongoToRule', {
+          const rule = _this.change('mongoToRule', {
             id: id,
             field: field,
             operator: opVal.op,
@@ -640,7 +642,7 @@ export class MongoParser {
        * @param {object} expression
        * @returns {object}
        */
-      return this.change('mongoToGroup', {
+      return _this.change('mongoToGroup', {
         condition: topKey.replace('$', '').toUpperCase(),
         rules: parts
       }, data);
@@ -648,7 +650,7 @@ export class MongoParser {
   }
 
   /**
-   * Sets rules a from MongoDB query
+   * Sets rules a from MongoDB condition
    * @see module:plugins.MongoDbSupport.getRulesFromMongo
    */
   setRulesFromMongo(query) {
@@ -702,7 +704,7 @@ export class MongoParser {
         return 'not_between';
       }
 
-      var knownKeys = Object.keys(data).filter(function(key) {
+      const knownKeys = Object.keys(data).filter(function(key) {
         return !!this.settings.mongoRuleOperators[key];
       }.bind(this));
 

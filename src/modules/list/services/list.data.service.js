@@ -1,12 +1,11 @@
 import { RestQuery } from '@/modules/engine/services/rest.query';
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
-import { crud } from '@crud/crud';
 import { ModelService } from '@/modules/engine/services/model.service';
 import Guid from '@/modules/list/components/widgets/guid';
 import Text from '@/modules/list/components/widgets/text';
 import DateTime from '@/modules/list/components/widgets/datetime';
-import fa from 'element-ui/src/locale/lang/fa';
 import { Pagination } from '@/modules/list/models/pagination';
+import * as _ from 'lodash';
 
 export const COLUMN_FORMATTERS = {
   'guid': { widget: Guid, width: 250, sortable: false },
@@ -49,6 +48,8 @@ export class ListDataService extends EngineObservable {
     showLoader: true,
     loaderDelay: 30
   };
+  condition = {};
+  quickSearchValue = null;
 
   constructor(settings) {
     super();
@@ -85,6 +86,45 @@ export class ListDataService extends EngineObservable {
     return this;
   }
 
+  /** *{$or:[{}]}*/
+  buildQuickSearchCondition() {
+    const conditions = [];
+    if (this.definition.list) {
+      this.definition.list.columns.forEach((column) => {
+        if (column.searchable) {
+          conditions.push({ [column.field]: this.quickSearchValue });
+        }
+      });
+    }
+    if (conditions.length > 0) {
+      return { '$or': conditions };
+    }
+    return null;
+  }
+
+  getQuery() {
+    if (this.quickSearchValue && this.quickSearchValue.trim().length > 0) {
+      const qsCondition = this.buildQuickSearchCondition();
+      if (qsCondition) {
+        if (!_.isEmpty(this.condition)) {
+          return {
+            '$and': [
+              this.condition,
+              qsCondition
+            ]
+          };
+        }
+        return qsCondition;
+      }
+    }
+    return this.condition;
+  }
+
+  search(value) {
+    this.quickSearchValue = value;
+    return this.refresh();
+  }
+
   refresh() {
     return new Promise((resolve, reject) => {
       this.emit(ListDataService.events.beforeRefresh);
@@ -98,6 +138,7 @@ export class ListDataService extends EngineObservable {
         // attributes: this.getColumnNames(),
         page: this.pagination.page,
         limit: this.pagination.limit,
+        where: this.getQuery(),
         order: [{ attribute: this.order.attribute, direction: this.order.direction }]
       }).then(result => {
         this.pagination.total = result.total;
@@ -123,6 +164,7 @@ export class ListDataService extends EngineObservable {
   /** Adding formatters for columns**/
   addColumnFormatters() {
     this.definition.list.columns.forEach(column => {
+      column.visible = !column.hidden;
       column.config = COLUMN_FORMATTERS[column.type] ? COLUMN_FORMATTERS[column.type] : COLUMN_FORMATTERS['text'];
     });
   }

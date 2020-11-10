@@ -2,7 +2,11 @@
   <div class="list-container">
     <!--Toolbar-->
     <div class="head-container">
-      <en-list-toolbar v-if="toolbar" />
+      <en-list-toolbar
+        v-if="toolbar"
+        :search-value="listService.quickSearchValue"
+        @on-search="listService.search($event)"
+      />
       <slot name="toolbar" />
     </div>
     <!--Table rendering-->
@@ -24,6 +28,7 @@
         <el-table-column
           v-for="column in listService.definition.list.columns"
           :key="column.field"
+          :v-if="column.visible"
           :prop="column.field"
           :label="column.label"
           :sortable="column.config.sortable && 'custom'"

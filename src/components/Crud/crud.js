@@ -384,7 +384,7 @@ function CRUD(options) {
       });
     },
     /**
-     * Get query parameters
+     * Get condition parameters
      */
     getQueryParams: function() {
       // Clear the case where the parameter has no value
@@ -429,7 +429,7 @@ function CRUD(options) {
       crud.selections = val;
     },
     /**
-     * Reset query parameters
+     * Reset condition parameters
      * @param {Boolean} toQuery Query operation after reset
      */
     resetQuery(toQuery = true) {
@@ -587,7 +587,7 @@ function CRUD(options) {
   Vue.observable(crud);
   // Additional method
   Object.assign(crud, methods);
-  // Record the initial default query parameters and use them when resetting the query later
+  // Record the initial default condition parameters and use them when resetting the condition later
   Object.assign(crud, {
     defaultQuery: JSON.parse(JSON.stringify(data.query)),
     // Reserve 4-bit storage: components Homepage, header, pagination, form, debugging view is also easy to find
