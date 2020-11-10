@@ -9,8 +9,8 @@
           clearable
           suffix-icon="el-icon-search"
           style="width: 218px;"
-          @keyup.enter="$emit('onSearch',search)"
-          @keyup="$emit('onSearchKeyUp',search)"
+          @keyup.enter.native="$emit('on-search',search)"
+          @keyup.native="$emit('onSearchKeyUp',search)"
         />
         <el-button-group class="crud-opts-right">
           <el-popover
@@ -30,7 +30,7 @@
             </el-button>
             <el-checkbox
               v-model="allColumnsSelected"
-              :indeterminate="listEventHandler.allColumnsSelectedIndeterminate"
+              :indeterminate="allColumnsSelectedIndeterminate"
               @change="handleCheckAllChange"
             >
               Select All
@@ -39,7 +39,7 @@
               v-for="item in tableColumns"
               :key="item.field"
               v-model="item.visible"
-              @change="listEventHandler.handleCheckedTableColumnsChange(item)"
+              @change="handleCheckedTableColumnsChange(item)"
             >
               {{ item.label }}
             </el-checkbox>
@@ -52,13 +52,13 @@
 </template>
 
 <script>
-import CRUD from '@crud/crud';
 import Vue from 'vue';
+import { Engine } from '@/modules/engine/core/engine';
 
 export default {
   name: 'EnListToolbar',
   props: {
-    search: {
+    searchValue: {
       type: String,
       default: ''
     },
@@ -84,7 +84,8 @@ export default {
       tableUnwatcher: null,
       // Ignore the next table column change
       ignoreNextTableColumnsChange: false,
-      tableColumns: []
+      tableColumns: [],
+      search: ''
     };
   }, watch: {
     'listService.definition.list.columns'() {
@@ -96,11 +97,12 @@ export default {
     const listEventHandler = this.$parent.listEventHandler;
     Vue.set(this, 'listService', listService);
     Vue.set(this, 'listEventHandler', listEventHandler);
+    this.search = this.searchValue;
     // this.$parent.crud.updateProp('searchToggle', true);
   },
   methods: {
     handleCheckAllChange(val) {
-      if (val === false) {
+      if (val === true) {
         this.allColumnsSelected = true;
         return;
       }
@@ -112,31 +114,20 @@ export default {
       let selectedCount = 0;
       this.tableColumns.forEach(column => {
         ++totalCount;
-        selectedCount += column.hidden ? 0 : 1;
+        selectedCount += column.visible ? 1 : 0;
       });
       if (selectedCount === 0) {
-        this.crud.notify('Please select at least one column', CRUD.NOTIFICATION_TYPE.WARNING);
-        this.$nextTick(function() {
-          item.visible = true;
+        Engine.notify(this.$parent, {
+          title: 'Please select at least one column',
+          type: Engine.NOTIFICATION_TYPE.WARNING
         });
         return;
       }
+      this.$nextTick(function() {
+        //  item.visible = true;
+      });
       this.allColumnsSelected = selectedCount === totalCount;
       this.allColumnsSelectedIndeterminate = selectedCount !== totalCount && selectedCount !== 0;
-      this.updateColumnVisible(item);
-    },
-    updateColumnVisible(item) {
-      const table = this.crud.props.table;
-      const vm = table.$children.find(e => e.prop === item.property);
-      const columnConfig = vm.columnConfig;
-      if (item.hidden) {
-        vm.owner.store.commit('removeColumn', columnConfig, null);
-      } else {
-        // Find a suitable insertion point
-        const columnIndex = this.tableColumns.indexOf(item);
-        vm.owner.store.commit('insertColumn', columnConfig, columnIndex + 1, null);
-      }
-      this.ignoreNextTableColumnsChange = true;
     },
     toggleSearch() {
       this.crud.props.searchToggle = !this.crud.props.searchToggle;

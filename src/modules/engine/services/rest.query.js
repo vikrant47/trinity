@@ -7,11 +7,11 @@ export class RestQuery {
   static toQueryBuilderRules(query) {
     const clonedQuery = JSON.parse(JSON.stringify(query));
     let mongoQuery = clonedQuery.where;
-    if (mongoQuery) {
+    if (!_.isEmpty(mongoQuery)) {
       if (!mongoQuery.$and && !mongoQuery.$or) {
         mongoQuery = { $and: [mongoQuery] };
       }
-      clonedQuery.where = this.mongoParser.parseMongoQuery(mongoQuery);
+      clonedQuery.where = this.mongoParser.getRulesFromMongo(mongoQuery);
     }
     if (clonedQuery.includes && clonedQuery.includes.length > 0) {
       clonedQuery.includes = clonedQuery.includes.map((query) => {
@@ -22,8 +22,8 @@ export class RestQuery {
   }
 
   /**
-   * This will merge given query array and return a single query
-   * Note: queries should be mongo query
+   * This will merge given condition array and return a single condition
+   * Note: queries should be mongo condition
    * @return Object
    */
   static merge(queries) {
@@ -131,7 +131,10 @@ export class RestQuery {
 
   execute(options) {
     const data = options.data || {};
-    if (data.query) {
+    const params = options.params || {};
+    if (options.method.toLowerCase() === 'get') {
+      params.query = RestQuery.toQueryBuilderRules(params.query);
+    } else {
       data.query = RestQuery.toQueryBuilderRules(data.query);
     }
     data.modelAlias = this.modelAlias.replaceAll('.', '\\');

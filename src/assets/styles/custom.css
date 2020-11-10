@@ -16,6 +16,16 @@
   background-color: #ffffff;
 }
 
+/**App container*/
+.app-container {
+  background: #f1f1f1;
+  padding: 20px 5px 45px 5px;
+}
+
+#app .sidebar-container .svg-icon {
+  margin-right: 10px;
+}
+
 .cell-wrapper {
   clear: both;
   display: inline-block;
@@ -62,3 +72,5 @@
 .list-container .el-icon-loading {
   font-size: 40px;
 }
+
+
