@@ -1,17 +1,17 @@
-'use strict'
-const path = require('path')
-const defaultSettings = require('./src/settings.js')
+'use strict';
+const path = require('path');
+const defaultSettings = require('./src/settings.js');
 
 function resolve(dir) {
-  return path.join(__dirname, dir)
+  return path.join(__dirname, dir);
 }
 
-const name = defaultSettings.title // 网址标题
-const port = 8013 // 端口配置
+const name = defaultSettings.title; // URL title
+const port = 8013; // Port configuration
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
-  // hash 模式下可使用
+  // hash Available in mode
   // publicPath: process.env.NODE_ENV === 'development' ? '/' : './',
   publicPath: '/',
   outputDir: 'dist',
@@ -54,14 +54,14 @@ module.exports = {
     }
   },
   chainWebpack(config) {
-    config.plugins.delete('preload') // TODO: need test
-    config.plugins.delete('prefetch') // TODO: need test
+    config.plugins.delete('preload'); // TODO: need test
+    config.plugins.delete('prefetch'); // TODO: need test
 
     // set svg-sprite-loader
     config.module
       .rule('svg')
       .exclude.add(resolve('src/assets/icons'))
-      .end()
+      .end();
     config.module
       .rule('icons')
       .test(/\.svg$/)
@@ -72,7 +72,7 @@ module.exports = {
       .options({
         symbolId: 'icon-[name]'
       })
-      .end()
+      .end();
 
     // set preserveWhitespace
     config.module
@@ -80,16 +80,16 @@ module.exports = {
       .use('vue-loader')
       .loader('vue-loader')
       .tap(options => {
-        options.compilerOptions.preserveWhitespace = true
-        return options
+        options.compilerOptions.preserveWhitespace = true;
+        return options;
       })
-      .end()
+      .end();
 
     config
       // https://webpack.js.org/configuration/devtool/#development
       .when(process.env.NODE_ENV === 'development',
         config => config.devtool('cheap-source-map')
-      )
+      );
 
     config
       .when(process.env.NODE_ENV !== 'development',
@@ -98,10 +98,10 @@ module.exports = {
             .plugin('ScriptExtHtmlWebpackPlugin')
             .after('html')
             .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
+              // `runtime` must same as runtimeChunk name. default is `runtime`
               inline: /runtime\..*\.js$/
             }])
-            .end()
+            .end();
           config
             .optimization.splitChunks({
               chunks: 'all',
@@ -125,13 +125,13 @@ module.exports = {
                   reuseExistingChunk: true
                 }
               }
-            })
-          config.optimization.runtimeChunk('single')
+            });
+          config.optimization.runtimeChunk('single');
         }
-      )
+      );
   },
   transpileDependencies: [
     'vue-echarts',
     'resize-detector'
   ]
-}
+};

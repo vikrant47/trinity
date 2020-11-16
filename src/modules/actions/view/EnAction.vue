@@ -23,10 +23,10 @@
   </button>
 </template>
 <script>
-import { ContextBuilder } from '@/modules/engine/core/context.builder';
+import { EventProcessor } from '@/modules/engine/core/event.processor';
 
 export default {
-  name: 'ENButton',
+  name: 'EnAction',
 
   inject: {
     elForm: {
@@ -70,7 +70,7 @@ export default {
       this.model.disabled = true;
     },
     handleClick(evt) {
-      this.model.script.call(this, ContextBuilder.buildContext({ event: evt }));
+      this.model.script.call(this, EventProcessor.buildContext({ event: evt }));
     }
   }
 };

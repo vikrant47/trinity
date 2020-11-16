@@ -2,17 +2,21 @@ import { RestQuery } from '@/modules/engine/services/rest.query';
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
 import { ModelService } from '@/modules/engine/services/model.service';
 import Guid from '@/modules/list/components/widgets/guid';
+import Integer from '@/modules/list/components/widgets/integer';
 import Text from '@/modules/list/components/widgets/text';
 import DateTime from '@/modules/list/components/widgets/datetime';
 import { Pagination } from '@/modules/list/models/pagination';
 import * as _ from 'lodash';
+import { SearchDataService } from '@/modules/list/services/search.data.service';
+import { Engine } from '@/modules/engine/core/engine';
 
 export const COLUMN_FORMATTERS = {
   'guid': { widget: Guid, width: 250, sortable: false },
-  'boolean': { widget: Text, width: 50, sortable: true },
-  'integer': { widget: Guid, width: 100, sortable: true },
-  'datetime': { widget: DateTime, width: 200, sortable: true },
-  'text': { widget: Text, width: 250, sortable: false }
+  'boolean': { widget: Text, width: 30, sortable: true },
+  'number': { widget: Integer, width: 250, sortable: true },
+  'integer': { widget: Integer, width: 80, sortable: true },
+  'datetime': { widget: DateTime, width: 175, sortable: true },
+  'text': { widget: Text, width: 175, sortable: false }
 };
 
 export class ListDataService extends EngineObservable {
@@ -28,6 +32,7 @@ export class ListDataService extends EngineObservable {
   };
   columns = [];
   rows = [];
+  listActions = [];
   order = {
     attribute: 'updated_at',
     direction: 'ASC'
@@ -86,36 +91,64 @@ export class ListDataService extends EngineObservable {
     return this;
   }
 
+  populateListActions() {
+    if (this.settings.remote === false) {
+      return this.settings.actions;
+    }
+    const listActions = this.definition.list.actions;
+    this.listActions = Engine.convertToTree(listActions, {
+      comparator: (action1, action2) => action1.sort_order - action2.sort_order
+    });
+    return this;
+  }
+
   /** *{$or:[{}]}*/
   buildQuickSearchCondition() {
     const conditions = [];
-    if (this.definition.list) {
-      this.definition.list.columns.forEach((column) => {
-        if (column.searchable) {
-          conditions.push({ [column.field]: this.quickSearchValue });
+    if (this.quickSearchValue && this.quickSearchValue.trim().length > 0) {
+      const sds = new SearchDataService();
+      const quickSearch = sds.getQuickSearchOperatorByValue(this.quickSearchValue);
+      if (this.definition.list) {
+        let searchableColumns = 0;
+        this.definition.list.columns.forEach((column) => {
+          if (column.searchable) {
+            searchableColumns = searchableColumns + 1;
+            if (!quickSearch.supportedTypes || quickSearch.supportedTypes.indexOf(column.type) > -1) {
+              if (quickSearch.op) {
+                conditions.push({ [column.field]: { [quickSearch.op]: quickSearch.value }});
+              } else {
+                conditions.push({ [column.field]: quickSearch.value });
+              }
+            }
+          }
+        });
+        if (searchableColumns > 0 && conditions.length === 0) {
+          Engine.notify(this.vm, {
+            type: 'info',
+            message: 'No column qualified for given search'
+          });
         }
-      });
-    }
-    if (conditions.length > 0) {
-      return { '$or': conditions };
+      }
+
+      if (conditions.length > 0) {
+        return { '$or': conditions };
+      }
     }
     return null;
   }
 
   getQuery() {
-    if (this.quickSearchValue && this.quickSearchValue.trim().length > 0) {
-      const qsCondition = this.buildQuickSearchCondition();
-      if (qsCondition) {
-        if (!_.isEmpty(this.condition)) {
-          return {
-            '$and': [
-              this.condition,
-              qsCondition
-            ]
-          };
-        }
-        return qsCondition;
+    const qsCondition = this.buildQuickSearchCondition();
+    if (qsCondition) {
+      if (!_.isEmpty(this.condition)) {
+        return {
+          '$and': [
+            this.condition,
+            qsCondition
+          ]
+        };
       }
+      return qsCondition;
     }
     return this.condition;
   }
@@ -165,12 +198,14 @@ export class ListDataService extends EngineObservable {
   addColumnFormatters() {
     this.definition.list.columns.forEach(column => {
       column.visible = !column.hidden;
-      column.config = COLUMN_FORMATTERS[column.type] ? COLUMN_FORMATTERS[column.type] : COLUMN_FORMATTERS['text'];
+      const columnsType = (column.type || '').replace('/', '');
+      column.config = COLUMN_FORMATTERS[columnsType] ? COLUMN_FORMATTERS[columnsType] : COLUMN_FORMATTERS['text'];
     });
   }
 
   sanitizeDefinition() {
     this.addColumnFormatters();
+    this.populateListActions();
     return this.definition;
   }
 

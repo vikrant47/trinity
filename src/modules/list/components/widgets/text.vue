@@ -1,12 +1,17 @@
-<template functional>
+<template>
   <div class="cell-wrapper">
-    {{ props.row[props.column.field] }}
+    {{ row[column.field] }}
   </div>
 </template>
 <script>
+
 export default {
   name: 'TextWidget',
   props: {
+    href: {
+      type: Boolean,
+      default: false
+    },
     row: {
       type: Object,
       required: true
