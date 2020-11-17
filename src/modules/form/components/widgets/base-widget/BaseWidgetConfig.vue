@@ -472,12 +472,14 @@ import {
   inputComponents, selectComponents, layoutComponents
 } from '@/modules/form/components/generator/config';
 import { saveFormConf } from '@/modules/form/utils/db';
+import draggable from 'vuedraggable';
 
 export default {
   name: 'BaseWidgetConfig',
   components: {
     TreeNodeDialog,
-    IconsDialog
+    IconsDialog,
+    draggable
   },
   props: {
     activeData: {

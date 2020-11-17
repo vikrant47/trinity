@@ -89,14 +89,20 @@
         </el-row>
       </el-scrollbar>
     </div>
-
-    <right-panel
-      :active-data="activeData"
-      :form-conf="formConf"
-      :show-field="!!drawingList.length"
-      @tag-change="tagChange"
-      @fetch-data="fetchData"
-    />
+    <el-drawer
+      title="Config"
+      :visible.sync="showConfig"
+      direction="rtl"
+      :before-close="onConfigClose"
+    >
+      <right-panel
+        :active-data="activeData"
+        :form-conf="formConf"
+        :show-field="!!drawingList.length"
+        @tag-change="tagChange"
+        @fetch-data="fetchData"
+      />
+    </el-drawer>
 
     <form-drawer
       :visible.sync="drawerVisible"
@@ -169,6 +175,7 @@ export default {
   },
   data() {
     return {
+      showConfig: false,
       logo: '',
       idGlobal,
       formConf,
@@ -266,6 +273,9 @@ export default {
     });
   },
   methods: {
+    onConfigClose(done) {
+      done();
+    },
     setObjectValueByStringKeys(obj, strKeys, val) {
       const arr = strKeys.split('.');
       arr.reduce((pre, item, i) => {
@@ -308,6 +318,7 @@ export default {
     activeFormItem(currentItem) {
       this.activeData = currentItem;
       this.activeId = currentItem.__config__.formId;
+      this.showConfig = true;
     },
     onEnd(obj) {
       if (obj.from !== obj.to) {

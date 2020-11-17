@@ -3,7 +3,7 @@
     <base-widget-config :active-data="activeData" />
     <el-form-item
       v-if="activeData['icon']!==undefined && activeData.__config__.tag === 'el-button'"
-      label="按钮图标"
+      label="Icon"
     >
       <el-input v-model="activeData['icon']" placeholder="Enter the button icon name">
         <el-button slot="append" icon="el-icon-thumb" @click="openIconsDialog('icon')">
@@ -59,6 +59,7 @@ import BaseWidgetConfig from '@/modules/form/components/widgets/base-widget/Base
 
 export default {
   name: 'Config',
+  components: { BaseWidgetConfig },
   extends: BaseWidgetConfig
 };
 </script>

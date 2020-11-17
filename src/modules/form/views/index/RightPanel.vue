@@ -11,7 +11,13 @@
       <el-scrollbar class="right-scrollbar">
         <!-- Component properties -->
         <el-form v-show="currentTab==='field' && showField" size="small" label-width="90px">
-          <div :is="widgets[activeData.__config__.tag] && widgets[activeData.__config__.tag].config" :active-data="activeData" class="widget-config-container" />
+          <div
+            :is="widgets[activeData.__config__.tag].config"
+            v-if="widgets[activeData.__config__.tag]"
+            :active-data="activeData"
+            class="widget-config-container"
+          />
+          <base-widget-config v-else :active-data="activeData" />
         </el-form>
         <!-- Form attributes -->
         <el-form v-show="currentTab === 'form'" size="small" label-width="90px">
@@ -84,6 +90,7 @@ import {
 } from '@/modules/form/components/generator/config';
 import { saveFormConf } from '@/modules/form/utils/db';
 import widgets from '@/modules/form/components/widgets';
+import BaseWidgetConfig from '@/modules/form/components/widgets/base-widget/BaseWidgetConfig';
 
 const dateTimeFormat = {
   date: 'yyyy-MM-dd',
@@ -101,6 +108,7 @@ const needRerenderList = ['tinymce'];
 
 export default {
   components: {
+    BaseWidgetConfig,
     TreeNodeDialog,
     IconsDialog
   },
@@ -122,6 +130,14 @@ export default {
     };
   },
   computed: {
+    widgetConfigComponent() {
+      const widget = widgets[this.activeData.__config__.tag];
+      const config = widget.config;
+      if (typeof config === 'function') {
+        return config();
+      }
+      return config;
+    },
     documentLink() {
       return (
         this.activeData.__config__.document ||
@@ -323,22 +339,24 @@ export default {
 
 <style lang="scss" scoped>
 .right-board {
-  width: 350px;
+  height: 100%;
+  overflow: scroll;
+  /*width: 350px;
   position: absolute;
   right: 0;
   top: 0;
-  padding-top: 3px;
+  padding-top: 3px;*/
+}
 
-  .field-box {
-    position: relative;
-    height: calc(100vh - 42px);
-    box-sizing: border-box;
-    overflow: hidden;
-  }
+.field-box {
+  position: relative;
+  height: calc(100vh - 42px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
 
-  .el-scrollbar {
-    height: 100%;
-  }
+.el-scrollbar {
+  height: 100%;
 }
 
 .select-item {

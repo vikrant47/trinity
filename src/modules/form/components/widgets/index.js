@@ -1,23 +1,35 @@
+import InputConfig from '@/modules/form/components/widgets/input/Config';
+import ButtonConfig from '@/modules/form/components/widgets/button/Config';
+import CascaderConfig from '@/modules/form/components/widgets/cascader/Config';
+import CheckboxConfig from '@/modules/form/components/widgets/checkbox-group/Config';
+import ColorPickerConfig from '@/modules/form/components/widgets/color-picker/Config';
+import FormDesignerConfig from '@/modules/form/components/widgets/form-designer/Config';
+import NumberConfig from '@/modules/form/components/widgets/number/Config';
+import SelectConfig from '@/modules/form/components/widgets/select/Config';
+
 export default {
+  'el-input': {
+    config: InputConfig
+  },
   'el-button': {
-    config: require(['@/modules/form/components/widgets/button/Config'])
+    config: ButtonConfig
   },
   'el-cascader': {
-    config: require(['@/modules/form/components/widgets/cascader/Config'])
+    config: CascaderConfig
   },
   'el-checkbox-group': {
-    config: require(['@/modules/form/components/widgets/checkbox-group/Config'])
+    config: CheckboxConfig
   },
   'el-color-picker': {
-    config: require(['@/modules/form/components/widgets/color-picker/Config'])
+    config: ColorPickerConfig
   },
   'form-designer': {
-    config: require(['@/modules/form/components/widgets/form-designer/Config'])
+    config: FormDesignerConfig
   },
   'el-number': {
-    config: require(['@/modules/form/components/widgets/number/Config'])
+    config: NumberConfig
   },
   'el-select': {
-    config: require(['@/modules/form/components/widgets/select/Config'])
+    config: SelectConfig
   }
 };
