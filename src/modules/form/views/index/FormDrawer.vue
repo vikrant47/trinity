@@ -40,19 +40,19 @@
             <div class="action-bar" :style="{'text-align': 'left'}">
               <span class="bar-btn" @click="runCode">
                 <i class="el-icon-refresh" />
-                刷新
+                Refresh
               </span>
               <span class="bar-btn" @click="exportFile">
                 <i class="el-icon-download" />
-                导出vue文件
+                Export vue file
               </span>
               <span ref="copyBtn" class="bar-btn copy-btn">
                 <i class="el-icon-document-copy" />
-                复制代码
+                Copy code
               </span>
               <span class="bar-btn delete-btn" @click="$emit('update:visible', false)">
                 <i class="el-icon-circle-close" />
-                关闭
+                close
               </span>
             </div>
             <iframe
@@ -113,8 +113,8 @@ export default {
       cssCode: '',
       codeFrame: '',
       isIframeLoaded: false,
-      isInitcode: false, // 保证open后两个异步只执行一次runcode
-      isRefreshCode: false, // 每次打开都需要重新刷新代码
+      isInitcode: false, // Ensure that the two asynchronous runcodes are executed only once after open
+      isRefreshCode: false, // You need to refresh the code every time you open it
       resourceVisible: false,
       scripts: [],
       links: [],
@@ -135,15 +135,15 @@ export default {
       text: trigger => {
         const codeStr = this.generateCode();
         this.$notify({
-          title: '成功',
-          message: '代码已复制到剪切板，可粘贴。',
+          title: 'success',
+          message: 'The code has been copied to the clipboard and can be pasted.',
           type: 'success'
         });
         return codeStr;
       }
     });
     clipboard.on('error', e => {
-      this.$message.error('代码复制失败');
+      this.$message.error('Code copy failed');
     });
   },
   beforeDestroy() {
@@ -254,10 +254,10 @@ export default {
       return beautifier.html(html + script + css, beautifierConf.html);
     },
     exportFile() {
-      this.$prompt('文件名:', '导出文件', {
+      this.$prompt('file name:', 'Export file', {
         inputValue: `${+new Date()}.vue`,
         closeOnClickModal: false,
-        inputPlaceholder: '请输入文件名'
+        inputPlaceholder: 'Please enter the file name'
       }).then(({ value }) => {
         if (!value) value = `${+new Date()}.vue`;
         const codeStr = this.generateCode();

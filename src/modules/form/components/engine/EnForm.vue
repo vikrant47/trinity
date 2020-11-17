@@ -10,7 +10,10 @@ import Vue from 'vue';
 import Parser from '@/modules/form/components/parser/Parser';
 import { FormService } from '@/modules/form/services/form.service';
 import { FormEventHandler } from '@/modules/form/services/form.event.handler';
+import locale from 'element-ui/lib/locale/lang/en';
+import ElementUI from 'element-ui';
 
+Vue.use(ElementUI, { locale });
 export default {
   name: 'EnForm',
   components: { Parser },

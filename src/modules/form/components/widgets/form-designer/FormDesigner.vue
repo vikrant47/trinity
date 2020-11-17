@@ -1,14 +1,14 @@
 <template>
   <div class="container">
     <div class="left-board">
-      <div class="logo-wrapper">
+      <!--<div class="logo-wrapper">
         <div class="logo">
           <img alt="logo"> Form Generator
           <a class="github" href="https://github.com/JakHuang/form-generator" target="_blank">
             <img src="https://github.githubassets.com/pinned-octocat.svg" alt>
           </a>
         </div>
-      </div>
+      </div>-->
       <el-scrollbar class="left-scrollbar">
         <div class="components-list">
           <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
@@ -43,7 +43,7 @@
     </div>
 
     <div class="center-board">
-      <div class="action-bar">
+      <!--<div class="action-bar">
         <el-button icon="el-icon-video-play" type="text" @click="run">
           run
         </el-button>
@@ -59,7 +59,7 @@
         <el-button class="delete-btn" icon="el-icon-delete" type="text" @click="empty">
           Empty
         </el-button>
-      </div>
+      </div>-->
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="formConf.gutter">
           <el-form
@@ -112,7 +112,7 @@
     />
     <code-type-dialog
       :visible.sync="dialogVisible"
-      title="选择生成类型"
+      title="Choose build type"
       :show-file-name="showFileName"
       @confirm="generate"
     />
@@ -126,23 +126,23 @@ import { debounce } from 'throttle-debounce';
 import { saveAs } from 'file-saver';
 import ClipboardJS from 'clipboard';
 import render from '@/modules/form/components/render/render';
-import FormDrawer from './FormDrawer';
-import JsonDrawer from './JsonDrawer';
-import RightPanel from './RightPanel';
+import FormDrawer from '@/modules/form/views/index/FormDrawer';
+import JsonDrawer from '@/modules/form/views/index/JsonDrawer';
+import RightPanel from '@/modules/form/views/index/RightPanel';
 import {
   inputComponents, selectComponents, layoutComponents, formConf
 } from '@/modules/form/components/generator/config';
 import {
   beautifierConf, titleCase, deepClone
-} from '@/modules/form/utils/index';
+} from '@/modules/form/utils';
 import {
   makeUpHtml, vueTemplate, vueScript, cssStyle
 } from '@/modules/form/components/generator/html';
 import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
-import CodeTypeDialog from './CodeTypeDialog';
-import DraggableItem from './DraggableItem';
+import CodeTypeDialog from '@/modules/form/views/index/CodeTypeDialog';
+import DraggableItem from '@/modules/form/views/index/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
 } from '@/modules/form/utils/db';
@@ -157,6 +157,7 @@ const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
 
 export default {
+  name: 'FormDesigner',
   components: {
     draggable,
     render,
@@ -459,5 +460,5 @@ export default {
 </script>
 
 <style lang='scss'>
-@import '../../../../modules/form/styles/home';
+@import '../../../styles/home';
 </style>

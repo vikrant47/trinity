@@ -1,8 +1,8 @@
 import { deepClone } from '@/modules/form/utils';
-import Home from '@/modules/form/views/index/Home';
+import FormDesigner from '@/modules/form/components/widgets/form-designer/FormDesigner';
 
 const widgets = {
-  'form-designer': Home
+  'form-designer': FormDesigner
 };
 const componentChild = {};
 /**
