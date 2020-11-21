@@ -1,7 +1,7 @@
 <template>
   <div class="checkbox-config">
     <base-widget-config :active-data="activeData" />
-    <el-form-item v-if="activeData.__config__.tag==='el-checkbox-group'" label="At least">
+    <el-form-item v-if="activeData.component.tag==='el-checkbox-group'" label="At least">
       <el-input-number
         :value="activeData.min"
         :min="0"
@@ -9,7 +9,7 @@
         @input="$set(activeData, 'min', $event?$event:undefined)"
       />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.tag==='el-checkbox-group'" label="Up to optional">
+    <el-form-item v-if="activeData.component.tag==='el-checkbox-group'" label="Up to optional">
       <el-input-number
         :value="activeData.max"
         :min="0"

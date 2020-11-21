@@ -1,3 +1,5 @@
+import { WIDGETS } from '@/modules/form/components/widgets';
+
 export const ITEM_LAYOUT = {
   colFormItem: 'colFormItem',
   rowFormItem: 'rowFormItem'
@@ -14,7 +16,7 @@ export class SlotConfig {
 }
 
 export class ComponentConfig {
-  tag = 'el-input';
+  widget = WIDGETS.input;
   span = 24;
   label;
   formId ;

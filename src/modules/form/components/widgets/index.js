@@ -33,16 +33,74 @@ export default {
     config: SelectConfig
   }
 };
-export const widgetConfig = {
-  string: require('./input/input-widget'),
-  text: require('./text/text-widget'),
-  password: require('./password/password-widget'),
-  number: require('./number/number-widget'),
-  richeditor: require('./text/text-widget'),
-  select: require('./select/select-widget'),
-  cascader: require('./cascader/cascader-widget'),
-  radioGroup: require('./radio-group/radio-group-widget'),
-  checkboxGroup: require('./checkbox-group/checkbox-group-widget'),
-  switch: require('./switch/switch-widget'),
-  slider: require('./slider/slider-widget'),
+export const WIDGETS = {
+  input: 'input',
+  text: 'text',
+  password: 'password',
+  number: 'number',
+  richeditor: 'richeditor',
+  select: 'select',
+  cascader: 'cascader',
+  radioGroup: 'radioGroup',
+  checkboxGroup: 'checkboxGroup',
+  switch: 'switch',
+  row: 'row',
+  time: 'time',
+  timeRange: 'timeRange',
+  date: 'date',
+  dateRange: 'dateRange',
+  button: 'button',
+  rating: 'rating',
+  colorPicker: 'colorPicker'
 };
+export const WidgetTypes = {
+  [WIDGETS.input]: require('./input/input-widget'),
+  [WIDGETS.text]: require('./text/text-widget'),
+  [WIDGETS.password]: require('./password/password-widget'),
+  [WIDGETS.number]: require('./number/number-widget'),
+  [WIDGETS.richeditor]: require('./text/text-widget'),
+  [WIDGETS.select]: require('./select/select-widget'),
+  [WIDGETS.cascader]: require('./cascader/cascader-widget'),
+  [WIDGETS.radioGroup]: require('./radio-group/radio-group-widget'),
+  [WIDGETS.checkboxGroup]: require('./checkbox-group/checkbox-group-widget'),
+  [WIDGETS.switch]: require('./switch/switch-widget'),
+  [WIDGETS.row]: require('./row/row-widget'),
+  [WIDGETS.time]: require('./time/time-widget'),
+  [WIDGETS.timeRange]: require('./time-range/time-range-widget'),
+  [WIDGETS.date]: require('./date/date-widget'),
+  [WIDGETS.dateRange]: require('./date-range/date-range-widget'),
+  [WIDGETS.button]: require('./button/button-widget'),
+  [WIDGETS.rating]: require('./rating/rating-widget'),
+  [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget')
+};
+
+export class FormWidgetService {
+  widgetInstances;
+
+  getWidgetInstances() {
+    if (!this.widgetInstances) {
+      for (const i in WidgetTypes) {
+        this.widgetInstances[i] = new WidgetTypes[i]();
+      }
+    }
+    return this.widgetInstances;
+  }
+
+  refreshWidgetInstances() {
+    this.widgetInstances = null;
+    return this.getWidgetInstances();
+  }
+
+  getWidgetsWithSections() {
+    const sections = {};
+    const widgets = this.getWidgetInstances();
+    for (const widget of widgets) {
+      const section = widget.getSection();
+      if (!section[section]) {
+        sections[section] = [];
+      }
+      sections.push(widget);
+    }
+    return sections;
+  }
+}

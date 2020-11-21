@@ -70,8 +70,8 @@ function buildFromBtns(scheme, type) {
 
 // span不为24的用el-col包裹
 function colWrapper(scheme, str) {
-  if (someSpanIsNot24 || scheme.__config__.span !== 24) {
-    return `<el-col :span="${scheme.__config__.span}">
+  if (someSpanIsNot24 || scheme.component.span !== 24) {
+    return `<el-col :span="${scheme.component.span}">
       ${str}
     </el-col>`;
   }
@@ -80,7 +80,7 @@ function colWrapper(scheme, str) {
 
 const layouts = {
   colFormItem(scheme) {
-    const config = scheme.__config__;
+    const config = scheme.component;
     let labelWidth = '';
     let label = `label="${config.label}"`;
     if (config.labelWidth && config.labelWidth !== confGlobal.labelWidth) {
@@ -99,12 +99,12 @@ const layouts = {
     return str;
   },
   rowFormItem(scheme) {
-    const config = scheme.__config__;
+    const config = scheme.component;
     const type = scheme.type === 'default' ? '' : `type="${scheme.type}"`;
     const justify = scheme.type === 'default' ? '' : `justify="${scheme.justify}"`;
     const align = scheme.type === 'default' ? '' : `align="${scheme.align}"`;
     const gutter = scheme.gutter ? `:gutter="${scheme.gutter}"` : '';
-    const children = config.children.map(el => layouts[el.__config__.layout](el));
+    const children = config.children.map(el => layouts[el.component.layout](el));
     let str = `<el-row ${type} ${justify} ${align} ${gutter}>
       ${children.join('\n')}
     </el-row>`;
@@ -269,7 +269,7 @@ const tags = {
     return `<${tag} ${vModel} ${size} ${showAlpha} ${colorFormat} ${disabled}></${tag}>`;
   },
   'el-upload': el => {
-    const { tag } = el.__config__;
+    const { tag } = el.component;
     const disabled = el.disabled ? ':disabled=\'true\'' : '';
     const action = el.action ? `:action="${el.__vModel__}Action"` : '';
     const multiple = el.multiple ? 'multiple' : '';
@@ -295,7 +295,7 @@ const tags = {
 
 function attrBuilder(el) {
   return {
-    tag: el.__config__.tag,
+    tag: el.component.tag,
     vModel: `v-model="${confGlobal.formModel}.${el.__vModel__}"`,
     clearable: el.clearable ? 'clearable' : '',
     placeholder: el.placeholder ? `placeholder="${el.placeholder}"` : '',
@@ -307,7 +307,7 @@ function attrBuilder(el) {
 // el-buttin 子级
 function buildElButtonChild(scheme) {
   const children = [];
-  const slot = scheme.__slot__ || {};
+  const slot = scheme.slot || {};
   if (slot.default) {
     children.push(slot.default);
   }
@@ -317,7 +317,7 @@ function buildElButtonChild(scheme) {
 // el-input 子级
 function buildElInputChild(scheme) {
   const children = [];
-  const slot = scheme.__slot__;
+  const slot = scheme.slot;
   if (slot && slot.prepend) {
     children.push(`<template slot="prepend">${slot.prepend}</template>`);
   }
@@ -330,7 +330,7 @@ function buildElInputChild(scheme) {
 // el-select 子级
 function buildElSelectChild(scheme) {
   const children = [];
-  const slot = scheme.__slot__;
+  const slot = scheme.slot;
   if (slot && slot.options && slot.options.length) {
     children.push(`<el-option v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>`);
   }
@@ -340,8 +340,8 @@ function buildElSelectChild(scheme) {
 // el-radio-group 子级
 function buildElRadioGroupChild(scheme) {
   const children = [];
-  const slot = scheme.__slot__;
-  const config = scheme.__config__;
+  const slot = scheme.slot;
+  const config = scheme.component;
   if (slot && slot.options && slot.options.length) {
     const tag = config.optionType === 'button' ? 'el-radio-button' : 'el-radio';
     const border = config.border ? 'border' : '';
@@ -353,8 +353,8 @@ function buildElRadioGroupChild(scheme) {
 // el-checkbox-group 子级
 function buildElCheckboxGroupChild(scheme) {
   const children = [];
-  const slot = scheme.__slot__;
-  const config = scheme.__config__;
+  const slot = scheme.slot;
+  const config = scheme.component;
   if (slot && slot.options && slot.options.length) {
     const tag = config.optionType === 'button' ? 'el-checkbox-button' : 'el-checkbox';
     const border = config.border ? 'border' : '';
@@ -366,7 +366,7 @@ function buildElCheckboxGroupChild(scheme) {
 // el-upload 子级
 function buildElUploadChild(scheme) {
   const list = [];
-  const config = scheme.__config__;
+  const config = scheme.component;
   if (scheme['list-type'] === 'picture-card') {
     list.push('<i class="el-icon-plus"></i>');
   } else {
@@ -385,10 +385,10 @@ export function makeUpHtml(formConfig, type) {
   const htmlList = [];
   confGlobal = formConfig;
   // Determine whether the layout is full of 24 grids in order to simplify the code structure later
-  someSpanIsNot24 = formConfig.fields.some(item => item.__config__.span !== 24);
+  someSpanIsNot24 = formConfig.fields.some(item => item.component.span !== 24);
   // Traverse and render each component into html
   formConfig.fields.forEach(el => {
-    htmlList.push(layouts[el.__config__.layout](el));
+    htmlList.push(layouts[el.component.layout](el));
   });
   const htmlStr = htmlList.join('\n');
   // Put the component code in the form tag

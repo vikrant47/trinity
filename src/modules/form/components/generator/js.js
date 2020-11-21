@@ -49,8 +49,8 @@ export function makeUpJs(formConfig, type) {
 
 // 构建组件属性
 function buildAttributes(scheme, dataList, ruleList, optionsList, methodList, propsList, uploadVarList, created) {
-  const config = scheme.__config__;
-  const slot = scheme.__slot__;
+  const config = scheme.component;
+  const slot = scheme.slot;
   buildData(scheme, dataList);
   buildRules(scheme, ruleList);
 
@@ -142,7 +142,7 @@ function mixinMethod(type) {
 
 // 构建data
 function buildData(scheme, dataList) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   if (scheme.__vModel__ === undefined) return;
   const defaultValue = JSON.stringify(config.defaultValue);
   dataList.push(`${scheme.__vModel__}: ${defaultValue},`);
@@ -150,7 +150,7 @@ function buildData(scheme, dataList) {
 
 // 构建校验规则
 function buildRules(scheme, ruleList) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   if (scheme.__vModel__ === undefined) return;
   const rules = [];
   if (ruleTrigger[config.tag]) {
@@ -179,8 +179,8 @@ function buildOptions(scheme, optionsList) {
   if (scheme.__vModel__ === undefined) return;
   // el-cascader直接有options属性，其他组件都是定义在slot中，所以有两处判断
   let { options } = scheme;
-  if (!options) options = scheme.__slot__.options;
-  if (scheme.__config__.dataType === 'dynamic') {
+  if (!options) options = scheme.slot.options;
+  if (scheme.component.dataType === 'dynamic') {
     options = [];
   }
   const str = `${scheme.__vModel__}Options: ${JSON.stringify(options)},`;
@@ -194,7 +194,7 @@ function buildProps(scheme, propsList) {
 
 // el-upload的BeforeUpload
 function buildBeforeUpload(scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   const unitNum = units[config.sizeUnit];
   let rightSizeCode = '';
   let acceptCode = '';
@@ -231,7 +231,7 @@ function buildSubmitUpload(scheme) {
 }
 
 function buildOptionMethod(methodName, model, methodList, scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   const str = `${methodName}() {
     // 注意：this.$axios是通过Vue.prototype.$axios = axios挂载产生的
     this.$axios({

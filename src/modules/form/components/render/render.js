@@ -7,8 +7,8 @@ const widgets = {
 const componentChild = {};
 /**
  * Mount the files in ./slots to the object component Child
- * The file name is key, corresponding to __config__.tag in the JSON configuration
- * The content of the file is value, parse the __slot__ in the JSON configuration
+ * The file name is key, corresponding to component.tag in the JSON configuration
+ * The content of the file is value, parse the slot in the JSON configuration
  */
 const slotsFiles = require.context('./slots', false, /\.js$/);
 const keys = slotsFiles.keys() || [];
@@ -27,11 +27,11 @@ function vModel(dataObject, defaultValue) {
 }
 
 function mountSlotFiles(h, confClone, children) {
-  const childObjs = widgets[confClone.__config__.tag];
+  const childObjs = widgets[confClone.component.tag];
   if (childObjs) {
     Object.keys(childObjs).forEach(key => {
       const childFunc = childObjs[key];
-      if (confClone.__slot__ && confClone.__slot__[key]) {
+      if (confClone.slot && confClone.slot[key]) {
         children.push(childFunc(h, confClone, key));
       }
     });
@@ -54,7 +54,7 @@ function buildDataObject(confClone, dataObject) {
   Object.keys(confClone).forEach(key => {
     const val = confClone[key];
     if (key === '__vModel__') {
-      vModel.call(this, dataObject, confClone.__config__.defaultValue);
+      vModel.call(this, dataObject, confClone.component.defaultValue);
     } else if (dataObject[key] !== undefined) {
       if (dataObject[key] === null ||
         dataObject[key] instanceof RegExp ||
@@ -75,8 +75,8 @@ function buildDataObject(confClone, dataObject) {
 }
 
 function clearAttrs(dataObject) {
-  delete dataObject.attrs.__config__;
-  delete dataObject.attrs.__slot__;
+  delete dataObject.attrs.component;
+  delete dataObject.attrs.slot;
   delete dataObject.attrs.__methods__;
 }
 
@@ -129,7 +129,7 @@ export default {
 
     // Convert json form configuration to vue recognizable by render "Data Object"
     buildDataObject.call(this, confClone, dataObject);
-    const tag = this.conf.__config__.tag;
+    const tag = this.conf.component.tag;
     return h(widgets[tag] || tag, dataObject, children);
   }
 };

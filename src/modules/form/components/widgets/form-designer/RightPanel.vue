@@ -12,8 +12,8 @@
         <!-- Component properties -->
         <el-form v-show="currentTab==='field' && showField" size="small" label-width="90px">
           <div
-            :is="widgets[activeData.__config__.tag].config"
-            v-if="widgets[activeData.__config__.tag]"
+            :is="widgets[activeData.component.tag].config"
+            v-if="widgets[activeData.component.tag]"
             :active-data="activeData"
             class="widget-config-container"
           />
@@ -123,7 +123,7 @@ export default {
       currentIconModel: null,
       layoutTreeProps: {
         label(data, node) {
-          const config = data.__config__;
+          const config = data.component;
           return data.componentName || `${config.label}: ${data.__vModel__}`;
         }
       }
@@ -131,7 +131,7 @@ export default {
   },
   computed: {
     widgetConfigComponent() {
-      const widget = widgets[this.activeData.__config__.tag];
+      const widget = widgets[this.activeData.component.tag];
       const config = widget.config;
       if (typeof config === 'function') {
         return config();
@@ -140,14 +140,14 @@ export default {
     },
     documentLink() {
       return (
-        this.activeData.__config__.document ||
+        this.activeData.component.document ||
         'https://element.eleme.cn/#/zh-CN/component/installation'
       );
     },
     dateOptions() {
       if (
         this.activeData.type !== undefined &&
-        this.activeData.__config__.tag === 'el-date-picker'
+        this.activeData.component.tag === 'el-date-picker'
       ) {
         if (this.activeData['start-placeholder'] === undefined) {
           return this.dateTypeOptions;
@@ -169,7 +169,7 @@ export default {
       ];
     },
     activeTag() {
-      return this.activeData.__config__.tag;
+      return this.activeData.component.tag;
     },
     isShowMin() {
       return ['el-input-number', 'el-slider'].indexOf(this.activeTag) > -1;
@@ -191,13 +191,13 @@ export default {
   },
   methods: {
     addReg() {
-      this.activeData.__config__.regList.push({
+      this.activeData.component.regList.push({
         pattern: '',
         message: ''
       });
     },
     addSelectItem() {
-      this.activeData.__slot__.options.push({
+      this.activeData.slot.options.push({
         label: '',
         value: ''
       });
@@ -232,7 +232,7 @@ export default {
       this.currentNode = data.children;
     },
     remove(node, data) {
-      this.activeData.__config__.defaultValue = []; // Avoid error when deleting
+      this.activeData.component.defaultValue = []; // Avoid error when deleting
       const { parent } = node;
       const children = parent.data.children || parent.data;
       const index = children.findIndex(d => d.id === data.id);
@@ -257,20 +257,20 @@ export default {
       return val;
     },
     onDefaultValueInput(str) {
-      if (isArray(this.activeData.__config__.defaultValue)) {
+      if (isArray(this.activeData.component.defaultValue)) {
         // Array
         this.$set(
-          this.activeData.__config__,
+          this.activeData.component,
           'defaultValue',
           str.split(',').map(val => (isNumberStr(val) ? +val : val))
         );
       } else if (['true', 'false'].indexOf(str) > -1) {
         // Boolean
-        this.$set(this.activeData.__config__, 'defaultValue', JSON.parse(str));
+        this.$set(this.activeData.component, 'defaultValue', JSON.parse(str));
       } else {
         // Strings and numbers
         this.$set(
-          this.activeData.__config__,
+          this.activeData.component,
           'defaultValue',
           isNumberStr(str) ? +str : str
         );
@@ -285,7 +285,7 @@ export default {
     },
     setTimeValue(val, type) {
       const valueFormat = type === 'week' ? dateTimeFormat.date : val;
-      this.$set(this.activeData.__config__, 'defaultValue', null);
+      this.$set(this.activeData.component, 'defaultValue', null);
       this.$set(this.activeData, 'value-format', valueFormat);
       this.$set(this.activeData, 'format', val);
     },
@@ -293,14 +293,14 @@ export default {
       this.formConf.span = val;
     },
     multipleChange(val) {
-      this.$set(this.activeData.__config__, 'defaultValue', val ? [] : '');
+      this.$set(this.activeData.component, 'defaultValue', val ? [] : '');
     },
     dateTypeChange(val) {
       this.setTimeValue(dateTimeFormat[val], val);
     },
     rangeChange(val) {
       this.$set(
-        this.activeData.__config__,
+        this.activeData.component,
         'defaultValue',
         val ? [this.activeData.min, this.activeData.max] : this.activeData.min
       );
@@ -312,9 +312,9 @@ export default {
       if (val) this.activeData['show-text'] = false;
     },
     colorFormatChange(val) {
-      this.activeData.__config__.defaultValue = null;
+      this.activeData.component.defaultValue = null;
       this.activeData['show-alpha'] = val.indexOf('a') > -1;
-      this.activeData.__config__.renderKey = +new Date(); // 更新renderKey,重新渲染该组件
+      this.activeData.component.renderKey = +new Date(); // 更新renderKey,重新渲染该组件
     },
     openIconsDialog(model) {
       this.iconsVisible = true;
@@ -324,13 +324,13 @@ export default {
       this.activeData[this.currentIconModel] = val;
     },
     tagChange(tagIcon) {
-      let target = inputComponents.find(item => item.__config__.tagIcon === tagIcon);
-      if (!target) target = selectComponents.find(item => item.__config__.tagIcon === tagIcon);
+      let target = inputComponents.find(item => item.component.tagIcon === tagIcon);
+      if (!target) target = selectComponents.find(item => item.component.tagIcon === tagIcon);
       this.$emit('tag-change', target);
     },
     changeRenderKey() {
-      if (needRerenderList.includes(this.activeData.__config__.tag)) {
-        this.activeData.__config__.renderKey = +new Date();
+      if (needRerenderList.includes(this.activeData.component.tag)) {
+        this.activeData.component.renderKey = +new Date();
       }
     }
   }

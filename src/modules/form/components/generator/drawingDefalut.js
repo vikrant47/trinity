@@ -1,6 +1,6 @@
 export default [
   {
-    __config__: {
+    component: {
       label: 'Single line text',
       labelWidth: null,
       showLabel: true,
@@ -19,7 +19,7 @@ export default [
       }]
     },
     // Component slot properties
-    __slot__: {
+    slot: {
       prepend: '',
       append: ''
     },

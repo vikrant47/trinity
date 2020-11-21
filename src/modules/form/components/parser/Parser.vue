@@ -16,7 +16,7 @@ const ruleTrigger = {
 
 const layouts = {
   colFormItem(h, scheme, formData) {
-    const config = scheme.__config__;
+    const config = scheme.component;
     const listeners = buildListeners.call(this, scheme);
 
     let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
@@ -80,7 +80,7 @@ function formBtns(h) {
 
 function renderFormItem(h, elementList, formData) {
   return elementList.map(scheme => {
-    const config = scheme.__config__;
+    const config = scheme.component;
     const layout = layouts[config.layout];
 
     if (layout) {
@@ -91,7 +91,7 @@ function renderFormItem(h, elementList, formData) {
 }
 
 function renderChildren(h, scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   if (!Array.isArray(config.children)) return null;
   return renderFormItem.call(this, h, config.children);
 }
@@ -102,7 +102,7 @@ function setValue(event, config, scheme) {
 }
 
 function buildListeners(scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   const methods = this.formConf.__methods__ || {};
   const listeners = {};
 
@@ -146,14 +146,14 @@ export default {
   methods: {
     initFormData(componentList, formData) {
       componentList.forEach(cur => {
-        const config = cur.__config__;
+        const config = cur.component;
         if (cur.__vModel__ && !formData[cur.__vModel__]) formData[cur.__vModel__] = config.defaultValue;
         if (config.children) this.initFormData(config.children, formData);
       });
     },
     buildRules(componentList, rules) {
       componentList.forEach(cur => {
-        const config = cur.__config__;
+        const config = cur.component;
         if (Array.isArray(config.regList)) {
           if (config.required) {
             const required = { required: config.required, message: cur.placeholder };

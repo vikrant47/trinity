@@ -1,4 +1,5 @@
 import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
+import { WIDGETS } from '@/modules/form/components/widgets';
 
 export class BaseWidget {
   getConfig() {
@@ -7,8 +8,8 @@ export class BaseWidget {
         fieldName: 'type',
         component: {
           label: 'Widget',
-          tag: 'el-select',
-          tagIcon: 'select',
+          widget: WIDGETS.select,
+          widgetIcon: 'select',
           defaultValue: 'string',
           required: true
         },
@@ -38,7 +39,7 @@ export class BaseWidget {
         fieldName: 'size',
         component: {
           label: 'Size',
-          tag: 'el-slider'
+          widget: WIDGETS.slider
         },
         min: 0,
         max: 10
@@ -47,7 +48,7 @@ export class BaseWidget {
         fieldName: 'showLabel',
         component: {
           label: 'Show Label',
-          tag: 'el-switch'
+          widget: WIDGETS.switch
         },
         default: true
       },
@@ -55,7 +56,7 @@ export class BaseWidget {
         fieldName: 'labelWidth',
         component: {
           label: 'Label Width',
-          tag: 'el-input-number'
+          widget: WIDGETS.number
         },
         min: 0
       },
@@ -63,19 +64,13 @@ export class BaseWidget {
         fieldName: 'span',
         component: {
           label: 'Span',
-          tag: 'el-input-number'
+          widget: WIDGETS.number
         },
         min: 0,
         max: 12
       },
       {
-        fieldName: 'tagIcon',
-        component: {
-          label: 'Icon'
-        }
-      },
-      {
-        fieldName: 'tagIcon',
+        fieldName: 'widgetIcon',
         component: {
           label: 'Icon'
         }
@@ -84,15 +79,15 @@ export class BaseWidget {
         fieldName: 'required',
         component: {
           label: 'Required',
-          tag: 'el-switch'
+          widget: WIDGETS.switch
         },
         default: false
       }, {
         fieldName: 'layout',
         component: {
           label: 'Layout',
-          tag: 'el-select',
-          tagIcon: 'select',
+          widget: WIDGETS.select,
+          widgetIcon: 'select',
           defaultValue: ITEM_LAYOUT.colFormItem,
           required: true
         },
@@ -117,10 +112,14 @@ export class BaseWidget {
         fieldName: 'showWordLimit',
         component: {
           label: 'Show Limit',
-          tag: 'el-switch'
+          widget: WIDGETS.switch
         }
       }
     ];
+  }
+
+  getSection() {
+    return 'Primary';
   }
 
   getData() {
@@ -128,6 +127,6 @@ export class BaseWidget {
   }
 
   getComponent() {
-    return 'string';
+    return 'el-input';
   }
 }

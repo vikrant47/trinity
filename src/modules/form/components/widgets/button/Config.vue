@@ -2,7 +2,7 @@
   <div class="button-config">
     <base-widget-config :active-data="activeData" />
     <el-form-item
-      v-if="activeData['icon']!==undefined && activeData.__config__.tag === 'el-button'"
+      v-if="activeData['icon']!==undefined && activeData.component.tag === 'el-button'"
       label="Icon"
     >
       <el-input v-model="activeData['icon']" placeholder="Enter the button icon name">
@@ -12,7 +12,7 @@
       </el-input>
     </el-form-item>
     <el-form-item
-      v-if="activeData.type !== undefined && activeData.__config__.tag === 'el-button'"
+      v-if="activeData.type !== undefined && activeData.component.tag === 'el-button'"
       label="按钮类型"
     >
       <el-select v-model="activeData.type" :style="{ width: '100%' }">
@@ -25,17 +25,17 @@
       </el-select>
     </el-form-item>
     <el-form-item
-      v-if="activeData.__config__.tag === 'el-button'"
+      v-if="activeData.component.tag === 'el-button'"
       label="Button text"
     >
-      <el-input v-model="activeData.__slot__.default" placeholder="Enter the button text" />
+      <el-input v-model="activeData.slot.default" placeholder="Enter the button text" />
     </el-form-item>
     <el-form-item
       v-if="activeData.size !== undefined &&
-        (activeData.__config__.optionType === 'button' ||
-        activeData.__config__.border ||
-        activeData.__config__.tag === 'el-color-picker' ||
-        activeData.__config__.tag === 'el-button')"
+        (activeData.component.optionType === 'button' ||
+        activeData.component.border ||
+        activeData.component.tag === 'el-color-picker' ||
+        activeData.component.tag === 'el-button')"
       label="Widget size"
     >
       <el-radio-group v-model="activeData.size">

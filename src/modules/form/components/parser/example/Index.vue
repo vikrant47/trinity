@@ -25,7 +25,7 @@ export default {
       formConf: {
         fields: [
           {
-            __config__: {
+            component: {
               label: 'Single line text',
               labelWidth: null,
               showLabel: true,
@@ -43,7 +43,7 @@ export default {
                 }
               ]
             },
-            __slot__: {
+            slot: {
               prepend: '',
               append: ''
             },
@@ -61,7 +61,7 @@ export default {
             disabled: false
           },
           {
-            __config__: {
+            component: {
               label: 'Date range',
               tag: 'el-date-picker',
               tagIcon: 'date-range',
@@ -93,14 +93,14 @@ export default {
             __vModel__: 'field101'
           },
           {
-            __config__: {
+            component: {
               layout: 'rowFormItem',
               tagIcon: 'row',
               label: 'Row container',
               layoutTree: true,
               children: [
                 {
-                  __config__: {
+                  component: {
                     label: 'Mark',
                     tag: 'el-rate',
                     tagIcon: 'rate',
@@ -137,7 +137,7 @@ export default {
             align: 'top'
           },
           {
-            __config__: {
+            component: {
               label: 'push button',
               showLabel: true,
               changeTag: true,
@@ -149,7 +149,7 @@ export default {
               document: 'https://element.eleme.cn/#/zh-CN/component/button',
               renderKey: 1594288459289
             },
-            __slot__: {
+            slot: {
               default: 'Test button 1'
             },
             type: 'primary',
@@ -192,7 +192,7 @@ export default {
       formConf2: {
         fields: [
           {
-            __config__: {
+            component: {
               label: 'Single line text',
               labelWidth: null,
               showLabel: true,
@@ -210,7 +210,7 @@ export default {
                 }
               ]
             },
-            __slot__: {
+            slot: {
               prepend: '',
               append: ''
             },
@@ -228,7 +228,7 @@ export default {
             disabled: false
           },
           {
-            __config__: {
+            component: {
               label: 'Date range',
               tag: 'el-date-picker',
               tagIcon: 'date-range',
@@ -296,7 +296,7 @@ export default {
       form.fields.forEach(item => {
         const val = data[item.__vModel__];
         if (val) {
-          item.__config__.defaultValue = val;
+          item.component.defaultValue = val;
         }
       });
     },

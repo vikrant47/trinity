@@ -1,8 +1,8 @@
 <template>
   <div class="config-wrapper">
-    <el-form-item v-if="activeData.__config__.changeTag" label="Type">
+    <el-form-item v-if="activeData.component.changeTag" label="Type">
       <el-select
-        v-model="activeData.__config__.tagIcon"
+        v-model="activeData.component.tagIcon"
         placeholder="Please select component type"
         :style="{width: '100%'}"
         @change="$emit('tag-change',$event)"
@@ -10,12 +10,12 @@
         <el-option-group v-for="group in tagList" :key="group.label" :label="group.label">
           <el-option
             v-for="item in group.options"
-            :key="item.__config__.label"
-            :label="item.__config__.label"
-            :value="item.__config__.tagIcon"
+            :key="item.component.label"
+            :label="item.component.label"
+            :value="item.component.tagIcon"
           >
-            <svg-icon class="node-icon" :icon-class="item.__config__.tagIcon" />
-            <span> {{ item.__config__.label }}</span>
+            <svg-icon class="node-icon" :icon-class="item.component.tagIcon" />
+            <span> {{ item.component.label }}</span>
           </el-option>
         </el-option-group>
       </el-select>
@@ -23,11 +23,11 @@
     <el-form-item v-if="activeData.__vModel__!==undefined" label="Name">
       <el-input v-model="activeData.__vModel__" placeholder="Enter the field name" />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.componentName!==undefined" label="Widget">
-      {{ activeData.__config__.componentName }}
+    <el-form-item v-if="activeData.component.componentName!==undefined" label="Widget">
+      {{ activeData.component.componentName }}
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.label!==undefined" label="Title">
-      <el-input v-model="activeData.__config__.label" placeholder="Please enter title" @input="changeRenderKey" />
+    <el-form-item v-if="activeData.component.label!==undefined" label="Title">
+      <el-input v-model="activeData.component.label" placeholder="Please enter title" @input="changeRenderKey" />
     </el-form-item>
     <el-form-item v-if="activeData.placeholder!==undefined" label="Placeholder">
       <el-input v-model="activeData.placeholder" placeholder="Enter hint" @input="changeRenderKey" />
@@ -38,16 +38,16 @@
     <el-form-item v-if="activeData['end-placeholder']!==undefined" label="End placeholder">
       <el-input v-model="activeData['end-placeholder']" placeholder="End a placeholder hint" />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.span!==undefined" label="Size">
-      <el-slider v-model="activeData.__config__.span" :max="24" :min="1" :marks="{12:''}" @change="spanChange" />
+    <el-form-item v-if="activeData.component.span!==undefined" label="Size">
+      <el-slider v-model="activeData.component.span" :max="24" :min="1" :marks="{12:''}" @change="spanChange" />
     </el-form-item>
     <el-form-item
-      v-if="activeData.__config__.layout==='rowFormItem'&&activeData.gutter!==undefined"
+      v-if="activeData.component.layout==='rowFormItem'&&activeData.gutter!==undefined"
       label="Grid interval"
     >
       <el-input-number v-model="activeData.gutter" :min="0" placeholder="Grid interval" />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.layout==='rowFormItem'&&activeData.type!==undefined" label="Layout mode">
+    <el-form-item v-if="activeData.component.layout==='rowFormItem'&&activeData.type!==undefined" label="Layout mode">
       <el-radio-group v-model="activeData.type">
         <el-radio-button label="default" />
         <el-radio-button label="flex" />
@@ -70,24 +70,24 @@
         <el-radio-button label="bottom" />
       </el-radio-group>
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.labelWidth!==undefined" label="Label width">
-      <el-input v-model.number="activeData.__config__.labelWidth" type="number" placeholder="Enter the label width" />
+    <el-form-item v-if="activeData.component.labelWidth!==undefined" label="Label width">
+      <el-input v-model.number="activeData.component.labelWidth" type="number" placeholder="Enter the label width" />
     </el-form-item>
     <el-form-item v-if="activeData.style&&activeData.style.width!==undefined" label="Component width">
       <el-input v-model="activeData.style.width" placeholder="Component width" clearable />
     </el-form-item>
     <el-form-item v-if="activeData.__vModel__!==undefined" label="Defaults">
       <el-input
-        :value="setDefaultValue(activeData.__config__.defaultValue)"
+        :value="setDefaultValue(activeData.component.defaultValue)"
         placeholder="Default value"
         @input="onDefaultValueInput"
       />
     </el-form-item>
-    <el-form-item v-if="activeData.__slot__&&activeData.__slot__.prepend!==undefined" label="Prefix">
-      <el-input v-model="activeData.__slot__.prepend" placeholder="Enter a prefix" />
+    <el-form-item v-if="activeData.slot&&activeData.slot.prepend!==undefined" label="Prefix">
+      <el-input v-model="activeData.slot.prepend" placeholder="Enter a prefix" />
     </el-form-item>
-    <el-form-item v-if="activeData.__slot__&&activeData.__slot__.append!==undefined" label="Suffix">
-      <el-input v-model="activeData.__slot__.append" placeholder="Enter the suffix" />
+    <el-form-item v-if="activeData.slot&&activeData.slot.append!==undefined" label="Suffix">
+      <el-input v-model="activeData.slot.append" placeholder="Enter the suffix" />
     </el-form-item>
     <el-form-item v-if="activeData['prefix-icon']!==undefined" label="Front icon">
       <el-input v-model="activeData['prefix-icon']" placeholder="Name of the former icon">
@@ -149,7 +149,7 @@
       />
     </el-form-item>
     <el-form-item
-      v-if="activeData.type !== undefined && 'el-date-picker' === activeData.__config__.tag"
+      v-if="activeData.type !== undefined && 'el-date-picker' === activeData.component.tag"
       label="Time type"
     >
       <el-select
@@ -185,9 +185,9 @@
         <el-option label="txt" value=".txt" />
       </el-select>
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.fileSize !== undefined" label="File size">
-      <el-input v-model.number="activeData.__config__.fileSize" placeholder="Enter file size">
-        <el-select slot="append" v-model="activeData.__config__.sizeUnit" :style="{ width: '66px' }">
+    <el-form-item v-if="activeData.component.fileSize !== undefined" label="File size">
+      <el-input v-model.number="activeData.component.fileSize" placeholder="Enter file size">
+        <el-select slot="append" v-model="activeData.component.sizeUnit" :style="{ width: '66px' }">
           <el-option label="KB" value="KB" />
           <el-option label="MB" value="MB" />
           <el-option label="GB" value="GB" />
@@ -212,11 +212,11 @@
     </el-form-item>
 
     <el-form-item
-      v-if="activeData.__config__.buttonText !== undefined"
+      v-if="activeData.component.buttonText !== undefined"
       v-show="'picture-card' !== activeData['list-type']"
       label="按钮文字"
     >
-      <el-input v-model="activeData.__config__.buttonText" placeholder="Enter the button text" />
+      <el-input v-model="activeData.component.buttonText" placeholder="Enter the button text" />
     </el-form-item>
     <el-form-item v-if="activeData['range-separator'] !== undefined" label="Delimiter">
       <el-input v-model="activeData['range-separator']" placeholder="Enter a separator" />
@@ -234,15 +234,15 @@
         @input="setTimeValue($event)"
       />
     </el-form-item>
-    <template v-if="['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(activeData.__config__.tag) > -1">
+    <template v-if="['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(activeData.component.tag) > -1">
       <el-divider>Options</el-divider>
       <draggable
-        :list="activeData.__slot__.options"
+        :list="activeData.slot.options"
         :animation="340"
         group="selectItem"
         handle=".option-drag"
       >
-        <div v-for="(item, index) in activeData.__slot__.options" :key="index" class="select-item">
+        <div v-for="(item, index) in activeData.slot.options" :key="index" class="select-item">
           <div class="select-line-icon option-drag">
             <i class="el-icon-s-operation" />
           </div>
@@ -253,7 +253,7 @@
             :value="item.value"
             @input="setOptionValue(item, $event)"
           />
-          <div class="close-btn select-line-icon" @click="activeData.__slot__.options.splice(index, 1)">
+          <div class="close-btn select-line-icon" @click="activeData.slot.options.splice(index, 1)">
             <i class="el-icon-remove-outline" />
           </div>
         </div>
@@ -271,10 +271,10 @@
       <el-divider />
     </template>
 
-    <template v-if="['el-cascader', 'el-table'].includes(activeData.__config__.tag)">
+    <template v-if="['el-cascader', 'el-table'].includes(activeData.component.tag)">
       <el-divider>Options</el-divider>
-      <el-form-item v-if="activeData.__config__.dataType" label="type of data">
-        <el-radio-group v-model="activeData.__config__.dataType" size="small">
+      <el-form-item v-if="activeData.component.dataType" label="type of data">
+        <el-radio-group v-model="activeData.component.dataType" size="small">
           <el-radio-button label="dynamic">
             dynamic data
           </el-radio-button>
@@ -284,18 +284,18 @@
         </el-radio-group>
       </el-form-item>
 
-      <template v-if="activeData.__config__.dataType === 'dynamic'">
+      <template v-if="activeData.component.dataType === 'dynamic'">
         <el-form-item label="interface address">
           <el-input
-            v-model="activeData.__config__.url"
-            :title="activeData.__config__.url"
+            v-model="activeData.component.url"
+            :title="activeData.component.url"
             placeholder="Enter the interface address"
             clearable
             @blur="$emit('fetch-data', activeData)"
           >
             <el-select
               slot="prepend"
-              v-model="activeData.__config__.method"
+              v-model="activeData.component.method"
               :style="{width: '85px'}"
               @change="$emit('fetch-data', activeData)"
             >
@@ -308,7 +308,7 @@
         </el-form-item>
         <el-form-item label="Data location">
           <el-input
-            v-model="activeData.__config__.dataPath"
+            v-model="activeData.component.dataPath"
             placeholder="Enter data location"
             @blur="$emit('fetch-data', activeData)"
           />
@@ -329,14 +329,14 @@
 
       <!-- Cascading selection static tree -->
       <el-tree
-        v-if="activeData.__config__.dataType === 'static'"
+        v-if="activeData.component.dataType === 'static'"
         draggable
         :data="activeData.options"
         node-key="id"
         :expand-on-click-node="false"
         :render-content="renderContent"
       />
-      <div v-if="activeData.__config__.dataType === 'static'" style="margin-left: 20px">
+      <div v-if="activeData.component.dataType === 'static'" style="margin-left: 20px">
         <el-button
           style="padding-bottom: 0"
           icon="el-icon-circle-plus-outline"
@@ -349,8 +349,8 @@
       <el-divider />
     </template>
 
-    <el-form-item v-if="activeData.__config__.optionType !== undefined" label="选项样式">
-      <el-radio-group v-model="activeData.__config__.optionType">
+    <el-form-item v-if="activeData.component.optionType !== undefined" label="选项样式">
+      <el-radio-group v-model="activeData.component.optionType">
         <el-radio-button label="default">
           default
         </el-radio-button>
@@ -367,11 +367,11 @@
     </el-form-item>
 
     <el-form-item
-      v-if="activeData.__config__.showLabel !== undefined
-        && activeData.__config__.labelWidth !== undefined"
+      v-if="activeData.component.showLabel !== undefined
+        && activeData.component.labelWidth !== undefined"
       label="Show label"
     >
-      <el-switch v-model="activeData.__config__.showLabel" />
+      <el-switch v-model="activeData.component.showLabel" />
     </el-form-item>
     <el-form-item v-if="activeData.branding !== undefined" label="Brand imprint">
       <el-switch v-model="activeData.branding" @input="changeRenderKey" />
@@ -392,10 +392,10 @@
       <el-switch v-model="activeData.range" @change="rangeChange" />
     </el-form-item>
     <el-form-item
-      v-if="activeData.__config__.border !== undefined && activeData.__config__.optionType === 'default'"
+      v-if="activeData.component.border !== undefined && activeData.component.optionType === 'default'"
       label="Whether with border"
     >
-      <el-switch v-model="activeData.__config__.border" />
+      <el-switch v-model="activeData.component.border" />
     </el-form-item>
     <el-form-item v-if="activeData['show-word-limit'] !== undefined" label="Enter statistics">
       <el-switch v-model="activeData['show-word-limit']" />
@@ -403,8 +403,8 @@
     <el-form-item v-if="activeData.clearable !== undefined" label="Allow Empty">
       <el-switch v-model="activeData.clearable" />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.showTip !== undefined" label="Show hint">
-      <el-switch v-model="activeData.__config__.showTip" />
+    <el-form-item v-if="activeData.component.showTip !== undefined" label="Show hint">
+      <el-switch v-model="activeData.component.showTip" />
     </el-form-item>
     <el-form-item v-if="activeData['auto-upload'] !== undefined" label="Auto upload">
       <el-switch v-model="activeData['auto-upload']" />
@@ -415,14 +415,14 @@
     <el-form-item v-if="activeData.disabled !== undefined" label="Disabled">
       <el-switch v-model="activeData.disabled" />
     </el-form-item>
-    <el-form-item v-if="activeData.__config__.required !== undefined" label="Required">
-      <el-switch v-model="activeData.__config__.required" />
+    <el-form-item v-if="activeData.component.required !== undefined" label="Required">
+      <el-switch v-model="activeData.component.required" />
     </el-form-item>
 
-    <template v-if="activeData.__config__.layoutTree">
+    <template v-if="activeData.component.layoutTree">
       <el-divider>Layout tree</el-divider>
       <el-tree
-        :data="[activeData.__config__]"
+        :data="[activeData.component]"
         :props="layoutTreeProps"
         node-key="renderKey"
         default-expand-all
@@ -430,21 +430,21 @@
       >
         <span slot-scope="{ node, data }">
           <span class="node-label">
-            <svg-icon class="node-icon" :icon-class="data.__config__?data.__config__.tagIcon:data.tagIcon" />
+            <svg-icon class="node-icon" :icon-class="data.component?data.component.tagIcon:data.tagIcon" />
             {{ node.label }}
           </span>
         </span>
       </el-tree>
     </template>
 
-    <template v-if="Array.isArray(activeData.__config__.regList)">
+    <template v-if="Array.isArray(activeData.component.regList)">
       <el-divider>Regular check</el-divider>
       <div
-        v-for="(item, index) in activeData.__config__.regList"
+        v-for="(item, index) in activeData.component.regList"
         :key="index"
         class="reg-item"
       >
-        <span class="close-btn" @click="activeData.__config__.regList.splice(index, 1)">
+        <span class="close-btn" @click="activeData.component.regList.splice(index, 1)">
           <i class="el-icon-close" />
         </span>
         <el-form-item label="Regex">
@@ -578,7 +578,7 @@ export default {
       ],
       layoutTreeProps: {
         label(data, node) {
-          const config = data.__config__;
+          const config = data.component;
           return data.componentName || `${config.label}: ${data.__vModel__}`;
         }
       }
@@ -587,14 +587,14 @@ export default {
   computed: {
     documentLink() {
       return (
-        this.activeData.__config__.document ||
+        this.activeData.component.document ||
         'https://element.eleme.cn/#/zh-CN/component/installation'
       );
     },
     dateOptions() {
       if (
         this.activeData.type !== undefined &&
-        this.activeData.__config__.tag === 'el-date-picker'
+        this.activeData.component.tag === 'el-date-picker'
       ) {
         if (this.activeData['start-placeholder'] === undefined) {
           return this.dateTypeOptions;
@@ -616,7 +616,7 @@ export default {
       ];
     },
     activeTag() {
-      return this.activeData.__config__.tag;
+      return this.activeData.component.tag;
     },
     isShowMin() {
       return ['el-input-number', 'el-slider'].indexOf(this.activeTag) > -1;
@@ -629,13 +629,13 @@ export default {
     }
   }, methods: {
     addReg() {
-      this.activeData.__config__.regList.push({
+      this.activeData.component.regList.push({
         pattern: '',
         message: ''
       });
     },
     addSelectItem() {
-      this.activeData.__slot__.options.push({
+      this.activeData.slot.options.push({
         label: '',
         value: ''
       });
@@ -670,7 +670,7 @@ export default {
       this.currentNode = data.children;
     },
     remove(node, data) {
-      this.activeData.__config__.defaultValue = []; // 避免删除时报错
+      this.activeData.component.defaultValue = []; // 避免删除时报错
       const { parent } = node;
       const children = parent.data.children || parent.data;
       const index = children.findIndex(d => d.id === data.id);
@@ -695,20 +695,20 @@ export default {
       return val;
     },
     onDefaultValueInput(str) {
-      if (isArray(this.activeData.__config__.defaultValue)) {
+      if (isArray(this.activeData.component.defaultValue)) {
         // 数组
         this.$set(
-          this.activeData.__config__,
+          this.activeData.component,
           'defaultValue',
           str.split(',').map(val => (isNumberStr(val) ? +val : val))
         );
       } else if (['true', 'false'].indexOf(str) > -1) {
         // 布尔
-        this.$set(this.activeData.__config__, 'defaultValue', JSON.parse(str));
+        this.$set(this.activeData.component, 'defaultValue', JSON.parse(str));
       } else {
         // 字符串和数字
         this.$set(
-          this.activeData.__config__,
+          this.activeData.component,
           'defaultValue',
           isNumberStr(str) ? +str : str
         );
@@ -723,7 +723,7 @@ export default {
     },
     setTimeValue(val, type) {
       const valueFormat = type === 'week' ? dateTimeFormat.date : val;
-      this.$set(this.activeData.__config__, 'defaultValue', null);
+      this.$set(this.activeData.component, 'defaultValue', null);
       this.$set(this.activeData, 'value-format', valueFormat);
       this.$set(this.activeData, 'format', val);
     },
@@ -731,14 +731,14 @@ export default {
       this.formConf.span = val;
     },
     multipleChange(val) {
-      this.$set(this.activeData.__config__, 'defaultValue', val ? [] : '');
+      this.$set(this.activeData.component, 'defaultValue', val ? [] : '');
     },
     dateTypeChange(val) {
       this.setTimeValue(dateTimeFormat[val], val);
     },
     rangeChange(val) {
       this.$set(
-        this.activeData.__config__,
+        this.activeData.component,
         'defaultValue',
         val ? [this.activeData.min, this.activeData.max] : this.activeData.min
       );
@@ -750,9 +750,9 @@ export default {
       if (val) this.activeData['show-text'] = false;
     },
     colorFormatChange(val) {
-      this.activeData.__config__.defaultValue = null;
+      this.activeData.component.defaultValue = null;
       this.activeData['show-alpha'] = val.indexOf('a') > -1;
-      this.activeData.__config__.renderKey = +new Date(); // 更新renderKey,重新渲染该组件
+      this.activeData.component.renderKey = +new Date(); // 更新renderKey,重新渲染该组件
     },
     openIconsDialog(model) {
       this.iconsVisible = true;
@@ -762,13 +762,13 @@ export default {
       this.activeData[this.currentIconModel] = val;
     },
     tagChange(tagIcon) {
-      let target = inputComponents.find(item => item.__config__.tagIcon === tagIcon);
-      if (!target) target = selectComponents.find(item => item.__config__.tagIcon === tagIcon);
+      let target = inputComponents.find(item => item.component.tagIcon === tagIcon);
+      if (!target) target = selectComponents.find(item => item.component.tagIcon === tagIcon);
       this.$emit('tag-change', target);
     },
     changeRenderKey() {
-      if (needRerenderList.includes(this.activeData.__config__.tag)) {
-        this.activeData.__config__.renderKey = +new Date();
+      if (needRerenderList.includes(this.activeData.component.tag)) {
+        this.activeData.component.renderKey = +new Date();
       }
     }
   }

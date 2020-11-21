@@ -16,7 +16,7 @@ export const formConf = {
 export const inputComponents = [
   {
     // Custom configuration of components
-    __config__: {
+    component: {
       label: 'String',
       labelWidth: null,
       showLabel: true,
@@ -32,7 +32,7 @@ export const inputComponents = [
       regList: []
     },
     // Component slot properties
-    __slot__: {
+    slot: {
       prepend: '',
       append: ''
     },
@@ -48,7 +48,7 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Text',
       labelWidth: null,
       showLabel: true,
@@ -75,7 +75,7 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Password',
       showLabel: true,
       labelWidth: null,
@@ -89,7 +89,7 @@ export const inputComponents = [
       regList: [],
       document: 'https://element.eleme.cn/#/zh-CN/component/input'
     },
-    __slot__: {
+    slot: {
       prepend: '',
       append: ''
     },
@@ -105,7 +105,7 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Counter',
       showLabel: true,
       changeTag: true,
@@ -129,7 +129,7 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Editor',
       showLabel: true,
       changeTag: true,
@@ -152,7 +152,7 @@ export const inputComponents = [
 // Selective components 【Left Panel】
 export const selectComponents = [
   {
-    __config__: {
+    component: {
       label: 'Selection',
       showLabel: true,
       labelWidth: null,
@@ -165,7 +165,7 @@ export const selectComponents = [
       changeTag: true,
       document: 'https://element.eleme.cn/#/zh-CN/component/select'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -182,7 +182,7 @@ export const selectComponents = [
     multiple: false
   },
   {
-    __config__: {
+    component: {
       label: 'Cascade',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/cascaderList',
       method: 'get',
@@ -228,7 +228,7 @@ export const selectComponents = [
     separator: '/'
   },
   {
-    __config__: {
+    component: {
       label: 'Radio group',
       labelWidth: null,
       showLabel: true,
@@ -244,7 +244,7 @@ export const selectComponents = [
       border: false,
       document: 'https://element.eleme.cn/#/zh-CN/component/radio'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -258,7 +258,7 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Checkboxes',
       tag: 'el-checkbox-group',
       tagIcon: 'checkbox',
@@ -274,7 +274,7 @@ export const selectComponents = [
       border: false,
       document: 'https://element.eleme.cn/#/zh-CN/component/checkbox'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -290,7 +290,7 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'power switch',
       tag: 'el-switch',
       tagIcon: 'switch',
@@ -314,7 +314,7 @@ export const selectComponents = [
     'inactive-value': false
   },
   {
-    __config__: {
+    component: {
       label: 'Slider',
       tag: 'el-slider',
       tagIcon: 'slider',
@@ -336,7 +336,7 @@ export const selectComponents = [
     range: false
   },
   {
-    __config__: {
+    component: {
       label: 'Time selection',
       tag: 'el-time-picker',
       tagIcon: 'time',
@@ -361,7 +361,7 @@ export const selectComponents = [
     'value-format': 'HH:mm:ss'
   },
   {
-    __config__: {
+    component: {
       label: 'time limit',
       tag: 'el-time-picker',
       tagIcon: 'time-range',
@@ -386,7 +386,7 @@ export const selectComponents = [
     'value-format': 'HH:mm:ss'
   },
   {
-    __config__: {
+    component: {
       label: 'Date selection',
       tag: 'el-date-picker',
       tagIcon: 'date',
@@ -410,7 +410,7 @@ export const selectComponents = [
     readonly: false
   },
   {
-    __config__: {
+    component: {
       label: 'Date range',
       tag: 'el-date-picker',
       tagIcon: 'date-range',
@@ -436,7 +436,7 @@ export const selectComponents = [
     readonly: false
   },
   {
-    __config__: {
+    component: {
       label: 'score',
       tag: 'el-rate',
       tagIcon: 'rate',
@@ -458,7 +458,7 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       label: 'Color Picker',
       tag: 'el-color-picker',
       tagIcon: 'color',
@@ -478,7 +478,7 @@ export const selectComponents = [
     size: 'medium'
   },
   {
-    __config__: {
+    component: {
       label: 'Upload',
       tag: 'el-upload',
       tagIcon: 'upload',
@@ -496,7 +496,7 @@ export const selectComponents = [
       sizeUnit: 'MB',
       document: 'https://element.eleme.cn/#/zh-CN/component/upload'
     },
-    __slot__: {
+    slot: {
       'list-type': true
     },
     action: 'https://jsonplaceholder.typicode.com/posts/',
@@ -512,7 +512,7 @@ export const selectComponents = [
 // Layout component 【Left Panel】
 export const layoutComponents = [
   {
-    __config__: {
+    component: {
       layout: 'rowFormItem',
       tagIcon: 'row',
       label: 'Row container',
@@ -524,7 +524,7 @@ export const layoutComponents = [
     align: 'top'
   },
   {
-    __config__: {
+    component: {
       label: 'push button',
       showLabel: true,
       changeTag: true,
@@ -535,7 +535,7 @@ export const layoutComponents = [
       layout: 'colFormItem',
       document: 'https://element.eleme.cn/#/zh-CN/component/button'
     },
-    __slot__: {
+    slot: {
       default: 'Main button'
     },
     type: 'primary',
@@ -547,7 +547,7 @@ export const layoutComponents = [
     disabled: false
   },
   {
-    __config__: {
+    component: {
       layout: 'colFormItem',
       tagIcon: 'table',
       tag: 'form-designer-preview',
@@ -566,7 +566,7 @@ export const layoutComponents = [
       dataConsumer: 'data',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/tableData',
       children: [{
-        __config__: {
+        component: {
           layout: 'raw',
           tag: 'el-table-column',
           renderKey: 15957617660153
@@ -574,7 +574,7 @@ export const layoutComponents = [
         prop: 'date',
         label: '日期'
       }, {
-        __config__: {
+        component: {
           layout: 'raw',
           tag: 'el-table-column',
           renderKey: 15957617660152
@@ -582,7 +582,7 @@ export const layoutComponents = [
         prop: 'address',
         label: 'Address'
       }, {
-        __config__: {
+        component: {
           layout: 'raw',
           tag: 'el-table-column',
           renderKey: 15957617660151
@@ -590,20 +590,20 @@ export const layoutComponents = [
         prop: 'name',
         label: 'name'
       }, {
-        __config__: {
+        component: {
           layout: 'raw',
           tag: 'el-table-column',
           renderKey: 1595774496335,
           children: [
             {
-              __config__: {
+              component: {
                 label: 'push button',
                 tag: 'el-button',
                 tagIcon: 'button',
                 layout: 'raw',
                 renderKey: 1595779809901
               },
-              __slot__: {
+              slot: {
                 default: 'Main button'
               },
               type: 'primary',
