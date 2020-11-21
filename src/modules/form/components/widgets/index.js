@@ -41,7 +41,7 @@ export const widgetConfig = {
   richeditor: require('./text/text-widget'),
   select: require('./select/select-widget'),
   cascader: require('./cascader/cascader-widget'),
-  radioGroup: require('./radio-group/checkbox-group-widget'),
+  radioGroup: require('./radio-group/radio-group-widget'),
   checkboxGroup: require('./checkbox-group/checkbox-group-widget'),
   switch: require('./switch/switch-widget'),
   slider: require('./slider/slider-widget'),

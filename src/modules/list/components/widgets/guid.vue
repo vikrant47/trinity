@@ -11,12 +11,12 @@
 </template>
 
 <script>
-import PasswordWidget from '@/modules/list/components/widgets/text';
+import TextWidget from '@/modules/list/components/widgets/text';
 
 export default {
   name: 'Guid',
   with: '30',
-  extends: CheckboxGroupWidget
+  extends: TextWidget
 };
 </script>
 

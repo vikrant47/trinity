@@ -5,11 +5,11 @@
   </div>
 </template>
 <script>
-import PasswordWidget from './text';
+import TextWidget from './text';
 
 export default {
   name: 'DateTime',
-  extends: CheckboxGroupWidget
+  extends: TextWidget
 };
 </script>
 
