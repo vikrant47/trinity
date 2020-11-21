@@ -167,7 +167,7 @@ export default {
           rules[cur.__vModel__] = config.regList.map(item => {
             // eslint-disable-next-line no-eval
             item.pattern && (item.pattern = eval(item.pattern));
-            item.trigger = ruleTrigger && ruleTrigger[config.tag];
+            item.trigger = ruleTrigger && ruleTrigger[config.widget];
             return item;
           });
         }

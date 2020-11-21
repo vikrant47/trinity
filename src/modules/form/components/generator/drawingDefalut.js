@@ -5,7 +5,7 @@ export default [
       labelWidth: null,
       showLabel: true,
       changeTag: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'input',
       defaultValue: undefined,
       required: true,

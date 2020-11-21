@@ -99,7 +99,7 @@
         :active-data="activeData"
         :form-conf="formConf"
         :show-field="!!drawingList.length"
-        @tag-change="tagChange"
+        @widget-change="tagChange"
         @fetch-data="fetchData"
       />
     </el-drawer>
@@ -217,7 +217,7 @@ export default {
     'activeData.component.label': function(val, oldVal) {
       if (
         this.activeData.placeholder === undefined ||
-        !this.activeData.component.tag ||
+        !this.activeData.component.widget ||
         oldActiveId !== this.activeId
       ) {
         return;
@@ -437,7 +437,7 @@ export default {
       newTag.__vModel__ = this.activeData.__vModel__;
       config.formId = this.activeId;
       config.span = this.activeData.component.span;
-      this.activeData.component.tag = config.tag;
+      this.activeData.component.widget = config.widget;
       this.activeData.component.tagIcon = config.tagIcon;
       this.activeData.component.document = config.document;
       if (typeof this.activeData.component.defaultValue === typeof config.defaultValue) {

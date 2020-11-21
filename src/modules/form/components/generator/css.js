@@ -4,7 +4,7 @@ const styles = {
 };
 
 function addCss(cssList, el) {
-  const css = styles[el.component.tag];
+  const css = styles[el.component.widget];
   css && cssList.indexOf(css) === -1 && cssList.push(css);
   if (el.component.children) {
     el.component.children.forEach(el2 => addCss(cssList, el2));

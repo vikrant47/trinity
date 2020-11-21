@@ -7,15 +7,15 @@ const widgets = {
 const componentChild = {};
 /**
  * Mount the files in ./slots to the object component Child
- * The file name is key, corresponding to component.tag in the JSON configuration
+ * The file name is key, corresponding to component.widget in the JSON configuration
  * The content of the file is value, parse the slot in the JSON configuration
  */
 const slotsFiles = require.context('./slots', false, /\.js$/);
 const keys = slotsFiles.keys() || [];
 keys.forEach(key => {
-  const tag = key.replace(/^\.\/(.*)\.\w+$/, '$1');
+  const widget = key.replace(/^\.\/(.*)\.\w+$/, '$1');
   const value = slotsFiles(key).default;
-  componentChild[tag] = value;
+  componentChild[widget] = value;
 });
 
 function vModel(dataObject, defaultValue) {
@@ -27,7 +27,7 @@ function vModel(dataObject, defaultValue) {
 }
 
 function mountSlotFiles(h, confClone, children) {
-  const childObjs = widgets[confClone.component.tag];
+  const childObjs = widgets[confClone.component.widget];
   if (childObjs) {
     Object.keys(childObjs).forEach(key => {
       const childFunc = childObjs[key];
@@ -121,7 +121,7 @@ export default {
     const confClone = deepClone(this.conf);
     const children = this.$slots.default || [];
     const dataObject = makeDataObject.call(this);
-    // If a file with the same name as the current tag exists in the slots folder, the code in the file is executed
+    // If a file with the same name as the current widget exists in the slots folder, the code in the file is executed
     mountSlotFiles.call(this, h, confClone, children);
 
     // send string events as messages
@@ -129,7 +129,7 @@ export default {
 
     // Convert json form configuration to vue recognizable by render "Data Object"
     buildDataObject.call(this, confClone, dataObject);
-    const tag = this.conf.component.tag;
-    return h(widgets[tag] || tag, dataObject, children);
+    const widget = this.conf.component.widget;
+    return h(widgets[widget] || widget, dataObject, children);
   }
 };

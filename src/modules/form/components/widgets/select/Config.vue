@@ -1,10 +1,10 @@
 <template>
   <div class="select-config">
     <base-widget-config :active-data="activeData" />
-    <el-form-item v-if="activeData.component.tag === 'el-select'" label="Searchable">
+    <el-form-item v-if="activeData.component.widget === 'el-select'" label="Searchable">
       <el-switch v-model="activeData.filterable" />
     </el-form-item>
-    <el-form-item v-if="activeData.component.tag === 'el-select'" label="Multiple">
+    <el-form-item v-if="activeData.component.widget === 'el-select'" label="Multiple">
       <el-switch v-model="activeData.multiple" @change="multipleChange" />
     </el-form-item>
   </div>

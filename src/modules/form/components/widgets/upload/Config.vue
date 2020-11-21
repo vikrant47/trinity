@@ -1,5 +1,5 @@
 <template>
-  <el-form-item v-if="activeData.component.tag === 'el-upload'" label="多选文件">
+  <el-form-item v-if="activeData.component.widget === 'el-upload'" label="多选文件">
     <el-switch v-model="activeData.multiple" />
   </el-form-item>
 </template>

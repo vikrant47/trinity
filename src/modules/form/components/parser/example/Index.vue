@@ -30,7 +30,7 @@ export default {
               labelWidth: null,
               showLabel: true,
               changeTag: true,
-              tag: 'el-input',
+              widget: 'el-input',
               tagIcon: 'input',
               required: true,
               layout: 'colFormItem',
@@ -63,7 +63,7 @@ export default {
           {
             component: {
               label: 'Date range',
-              tag: 'el-date-picker',
+              widget: 'el-date-picker',
               tagIcon: 'date-range',
               defaultValue: null,
               span: 24,
@@ -102,7 +102,7 @@ export default {
                 {
                   component: {
                     label: 'Mark',
-                    tag: 'el-rate',
+                    widget: 'el-rate',
                     tagIcon: 'rate',
                     defaultValue: 0,
                     span: 24,
@@ -142,7 +142,7 @@ export default {
               showLabel: true,
               changeTag: true,
               labelWidth: null,
-              tag: 'el-button',
+              widget: 'el-button',
               tagIcon: 'button',
               span: 24,
               layout: 'colFormItem',
@@ -197,7 +197,7 @@ export default {
               labelWidth: null,
               showLabel: true,
               changeTag: true,
-              tag: 'el-input',
+              widget: 'el-input',
               tagIcon: 'input',
               required: true,
               layout: 'colFormItem',
@@ -230,7 +230,7 @@ export default {
           {
             component: {
               label: 'Date range',
-              tag: 'el-date-picker',
+              widget: 'el-date-picker',
               tagIcon: 'date-range',
               defaultValue: null,
               span: 24,

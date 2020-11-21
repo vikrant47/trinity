@@ -12,8 +12,8 @@
         <!-- Component properties -->
         <el-form v-show="currentTab==='field' && showField" size="small" label-width="90px">
           <div
-            :is="widgets[activeData.component.tag].config"
-            v-if="widgets[activeData.component.tag]"
+            :is="widgets[activeData.component.widget].config"
+            v-if="widgets[activeData.component.widget]"
             :active-data="activeData"
             class="widget-config-container"
           />
@@ -131,7 +131,7 @@ export default {
   },
   computed: {
     widgetConfigComponent() {
-      const widget = widgets[this.activeData.component.tag];
+      const widget = widgets[this.activeData.component.widget];
       const config = widget.config;
       if (typeof config === 'function') {
         return config();
@@ -147,7 +147,7 @@ export default {
     dateOptions() {
       if (
         this.activeData.type !== undefined &&
-        this.activeData.component.tag === 'el-date-picker'
+        this.activeData.component.widget === 'el-date-picker'
       ) {
         if (this.activeData['start-placeholder'] === undefined) {
           return this.dateTypeOptions;
@@ -169,7 +169,7 @@ export default {
       ];
     },
     activeTag() {
-      return this.activeData.component.tag;
+      return this.activeData.component.widget;
     },
     isShowMin() {
       return ['el-input-number', 'el-slider'].indexOf(this.activeTag) > -1;
@@ -326,10 +326,10 @@ export default {
     tagChange(tagIcon) {
       let target = inputComponents.find(item => item.component.tagIcon === tagIcon);
       if (!target) target = selectComponents.find(item => item.component.tagIcon === tagIcon);
-      this.$emit('tag-change', target);
+      this.$emit('widget-change', target);
     },
     changeRenderKey() {
-      if (needRerenderList.includes(this.activeData.component.tag)) {
+      if (needRerenderList.includes(this.activeData.component.widget)) {
         this.activeData.component.renderKey = +new Date();
       }
     }

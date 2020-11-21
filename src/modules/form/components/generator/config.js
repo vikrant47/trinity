@@ -21,7 +21,7 @@ export const inputComponents = [
       labelWidth: null,
       showLabel: true,
       changeTag: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'input',
       defaultValue: undefined,
       required: true,
@@ -52,7 +52,7 @@ export const inputComponents = [
       label: 'Text',
       labelWidth: null,
       showLabel: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'textarea',
       defaultValue: undefined,
       required: true,
@@ -80,7 +80,7 @@ export const inputComponents = [
       showLabel: true,
       labelWidth: null,
       changeTag: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'password',
       defaultValue: undefined,
       layout: 'colFormItem',
@@ -110,7 +110,7 @@ export const inputComponents = [
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'el-input-number',
+      widget: 'el-input-number',
       tagIcon: 'number',
       defaultValue: undefined,
       span: 24,
@@ -134,7 +134,7 @@ export const inputComponents = [
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'tinymce',
+      widget: 'tinymce',
       tagIcon: 'rich-text',
       defaultValue: null,
       span: 24,
@@ -156,7 +156,7 @@ export const selectComponents = [
       label: 'Selection',
       showLabel: true,
       labelWidth: null,
-      tag: 'el-select',
+      widget: 'el-select',
       tagIcon: 'select',
       layout: 'colFormItem',
       span: 24,
@@ -190,7 +190,7 @@ export const selectComponents = [
       dataConsumer: 'options',
       showLabel: true,
       labelWidth: null,
-      tag: 'el-cascader',
+      widget: 'el-cascader',
       tagIcon: 'cascader',
       layout: 'colFormItem',
       defaultValue: [],
@@ -232,7 +232,7 @@ export const selectComponents = [
       label: 'Radio group',
       labelWidth: null,
       showLabel: true,
-      tag: 'el-radio-group',
+      widget: 'el-radio-group',
       tagIcon: 'radio',
       changeTag: true,
       defaultValue: undefined,
@@ -260,7 +260,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Checkboxes',
-      tag: 'el-checkbox-group',
+      widget: 'el-checkbox-group',
       tagIcon: 'checkbox',
       defaultValue: [],
       span: 24,
@@ -292,7 +292,7 @@ export const selectComponents = [
   {
     component: {
       label: 'power switch',
-      tag: 'el-switch',
+      widget: 'el-switch',
       tagIcon: 'switch',
       defaultValue: false,
       span: 24,
@@ -316,7 +316,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Slider',
-      tag: 'el-slider',
+      widget: 'el-slider',
       tagIcon: 'slider',
       defaultValue: null,
       span: 24,
@@ -338,7 +338,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Time selection',
-      tag: 'el-time-picker',
+      widget: 'el-time-picker',
       tagIcon: 'time',
       defaultValue: null,
       span: 24,
@@ -363,7 +363,7 @@ export const selectComponents = [
   {
     component: {
       label: 'time limit',
-      tag: 'el-time-picker',
+      widget: 'el-time-picker',
       tagIcon: 'time-range',
       span: 24,
       showLabel: true,
@@ -388,7 +388,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Date selection',
-      tag: 'el-date-picker',
+      widget: 'el-date-picker',
       tagIcon: 'date',
       defaultValue: null,
       showLabel: true,
@@ -412,7 +412,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Date range',
-      tag: 'el-date-picker',
+      widget: 'el-date-picker',
       tagIcon: 'date-range',
       defaultValue: null,
       span: 24,
@@ -438,7 +438,7 @@ export const selectComponents = [
   {
     component: {
       label: 'score',
-      tag: 'el-rate',
+      widget: 'el-rate',
       tagIcon: 'rate',
       defaultValue: 0,
       span: 24,
@@ -460,7 +460,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Color Picker',
-      tag: 'el-color-picker',
+      widget: 'el-color-picker',
       tagIcon: 'color',
       span: 24,
       defaultValue: null,
@@ -480,7 +480,7 @@ export const selectComponents = [
   {
     component: {
       label: 'Upload',
-      tag: 'el-upload',
+      widget: 'el-upload',
       tagIcon: 'upload',
       layout: 'colFormItem',
       defaultValue: null,
@@ -529,7 +529,7 @@ export const layoutComponents = [
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'el-button',
+      widget: 'el-button',
       tagIcon: 'button',
       span: 24,
       layout: 'colFormItem',
@@ -550,7 +550,7 @@ export const layoutComponents = [
     component: {
       layout: 'colFormItem',
       tagIcon: 'table',
-      tag: 'form-designer-preview',
+      widget: 'form-designer-preview',
       document: 'https://element.eleme.cn/#/zh-CN/component/table',
       span: 24,
       formId: 101,
@@ -568,7 +568,7 @@ export const layoutComponents = [
       children: [{
         component: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660153
         },
         prop: 'date',
@@ -576,7 +576,7 @@ export const layoutComponents = [
       }, {
         component: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660152
         },
         prop: 'address',
@@ -584,7 +584,7 @@ export const layoutComponents = [
       }, {
         component: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660151
         },
         prop: 'name',
@@ -592,13 +592,13 @@ export const layoutComponents = [
       }, {
         component: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 1595774496335,
           children: [
             {
               component: {
                 label: 'push button',
-                tag: 'el-button',
+                widget: 'el-button',
                 tagIcon: 'button',
                 layout: 'raw',
                 renderKey: 1595779809901

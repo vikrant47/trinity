@@ -1,7 +1,7 @@
 <template>
   <div class="color-picker-config">
     <base-widget-config :active-data="activeData" />
-    <el-form-item v-if="activeData.component.tag === 'el-color-picker'" label="Color format">
+    <el-form-item v-if="activeData.component.widget === 'el-color-picker'" label="Color format">
       <el-select
         v-model="activeData['color-format']"
         placeholder="Choose color format"
@@ -21,8 +21,8 @@
       v-if="activeData.size !== undefined &&
         (activeData.component.optionType === 'button' ||
         activeData.component.border ||
-        activeData.component.tag === 'el-color-picker' ||
-        activeData.component.tag === 'el-button')"
+        activeData.component.widget === 'el-color-picker' ||
+        activeData.component.widget === 'el-button')"
       label="Widget size"
     >
       <el-radio-group v-model="activeData.size">

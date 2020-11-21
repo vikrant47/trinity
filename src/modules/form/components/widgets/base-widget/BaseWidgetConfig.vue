@@ -5,7 +5,7 @@
         v-model="activeData.component.tagIcon"
         placeholder="Please select component type"
         :style="{width: '100%'}"
-        @change="$emit('tag-change',$event)"
+        @change="$emit('widget-change',$event)"
       >
         <el-option-group v-for="group in tagList" :key="group.label" :label="group.label">
           <el-option
@@ -149,7 +149,7 @@
       />
     </el-form-item>
     <el-form-item
-      v-if="activeData.type !== undefined && 'el-date-picker' === activeData.component.tag"
+      v-if="activeData.type !== undefined && 'el-date-picker' === activeData.component.widget"
       label="Time type"
     >
       <el-select
@@ -234,7 +234,7 @@
         @input="setTimeValue($event)"
       />
     </el-form-item>
-    <template v-if="['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(activeData.component.tag) > -1">
+    <template v-if="['el-checkbox-group', 'el-radio-group', 'el-select'].indexOf(activeData.component.widget) > -1">
       <el-divider>Options</el-divider>
       <draggable
         :list="activeData.slot.options"
@@ -271,7 +271,7 @@
       <el-divider />
     </template>
 
-    <template v-if="['el-cascader', 'el-table'].includes(activeData.component.tag)">
+    <template v-if="['el-cascader', 'el-table'].includes(activeData.component.widget)">
       <el-divider>Options</el-divider>
       <el-form-item v-if="activeData.component.dataType" label="type of data">
         <el-radio-group v-model="activeData.component.dataType" size="small">
@@ -594,7 +594,7 @@ export default {
     dateOptions() {
       if (
         this.activeData.type !== undefined &&
-        this.activeData.component.tag === 'el-date-picker'
+        this.activeData.component.widget === 'el-date-picker'
       ) {
         if (this.activeData['start-placeholder'] === undefined) {
           return this.dateTypeOptions;
@@ -616,7 +616,7 @@ export default {
       ];
     },
     activeTag() {
-      return this.activeData.component.tag;
+      return this.activeData.component.widget;
     },
     isShowMin() {
       return ['el-input-number', 'el-slider'].indexOf(this.activeTag) > -1;
@@ -764,10 +764,10 @@ export default {
     tagChange(tagIcon) {
       let target = inputComponents.find(item => item.component.tagIcon === tagIcon);
       if (!target) target = selectComponents.find(item => item.component.tagIcon === tagIcon);
-      this.$emit('tag-change', target);
+      this.$emit('widget-change', target);
     },
     changeRenderKey() {
-      if (needRerenderList.includes(this.activeData.component.tag)) {
+      if (needRerenderList.includes(this.activeData.component.widget)) {
         this.activeData.component.renderKey = +new Date();
       }
     }

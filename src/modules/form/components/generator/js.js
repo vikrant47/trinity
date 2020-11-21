@@ -72,7 +72,7 @@ function buildAttributes(scheme, dataList, ruleList, optionsList, methodList, pr
   }
 
   // 处理el-upload的action
-  if (scheme.action && config.tag === 'el-upload') {
+  if (scheme.action && config.widget === 'el-upload') {
     uploadVarList.push(
       `${scheme.__vModel__}Action: '${scheme.action}',
       ${scheme.__vModel__}fileList: [],`
@@ -153,19 +153,19 @@ function buildRules(scheme, ruleList) {
   const config = scheme.component;
   if (scheme.__vModel__ === undefined) return;
   const rules = [];
-  if (ruleTrigger[config.tag]) {
+  if (ruleTrigger[config.widget]) {
     if (config.required) {
       const type = isArray(config.defaultValue) ? 'type: \'array\',' : '';
       let message = isArray(config.defaultValue) ? `请至少选择一个${config.label}` : scheme.placeholder;
       if (message === undefined) message = `${config.label}不能为空`;
-      rules.push(`{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.tag]}' }`);
+      rules.push(`{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.widget]}' }`);
     }
     if (config.regList && isArray(config.regList)) {
       config.regList.forEach(item => {
         if (item.pattern) {
           rules.push(
             // eslint-disable-next-line no-eval
-            `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${ruleTrigger[config.tag]}' }`
+            `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${ruleTrigger[config.widget]}' }`
           );
         }
       });
