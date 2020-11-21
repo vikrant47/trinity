@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <en-form
+      :toolbar="true"
       :model-alias="modelAlias"
       :form-id="formId"
       :record-id="recordId"
@@ -10,7 +11,7 @@
 </template>
 
 <script>
-import EnForm from '@/modules/form/components/engine/EnForm';
+import EnForm from '@/modules/form/components/engine/form/EnForm';
 
 export default {
   name: 'FormRenderer',

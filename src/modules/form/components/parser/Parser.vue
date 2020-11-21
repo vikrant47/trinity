@@ -15,7 +15,7 @@ const ruleTrigger = {
 };
 
 const layouts = {
-  colFormItem(h, scheme) {
+  colFormItem(h, scheme, formData) {
     const config = scheme.__config__;
     const listeners = buildListeners.call(this, scheme);
 
@@ -25,7 +25,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-form-item label-width={labelWidth} prop={scheme.__vModel__}
           label={config.showLabel ? config.label : ''}>
-          <render conf={scheme} {...{ on: listeners }} />
+          <render conf={scheme} {...{ on: listeners }} form-data={formData}/>
         </el-form-item>
       </el-col>
     );
@@ -62,7 +62,7 @@ function renderFrom(h) {
         props={{ model: this[formConfCopy.formModel] }}
         rules={this[formConfCopy.formRules]}
       >
-        {renderFormItem.call(this, h, formConfCopy.fields)}
+        {renderFormItem.call(this, h, formConfCopy.fields, this[formConfCopy.formModel])}
         {formConfCopy.formBtns && formBtns.call(this, h)}
       </el-form>
     </el-row>
@@ -78,13 +78,13 @@ function formBtns(h) {
   </el-col>;
 }
 
-function renderFormItem(h, elementList) {
+function renderFormItem(h, elementList, formData) {
   return elementList.map(scheme => {
     const config = scheme.__config__;
     const layout = layouts[config.layout];
 
     if (layout) {
-      return layout.call(this, h, scheme);
+      return layout.call(this, h, scheme, formData);
     }
     throw new Error(`No layout fount with ${config.layout} name`);
   });
@@ -124,12 +124,19 @@ export default {
     formConf: {
       type: Object,
       required: true
+    },
+    formData: {
+      type: Object,
+      required: true,
+      default() {
+        return {};
+      }
     }
   },
   data() {
     const data = {
-      formConfCopy: deepClone(this.formConf),
-      [this.formConf.formModel]: {},
+      formConfCopy: this.formConf,
+      [this.formConf.formModel]: this.formData,
       [this.formConf.formRules]: {}
     };
     this.initFormData(data.formConfCopy.fields, data[this.formConf.formModel]);
@@ -140,7 +147,7 @@ export default {
     initFormData(componentList, formData) {
       componentList.forEach(cur => {
         const config = cur.__config__;
-        if (cur.__vModel__) formData[cur.__vModel__] = config.defaultValue;
+        if (cur.__vModel__ && !formData[cur.__vModel__]) formData[cur.__vModel__] = config.defaultValue;
         if (config.children) this.initFormData(config.children, formData);
       });
     },

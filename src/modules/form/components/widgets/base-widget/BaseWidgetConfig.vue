@@ -369,7 +369,7 @@
     <el-form-item
       v-if="activeData.__config__.showLabel !== undefined
         && activeData.__config__.labelWidth !== undefined"
-      label="显示标签"
+      label="Show label"
     >
       <el-switch v-model="activeData.__config__.showLabel" />
     </el-form-item>

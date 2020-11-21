@@ -15,6 +15,7 @@ import BaseWidgetConfig from '@/modules/form/components/widgets/base-widget/Base
 
 export default {
   name: 'Config',
+  components: { BaseWidgetConfig },
   extends: BaseWidgetConfig
 };
 </script>

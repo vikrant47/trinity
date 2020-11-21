@@ -19,7 +19,7 @@ keys.forEach(key => {
 });
 
 function vModel(dataObject, defaultValue) {
-  dataObject.props.value = defaultValue;
+  dataObject.props.value = typeof dataObject.props.value === 'undefined' ? defaultValue : dataObject.props.value;
 
   dataObject.on.input = val => {
     this.$emit('input', val);
@@ -86,7 +86,9 @@ function makeDataObject() {
   return {
     class: {},
     attrs: {},
-    props: {},
+    props: {
+      value: this.formData[this.conf.__vModel__]
+    },
     domProps: {},
     nativeOn: {},
     on: {},
@@ -101,17 +103,24 @@ function makeDataObject() {
 }
 
 export default {
+  name: 'FormItemRenderer',
   props: {
     conf: {
       type: Object,
       required: true
+    },
+    formData: {
+      type: Object,
+      require: true,
+      default() {
+        return {};
+      }
     }
   },
   render(h) {
-    const dataObject = makeDataObject();
     const confClone = deepClone(this.conf);
     const children = this.$slots.default || [];
-
+    const dataObject = makeDataObject.call(this);
     // If a file with the same name as the current tag exists in the slots folder, the code in the file is executed
     mountSlotFiles.call(this, h, confClone, children);
 

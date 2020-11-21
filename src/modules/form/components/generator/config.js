@@ -183,7 +183,7 @@ export const selectComponents = [
   },
   {
     __config__: {
-      label: 'Cascade selection',
+      label: 'Cascade',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/cascaderList',
       method: 'get',
       dataPath: 'list',
@@ -259,7 +259,7 @@ export const selectComponents = [
   },
   {
     __config__: {
-      label: 'Checkbox group',
+      label: 'Checkboxes',
       tag: 'el-checkbox-group',
       tagIcon: 'checkbox',
       defaultValue: [],
@@ -459,7 +459,7 @@ export const selectComponents = [
   },
   {
     __config__: {
-      label: 'Selection of color',
+      label: 'Color Picker',
       tag: 'el-color-picker',
       tagIcon: 'color',
       span: 24,
@@ -550,7 +550,7 @@ export const layoutComponents = [
     __config__: {
       layout: 'colFormItem',
       tagIcon: 'table',
-      tag: 'el-table',
+      tag: 'form-designer-preview',
       document: 'https://element.eleme.cn/#/zh-CN/component/table',
       span: 24,
       formId: 101,
@@ -559,9 +559,9 @@ export const layoutComponents = [
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      label: 'Form [Under development]',
-      dataType: 'dynamic',
-      method: 'get',
+      label: 'Form',
+      dataType: Object
+      /* method: 'get',
       dataPath: 'list',
       dataConsumer: 'data',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/tableData',
@@ -614,12 +614,12 @@ export const layoutComponents = [
           ]
         },
         label: 'operational'
-      }]
+      }]*/
     },
     data: [],
     directives: [{
       name: 'loading',
-      value: true
+      value: false
     }],
     border: true,
     type: 'default',

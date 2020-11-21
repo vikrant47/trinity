@@ -32,7 +32,7 @@ export class ListDataService extends EngineObservable {
   };
   columns = [];
   rows = [];
-  listActions = [];
+  actions = [];
   order = {
     attribute: 'updated_at',
     direction: 'ASC'
@@ -96,7 +96,7 @@ export class ListDataService extends EngineObservable {
       return this.settings.actions;
     }
     const listActions = this.definition.list.actions;
-    this.listActions = Engine.convertToTree(listActions, {
+    this.actions = Engine.convertToTree(listActions, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order
     });
     return this;

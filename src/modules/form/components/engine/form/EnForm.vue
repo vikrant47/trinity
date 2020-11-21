@@ -1,6 +1,16 @@
 <template>
   <div class="form-container">
-    <parser :key="formService.hashCode" :form-conf="formService.formConfig" @submit="submitForm" />
+    <div class="head-container">
+      <en-form-toolbar v-if="toolbar" :actions="formService.actions" />
+    </div>
+    <div class="form-parser">
+      <parser
+        :key="formService.hashCode"
+        :form-conf="formService.formConfig"
+        :form-data="formService.formData"
+        @submit="submitForm"
+      />
+    </div>
   </div>
 </template>
 
@@ -12,12 +22,17 @@ import { FormService } from '@/modules/form/services/form.service';
 import { FormEventHandler } from '@/modules/form/services/form.event.handler';
 import locale from 'element-ui/lib/locale/lang/en';
 import ElementUI from 'element-ui';
+import EnFormToolbar from '@/modules/form/components/engine/toolbar/EnFormToolbar';
 
 Vue.use(ElementUI, { locale });
 export default {
   name: 'EnForm',
-  components: { Parser },
+  components: { EnFormToolbar, Parser },
   props: {
+    toolbar: {
+      type: Boolean,
+      default: false
+    },
     formConfig: {
       type: Object,
       default: () => {
@@ -89,7 +104,7 @@ export default {
 </script>
 
 <style lang='scss'>
-@import '../../../../modules/form/styles/home';
-@import '../../../../modules/form/styles/index';
-@import '../../../../modules/form/styles/mixin';
+@import '../../../styles/home';
+@import '../../../styles/index';
+@import '../../../styles/mixin';
 </style>

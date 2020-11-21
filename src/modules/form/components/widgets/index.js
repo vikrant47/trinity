@@ -33,3 +33,16 @@ export default {
     config: SelectConfig
   }
 };
+export const widgetConfig = {
+  string: require('./input/input-widget'),
+  text: require('./text/text-widget'),
+  password: require('./password/password-widget'),
+  number: require('./number/number-widget'),
+  richeditor: require('./text/text-widget'),
+  select: require('./select/select-widget'),
+  cascader: require('./cascader/cascader-widget'),
+  radioGroup: require('./radio-group/checkbox-group-widget'),
+  checkboxGroup: require('./checkbox-group/checkbox-group-widget'),
+  switch: require('./switch/switch-widget'),
+  slider: require('./slider/slider-widget'),
+};

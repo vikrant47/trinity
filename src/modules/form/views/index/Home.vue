@@ -126,9 +126,9 @@ import { debounce } from 'throttle-debounce';
 import { saveAs } from 'file-saver';
 import ClipboardJS from 'clipboard';
 import render from '@/modules/form/components/render/render';
-import FormDrawer from './FormDrawer';
-import JsonDrawer from './JsonDrawer';
-import RightPanel from './RightPanel';
+import FormDrawer from '../../components/widgets/form-designer/FormDrawer';
+import JsonDrawer from '../../components/widgets/form-designer/JsonDrawer';
+import RightPanel from '../../components/widgets/form-designer/RightPanel';
 import {
   inputComponents, selectComponents, layoutComponents, formConf
 } from '@/modules/form/components/generator/config';

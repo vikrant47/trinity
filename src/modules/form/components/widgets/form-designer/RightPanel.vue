@@ -84,7 +84,7 @@
 import { isArray } from 'util';
 import TreeNodeDialog from '@/modules/form/views/index/TreeNodeDialog';
 import { isNumberStr } from '@/modules/form/utils';
-import IconsDialog from './IconsDialog';
+import IconsDialog from '../../../views/index/IconsDialog';
 import {
   inputComponents, selectComponents, layoutComponents
 } from '@/modules/form/components/generator/config';
@@ -232,7 +232,7 @@ export default {
       this.currentNode = data.children;
     },
     remove(node, data) {
-      this.activeData.__config__.defaultValue = []; // 避免删除时报错
+      this.activeData.__config__.defaultValue = []; // Avoid error when deleting
       const { parent } = node;
       const children = parent.data.children || parent.data;
       const index = children.findIndex(d => d.id === data.id);
@@ -258,17 +258,17 @@ export default {
     },
     onDefaultValueInput(str) {
       if (isArray(this.activeData.__config__.defaultValue)) {
-        // 数组
+        // Array
         this.$set(
           this.activeData.__config__,
           'defaultValue',
           str.split(',').map(val => (isNumberStr(val) ? +val : val))
         );
       } else if (['true', 'false'].indexOf(str) > -1) {
-        // 布尔
+        // Boolean
         this.$set(this.activeData.__config__, 'defaultValue', JSON.parse(str));
       } else {
-        // 字符串和数字
+        // Strings and numbers
         this.$set(
           this.activeData.__config__,
           'defaultValue',

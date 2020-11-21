@@ -5,7 +5,7 @@
       <en-list-toolbar
         v-if="toolbar"
         :search-value="listService.quickSearchValue"
-        :actions="listService.listActions"
+        :actions="listService.actions"
         @on-search="listService.search($event)"
       />
       <slot name="toolbar" />

@@ -2,6 +2,7 @@ import { EngineObservable } from '@/modules/engine/core/engine.observable';
 import { ModelService } from '@/modules/engine/services/model.service';
 import { RestQuery } from '@/modules/engine/services/rest.query';
 import $router from '../../../router/routers';
+import { Engine } from '@/modules/engine/core/engine';
 
 export class FormService extends EngineObservable {
   static events = {
@@ -11,11 +12,17 @@ export class FormService extends EngineObservable {
     afterRefresh: 'afterRefresh',
     error: 'error'
   };
+  actions = [];
   hashCode = 0;
   loading = false;
   record = {};
   definition = { form: { config: { tabs: {}}}};
-  formConfig = { fields: [] };
+  formConfig = {
+    fields: [],
+    formModel: 'formModel', // name of the for model key
+    formRules: 'formRules' // name of the form rules key
+  };
+  formData = { name: 'Test' };
   settings = {
     recordId: 'new',
     formConfig: {
@@ -52,7 +59,7 @@ export class FormService extends EngineObservable {
 
   }
 
-  getFormConfig() {
+  populateFormConfig() {
     const tabs = this.definition.form.config.tabs || [];
     return { fields: tabs.reduce((result, tab) => result.concat(tab.fields), []) };
   }
@@ -61,9 +68,21 @@ export class FormService extends EngineObservable {
     this.hashCode = new Date().getTime();
   }
 
+  populateFormActions() {
+    if (this.settings.remote === false) {
+      return this.settings.actions;
+    }
+    const actions = this.definition.form.actions;
+    this.actions = Engine.convertToTree(actions, {
+      comparator: (action1, action2) => action1.sort_order - action2.sort_order
+    });
+    return this;
+  }
+
   sanitizeDefinition() {
-    Object.assign(this.formConfig, this.getFormConfig());
+    Object.assign(this.formConfig, this.populateFormConfig());
     this.updateHash();
+    this.populateFormActions();
     return this.definition;
   }
 

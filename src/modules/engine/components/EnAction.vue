@@ -90,7 +90,7 @@ export default {
     },
     type: {
       type: String,
-      default: 'primary'
+      default: 'default'
     },
     plain: {
       type: Boolean,
