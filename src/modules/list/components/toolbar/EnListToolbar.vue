@@ -1,6 +1,26 @@
 <template>
   <el-row :gutter="10">
-    <el-col :span="18" />
+    <el-col :span="18">
+      <div class="action-list-wrapper" style="display: flex;">
+        <EnAction
+          v-for="action in actions"
+          :id="action.id"
+          :key="action.id"
+          :type="action.type"
+          :children="action.children"
+          :name="action.name"
+          :icon="action.icon"
+          :label="action.label"
+          :shape="action.shape"
+          :has-parent="action.child===true"
+          :processor="action.processor"
+          :context="{
+            listComponent: $parent,
+            listService: listService,
+          }"
+        />
+      </div>
+    </el-col>
     <el-col :span="6">
       <div class="list-operations">
         <el-input
@@ -54,9 +74,11 @@
 <script>
 import Vue from 'vue';
 import { Engine } from '@/modules/engine/core/engine';
+import EnAction from '@/modules/engine/components/EnAction';
 
 export default {
   name: 'EnListToolbar',
+  components: { EnAction },
   props: {
     searchValue: {
       type: String,
@@ -64,15 +86,15 @@ export default {
     },
     hiddenColumns: {
       type: Array,
-      default: () => {
-        return [];
-      }
+      default: () => []
     },
     ignoreColumns: {
       type: Array,
-      default: () => {
-        return [];
-      }
+      default: () => []
+    },
+    actions: {
+      type: Array,
+      default: () => []
     }
   },
   data() {

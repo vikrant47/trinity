@@ -5,10 +5,12 @@
       <en-list-toolbar
         v-if="toolbar"
         :search-value="listService.quickSearchValue"
+        :actions="listService.actions"
         @on-search="listService.search($event)"
       />
       <slot name="toolbar" />
     </div>
+    <!-- <pre>{{ listService.definition.list.columns|json }}</pre>-->
     <!--Table rendering-->
     <div class="table-wrapper">
       <el-table
@@ -24,11 +26,10 @@
         @current-change="listEventHandler.handleCurrentChange($event)"
         @sort-change="listEventHandler.sortHandler($event)"
       >
-        <el-table-column type="selection" width="55" fixed />
+        <el-table-column type="selection" width="30" />
         <el-table-column
-          v-for="column in listService.definition.list.columns"
+          v-for="column in listService.definition.list.columns.filter(col=>col.visible)"
           :key="column.field"
-          :v-if="column.visible"
           :prop="column.field"
           :label="column.label"
           :sortable="column.config.sortable && 'custom'"
@@ -46,6 +47,8 @@
               v-if="column.config.widget"
               :row="row"
               :column="column"
+              :href="column.field==='id'"
+              @click="$emit('cellClick',$event,row,column)"
             />
           </template>
         </el-table-column>
@@ -103,6 +106,10 @@ export default {
       type: String,
       default: 'multiple'
     },
+    actions: {
+      type: Array,
+      default: null
+    },
     list: {
       type: String,
       default: 'default'
@@ -131,7 +138,8 @@ export default {
       modelAlias: this.modelAlias,
       list: this.list,
       columns: this.columns,
-      rows: this.rows || []
+      rows: this.rows || [],
+      actions: this.actions || []
     });
     listService.loadDefinition().then(() => {
       listService.refresh();

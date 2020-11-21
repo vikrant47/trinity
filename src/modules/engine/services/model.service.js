@@ -11,10 +11,10 @@ export class ModelService {
 
   requestDefinition(options = {}) {
     return this.tenantService.request({
-      url: '/api/engine/models/' + this.modelAlias.toLowerCase() + '/definition',
+      url: '/api/engine/models/' + this.modelAlias + '/definition',
       params: {
         list: options.list,
-        form: options.form
+        formId: options.formId
       }
     });
   }

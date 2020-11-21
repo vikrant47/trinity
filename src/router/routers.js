@@ -41,27 +41,32 @@ export const constantRouterMap = [
         path: 'dashboard',
         component: (resolve) => require(['@/modules/dashboard/views/index'], resolve),
         name: 'Dashboard',
-        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
+        props: true
       }, {
         path: 'models/:modelAlias/list/:list',
         component: (resolve) => require(['@/modules/list/views/index'], resolve),
         name: 'List',
-        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
+        props: true
       }, {
         path: '/models/:modelAlias/form/:formId/:recordId',
-        component: (resolve) => require(['@/modules/list/views/index'], resolve),
+        component: (resolve) => require(['@/modules/form/views/FormRenderer'], resolve),
         name: 'Form',
-        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
+        props: true
       }, {
         path: 'widgets/:widgetId/render',
         component: (resolve) => require(['@/modules/list/views/index'], resolve),
         name: 'Widget',
-        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
+        props: true
       }, {
         path: 'dashboards/:dashboardId/render',
         component: (resolve) => require(['@/modules/list/views/index'], resolve),
         name: 'Dashboard',
-        meta: { title: 'Home', icon: 'index', affix: true, noCache: true }
+        meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
+        props: true
       }
     ]
   },
@@ -74,8 +79,8 @@ export const constantRouterMap = [
       {
         path: 'center',
         component: (resolve) => require(['@/views/system/user/center'], resolve),
-        name: '个人中心',
-        meta: { title: '个人中心' }
+        name: 'Personal center',
+        meta: { title: 'Personal center' }
       }
     ]
   }
