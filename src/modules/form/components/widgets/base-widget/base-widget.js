@@ -1,7 +1,54 @@
-import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
+import { ITEM_LAYOUT, WidgetConfig } from '@/modules/form/components/widgets/base-widget/widget-config';
 import { WIDGETS } from '@/modules/form/components/widgets';
 
 export class BaseWidget {
+  formModel;
+  children = [];
+  settings = {
+    fieldName: null,
+    class: {},
+    attrs: {},
+    props: {},
+    domProps: {},
+    nativeOn: {},
+    on: {},
+    style: {},
+    directives: [],
+    scopedSlots: {},
+    slot: null,
+    key: null,
+    ref: null,
+    refInFor: true
+  };
+
+  /** @property model: WidgetModel*/
+  constructor(settings = {}) {
+    Object.assign(this.settings, settings);
+    this.init();
+  }
+
+  init() {
+    if (typeof this.formModel[this.settings.fieldName] === 'undefined') {
+      this.setValue(this.settings.defaultValue);
+    }
+  }
+
+  setFieldName(fieldName) {
+    this.fieldName = fieldName;
+  }
+
+  setFormModel(formModel) {
+    this.formModel = formModel;
+  }
+
+  getValue() {
+    return this.formModel[this.settings.fieldName];
+  }
+
+  setValue(value) {
+    this.formModel[this.settings.fieldName] = value;
+  }
+
   getConfig() {
     return [
       {
@@ -128,5 +175,63 @@ export class BaseWidget {
 
   getComponent() {
     return 'el-input';
+  }
+
+  registerEvents() {
+
+  }
+
+  updateModel() {
+
+  }
+
+  getChildren() {
+    return this;
+  }
+
+  toVueConfig() {
+    this.settings.name = this.settings.fieldName;
+    return this.settings;
+  }
+
+  applyConfig(widgetConfig) {
+    Object.assign(this.settings, widgetConfig);
+    this.init();
+  }
+
+  componentCreated(component) {
+    component.widget.applyConfig(component.config);
+  }
+
+  componentRender(component, h) {
+    h(this.getComponent(), this.toVueConfig(), this.getChildren());
+  }
+
+  /** This method will return cue component object*/
+  getVueComponent() {
+    const _this = this;
+    return {
+      name: this.constructor.name,
+      props: {
+        config: {
+          type: Object,
+          required: true,
+          default() {
+            return {};
+          }
+        }
+      },
+      data: {
+        widget() {
+          return _this;
+        }
+      },
+      created() {
+        _this.componentCreated(this);
+      },
+      render(h) {
+        _this.render(this, h);
+      }
+    };
   }
 }
