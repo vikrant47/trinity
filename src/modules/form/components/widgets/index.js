@@ -58,7 +58,6 @@ export const WIDGETS = {
 export const WidgetTypes = {
   [WIDGETS.input]: require('./input/input-widget').default,
   [WIDGETS.text]: require('./text/text-widget').default,
-  [WIDGETS.password]: require('./password/password-widget').default,
   [WIDGETS.number]: require('./number/number-widget').default,
   [WIDGETS.richeditor]: require('./text/text-widget').default,
   [WIDGETS.select]: require('./select/select-widget').default,
@@ -70,7 +69,6 @@ export const WidgetTypes = {
   [WIDGETS.time]: require('./time/time-widget').default,
   [WIDGETS.timeRange]: require('./time-range/time-range-widget').default,
   [WIDGETS.date]: require('./date/date-widget').default,
-  [WIDGETS.dateRange]: require('./date-range/date-range-widget').default,
   [WIDGETS.button]: require('./button/button-widget').default,
   [WIDGETS.rating]: require('./rating/rating-widget').default,
   [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget').default

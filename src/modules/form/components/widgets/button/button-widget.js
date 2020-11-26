@@ -5,4 +5,8 @@ export default class ButtonWidget extends BaseWidget {
     label: 'Button',
     icon: 'button'
   };
+
+  getComponent() {
+    return 'el-button';
+  }
 }

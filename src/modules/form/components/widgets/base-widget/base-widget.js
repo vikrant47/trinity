@@ -1,11 +1,9 @@
 import {
   ComponentConfig,
-  ITEM_LAYOUT,
-  WidgetConfig
+  ITEM_LAYOUT
 } from '@/modules/form/components/widgets/base-widget/widget-config';
 import Vue from 'vue';
 import { FormWidgetService, WIDGETS } from '@/modules/form/components/widgets';
-import { FormService } from '@/modules/form/services/form.service';
 
 export class BaseWidget {
   static defaultPalletSettings = {
@@ -88,8 +86,8 @@ export class BaseWidget {
     return [
       {
         widget: WIDGETS.select,
-        fieldName: 'type',
-        component: {
+        fieldSettings: {
+          fieldName: 'type',
           label: 'Widget',
           widgetIcon: 'select',
           defaultValue: 'string',
@@ -100,78 +98,79 @@ export class BaseWidget {
         },
         placeholder: 'Please Select Widget'
       }, {
-        fieldName: 'name',
-        component: {
+        fieldSettings: {
+          fieldName: 'name',
           label: 'Name',
           required: true
         }
       }, {
-        fieldName: 'title',
-        component: {
+        fieldSettings: {
+          fieldName: 'title',
           label: 'Title',
           required: true
         }
       }, {
-        fieldName: 'placeholder',
-        component: {
+        fieldSettings: {
+          fieldName: 'placeholder',
           label: 'Placeholder'
         }
       },
       {
         widget: WIDGETS.slider,
-        fieldName: 'size',
-        component: {
-          label: 'Size'
-        },
-        min: 0,
-        max: 10
+        fieldSettings: {
+          fieldName: 'size',
+          label: 'Size',
+          min: 0,
+          max: 10
+        }
       },
       {
-        fieldName: 'showLabel',
         widget: WIDGETS.switch,
-        component: {
-          label: 'Show Label'
-        },
-        default: true
+        fieldSettings: {
+          fieldName: 'showLabel',
+          label: 'Show Label',
+          default: true
+        }
       },
       {
         widget: WIDGETS.number,
-        fieldName: 'labelWidth',
-        component: {
-          label: 'Label Width'
-        },
-        min: 0
+        fieldSettings: {
+          fieldName: 'labelWidth',
+          label: 'Label Width',
+          min: 0
+        }
       },
       {
-        fieldName: 'span',
         widget: WIDGETS.number,
-        component: {
-          label: 'Span'
-        },
-        min: 0,
-        max: 12
+        fieldSettings: {
+          fieldName: 'span',
+          label: 'Span',
+          min: 0,
+          max: 12
+        }
       },
       {
-        fieldName: 'widgetIcon',
-        component: {
+        fieldSettings: {
+          fieldName: 'widgetIcon',
           label: 'Icon'
         }
       },
       {
         widget: WIDGETS.switch,
         fieldName: 'required',
-        component: {
-          label: 'Required'
-        },
-        default: false
+        fieldSettings: {
+          label: 'Required',
+          default: false
+        }
       }, {
         widget: WIDGETS.select,
-        fieldName: 'layout',
-        component: {
+        fieldSettings: {
+          fieldName: 'layout',
           label: 'Layout',
           widgetIcon: 'select',
           defaultValue: ITEM_LAYOUT.colFormItem,
-          required: true
+          required: true,
+          placeholder: 'Please Select Widget'
         },
         slot: {
           options: [{
@@ -181,19 +180,18 @@ export class BaseWidget {
             'label': 'Row Layout',
             'value': ITEM_LAYOUT.rowFormItem
           }]
-        },
-        placeholder: 'Please Select Widget'
+        }
       },
       {
-        fieldName: 'defaultValue',
-        component: {
+        fieldSettings: {
+          fieldName: 'defaultValue',
           label: 'Default'
         }
       },
       {
         widget: WIDGETS.switch,
-        fieldName: 'showWordLimit',
-        component: {
+        fieldSettings: {
+          fieldName: 'showWordLimit',
           label: 'Show Limit'
         }
       }
@@ -234,7 +232,7 @@ export class BaseWidget {
     return this;
   }
 
-  getVueConfig() {
+  getComponentAttributes() {
     this.init();
     this.fieldSettings.name = this.fieldSettings.fieldName;
     return JSON.parse(JSON.stringify(this.fieldSettings));
@@ -250,7 +248,7 @@ export class BaseWidget {
   }
 
   componentRender(component, h) {
-    return h(this.getComponent(), { attrs: this.getVueConfig() }, this.getChildren());
+    return h(this.getComponent(), { attrs: this.getComponentAttributes() }, this.getChildren());
   }
 
   /** This method will return cue component object*/

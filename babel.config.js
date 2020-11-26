@@ -6,6 +6,9 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   plugins: plugins,
   presets: [
+    ['env', { 'modules': false }],
+    'stage-2',
+    'stage-3',
     '@vue/app'
   ]
 };

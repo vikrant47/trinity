@@ -1,5 +1,7 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 export default class NumberWidget extends BaseWidget {
-
+  getComponent() {
+    return 'el-input-number';
+  }
 }

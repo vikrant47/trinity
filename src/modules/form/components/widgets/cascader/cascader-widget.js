@@ -5,4 +5,7 @@ export default class CascaderWidget extends BaseWidget {
     label: 'Cascader',
     icon: 'cascader'
   };
+  getComponent() {
+    return 'el-cascader';
+  }
 }
