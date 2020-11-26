@@ -23,7 +23,7 @@ export default [
       prepend: '',
       append: ''
     },
-    __vModel__: 'mobile',
+    fieldName: 'mobile',
     placeholder: 'Please enter phone number',
     style: { width: '100%' },
     clearable: true,

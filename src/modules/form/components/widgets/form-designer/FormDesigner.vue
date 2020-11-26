@@ -32,8 +32,8 @@
                 @click="addComponent(element)"
               >
                 <div class="components-body">
-                  <svg-icon :icon-class="element.component.tagIcon" />
-                  {{ element.component.label }}
+                  <svg-icon :icon-class="element.palletSettings.icon" />
+                  {{ element.palletSettings.label }}
                 </div>
               </div>
             </draggable>
@@ -77,9 +77,10 @@
                 :index="index"
                 :active-id="activeId"
                 :form-conf="formConf"
-                @activeItem="activeFormItem"
+                @activeItem="activeDraggableItem"
                 @copyItem="drawingItemCopy"
                 @deleteItem="drawingItemDelete"
+                @showConfig="configVisisble=true"
               />
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
@@ -91,7 +92,7 @@
     </div>
     <el-drawer
       title="Config"
-      :visible.sync="showConfig"
+      :visible.sync="configVisisble"
       direction="rtl"
       :before-close="onConfigClose"
     >
@@ -153,6 +154,8 @@ import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
 } from '@/modules/form/utils/db';
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
+import { FormWidgetService } from '@/modules/form/components/widgets';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 let beautifier;
 const emptyActiveData = { style: {}, autosize: {}};
@@ -175,7 +178,7 @@ export default {
   },
   data() {
     return {
-      showConfig: false,
+      configVisisble: false,
       logo: '',
       idGlobal,
       formConf,
@@ -196,7 +199,7 @@ export default {
       saveDrawingListDebounce: debounce(340, saveDrawingList),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
-        {
+        /* {
           title: 'Input components',
           list: inputComponents
         },
@@ -207,6 +210,10 @@ export default {
         {
           title: 'Layout component',
           list: layoutComponents
+        },*/
+        {
+          title: 'New component',
+          list: new FormWidgetService().getWidgetInstancesAsArray()
         }
       ]
     };
@@ -315,10 +322,16 @@ export default {
         if (t) t.value = val;
       }
     },
+    activeDraggableItem(currentItem) {
+      this.activeFormItem(currentItem);
+      this.configVisisble = true;
+    },
     activeFormItem(currentItem) {
       this.activeData = currentItem;
       this.activeId = currentItem.component.formId;
-      this.showConfig = true;
+      if (currentItem instanceof BaseWidget) {
+        currentItem.loadConfigForConfigSection();
+      }
     },
     onEnd(obj) {
       if (obj.from !== obj.to) {
@@ -333,9 +346,9 @@ export default {
       this.drawingList.push(clone);
       this.activeFormItem(clone);
     },
-    cloneComponent(origin) {
-      const clone = deepClone(origin);
-      const config = clone.component;
+    cloneComponent(original) {
+      const clone = original;// deepClone(origin);
+      const config = clone.fieldSettings;
       config.span = this.formConf.span; // When generating code, it will make a streamlined judgment based on the span
       this.createIdAndKey(clone);
       clone.placeholder !== undefined && (clone.placeholder += config.label);
@@ -347,11 +360,11 @@ export default {
       config.formId = ++this.idGlobal;
       config.renderKey = `${config.formId}${+new Date()}`; // After changing the render Key, the component can be forced to update
       if (config.layout === 'colFormItem') {
-        item.__vModel__ = `field${this.idGlobal}`;
+        item.fieldName = `field${this.idGlobal}`;
       } else if (config.layout === 'rowFormItem') {
         config.componentName = `row${this.idGlobal}`;
         !Array.isArray(config.children) && (config.children = []);
-        delete config.label; // rowFormItem无需配置label属性
+        delete config.label; // Row Form Item does not need to configure the label attribute
       }
       if (Array.isArray(config.children)) {
         config.children = config.children.map(childItem => this.createIdAndKey(childItem));
@@ -434,7 +447,7 @@ export default {
     tagChange(newTag) {
       newTag = this.cloneComponent(newTag);
       const config = newTag.component;
-      newTag.__vModel__ = this.activeData.__vModel__;
+      newTag.fieldName = this.activeData.fieldName;
       config.formId = this.activeId;
       config.span = this.activeData.component.span;
       this.activeData.component.widget = config.widget;

@@ -335,7 +335,7 @@ export default {
       config.formId = ++this.idGlobal;
       config.renderKey = `${config.formId}${+new Date()}`; // 改变renderKey后可以实现强制更新组件
       if (config.layout === 'colFormItem') {
-        item.__vModel__ = `field${this.idGlobal}`;
+        item.fieldName = `field${this.idGlobal}`;
       } else if (config.layout === 'rowFormItem') {
         config.componentName = `row${this.idGlobal}`;
         !Array.isArray(config.children) && (config.children = []);
@@ -422,7 +422,7 @@ export default {
     tagChange(newTag) {
       newTag = this.cloneComponent(newTag);
       const config = newTag.component;
-      newTag.__vModel__ = this.activeData.__vModel__;
+      newTag.fieldName = this.activeData.fieldName;
       config.formId = this.activeId;
       config.span = this.activeData.component.span;
       this.activeData.component.widget = config.widget;

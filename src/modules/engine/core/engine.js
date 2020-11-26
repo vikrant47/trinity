@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import da from 'element-ui/src/locale/lang/da';
 
 export class Engine {
   static NOTIFICATION_TYPE = {
@@ -47,5 +46,56 @@ export class Engine {
       }
     }
     return data.filter(record => !record.child);
+  }
+
+  static transientProps = ['transient'];
+
+  /** This will convert given object to a plain json object*/
+  static marshall(object) {
+    if (typeof object === 'object') {
+      let transients = this.transientProps;
+      if (Array.isArray(object['transient'])) {
+        transients = transients.concat(object['transient']);
+      }
+      for (const key in object) {
+        if (transients.indexOf(key) < 0) {
+          if (typeof object[key].marshall === 'function') {
+            object[key] = object[key].marshall();
+          } else {
+            object[key] = this.marshall(object[key]);
+          }
+        }
+      }
+      return object;
+    } else if (Array.isArray(object)) {
+      return object.map(entry => this.marshall(entry));
+    } else if (object instanceof Date) {
+      return object.getTime();
+    }
+    return object;
+  }
+
+  /** This will populate given pojo to given instance*/
+  static unmarshall(instance, object) {
+    if (typeof object === 'string') {
+      object = JSON.parse(object);
+    }
+    if (typeof object === 'object') {
+      for (const key in object) {
+        if (typeof instance[key].unmarshall === 'function') {
+          instance[key] = instance[key].unmarshall(object[key]);
+        } else {
+          instance[key] = this.unmarshall(instance[key], object[key]);
+        }
+      }
+      return instance;
+    } else if (Array.isArray(object)) {
+      for (let i = 0; i < object.length; i++) {
+        instance[i] = this.unmarshall(instance[i], object[i]);
+      }
+    } else if (object instanceof Date) {
+      return object.getTime();
+    }
+    return object;
   }
 }

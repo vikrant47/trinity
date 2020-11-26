@@ -1,6 +1,6 @@
 <script>
 import { deepClone } from '@/modules/form/utils';
-import render from '@/modules/form/components/render/render.js';
+import FormItemRenderer from '@/modules/form/components/render/render.js';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -23,9 +23,9 @@ const layouts = {
     if (config.showLabel === false) labelWidth = '0';
     return (
       <el-col span={config.span}>
-        <el-form-item label-width={labelWidth} prop={scheme.__vModel__}
-          label={config.showLabel ? config.label : ''}>
-          <render conf={scheme} {...{ on: listeners }} form-data={formData}/>
+        <el-form-item label-width={labelWidth} prop={scheme.fieldName}
+          label={config.showLabel ? config.label : ''} required={config.required}>
+          <form-item-renderer conf={scheme} {...{ on: listeners }} form-data={formData}/>
         </el-form-item>
       </el-col>
     );
@@ -98,7 +98,7 @@ function renderChildren(h, scheme) {
 
 function setValue(event, config, scheme) {
   this.$set(config, 'defaultValue', event);
-  this.$set(this[this.formConf.formModel], scheme.__vModel__, event);
+  this.$set(this[this.formConf.formModel], scheme.fieldName, event);
 }
 
 function buildListeners(scheme) {
@@ -117,8 +117,9 @@ function buildListeners(scheme) {
 }
 
 export default {
+  name: 'Parser',
   components: {
-    render
+    FormItemRenderer
   },
   props: {
     formConf: {
@@ -147,7 +148,7 @@ export default {
     initFormData(componentList, formData) {
       componentList.forEach(cur => {
         const config = cur.component;
-        if (cur.__vModel__ && !formData[cur.__vModel__]) formData[cur.__vModel__] = config.defaultValue;
+        if (cur.fieldName && !formData[cur.fieldName]) formData[cur.fieldName] = config.defaultValue;
         if (config.children) this.initFormData(config.children, formData);
       });
     },
@@ -164,7 +165,7 @@ export default {
             required.message === undefined && (required.message = `${config.label}Can not be empty`);
             config.regList.push(required);
           }
-          rules[cur.__vModel__] = config.regList.map(item => {
+          rules[cur.fieldName] = config.regList.map(item => {
             // eslint-disable-next-line no-eval
             item.pattern && (item.pattern = eval(item.pattern));
             item.trigger = ruleTrigger && ruleTrigger[config.widget];

@@ -12,8 +12,14 @@
         <!-- Component properties -->
         <el-form v-show="currentTab==='field' && showField" size="small" label-width="90px">
           <div
+            is="parser"
+            v-if="activeData.widgetAlias"
+            :form-conf="activeData.configSection"
+            :form-data="activeData.fieldSettings"
+          />
+          <div
             :is="widgets[activeData.component.widget].config"
-            v-if="widgets[activeData.component.widget]"
+            v-else-if="widgets[activeData.component.widget]"
             :active-data="activeData"
             class="widget-config-container"
           />
@@ -91,10 +97,11 @@ import {
 import { saveFormConf } from '@/modules/form/utils/db';
 import widgets from '@/modules/form/components/widgets';
 import BaseWidgetConfig from '@/modules/form/components/widgets/base-widget/BaseWidgetConfig';
+import Parser from '../../parser/Parser';
 
 const dateTimeFormat = {
   date: 'yyyy-MM-dd',
-  week: 'yyyy 第 WW 周',
+  week: 'yyyy First WW week',
   month: 'yyyy-MM',
   year: 'yyyy',
   datetime: 'yyyy-MM-dd HH:mm:ss',
@@ -107,12 +114,26 @@ const dateTimeFormat = {
 const needRerenderList = ['tinymce'];
 
 export default {
+  name: 'RightPanel',
   components: {
     BaseWidgetConfig,
     TreeNodeDialog,
-    IconsDialog
+    IconsDialog,
+    Parser
   },
-  props: ['showField', 'activeData', 'formConf'],
+  props: {
+    showField: {
+      type: Boolean
+    },
+    activeData: {
+      type: Object,
+      required: true
+    },
+    formConf: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
       widgets,
@@ -124,7 +145,7 @@ export default {
       layoutTreeProps: {
         label(data, node) {
           const config = data.component;
-          return data.componentName || `${config.label}: ${data.__vModel__}`;
+          return data.componentName || `${config.label}: ${data.fieldName}`;
         }
       }
     };

@@ -52,7 +52,9 @@
             />
           </template>
         </el-table-column>
-        <slot name="body" />
+        <el-scrollbar class="right-scrollbar">
+          <slot name="body" />
+        </el-scrollbar>
       </el-table>
     </div>
     <!--Paging component-->

@@ -47,7 +47,7 @@ export default {
               prepend: '',
               append: ''
             },
-            __vModel__: 'mobile',
+            fieldName: 'mobile',
             placeholder: 'Please enter phone number',
             style: {
               width: '100%'
@@ -90,7 +90,7 @@ export default {
             format: 'yyyy-MM-dd',
             'value-format': 'yyyy-MM-dd',
             readonly: false,
-            __vModel__: 'field101'
+            fieldName: 'field101'
           },
           {
             component: {
@@ -122,7 +122,7 @@ export default {
                   'show-text': false,
                   'show-score': false,
                   disabled: false,
-                  __vModel__: 'field102'
+                  fieldName: 'field102'
                 }
               ],
               document: 'https://element.eleme.cn/#/zh-CN/component/layout',
@@ -214,7 +214,7 @@ export default {
               prepend: '',
               append: ''
             },
-            __vModel__: 'mobile',
+            fieldName: 'mobile',
             placeholder: 'Please enter phone number',
             style: {
               width: '100%'
@@ -257,7 +257,7 @@ export default {
             format: 'yyyy-MM-dd',
             'value-format': 'yyyy-MM-dd',
             readonly: false,
-            __vModel__: 'field101'
+            fieldName: 'field101'
           }
         ],
         formRef: 'elForm',
@@ -294,7 +294,7 @@ export default {
   methods: {
     fillFormData(form, data) {
       form.fields.forEach(item => {
-        const val = data[item.__vModel__];
+        const val = data[item.fieldName];
         if (val) {
           item.component.defaultValue = val;
         }

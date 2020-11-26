@@ -36,7 +36,7 @@ export const inputComponents = [
       prepend: '',
       append: ''
     },
-    // The rest are attributes that can be written directly on the component label
+    // The rest are attributes that can be written directly on the component level
     placeholder: 'please enter',
     style: { width: '100%' },
     clearable: true,

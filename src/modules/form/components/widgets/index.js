@@ -6,6 +6,8 @@ import ColorPickerConfig from '@/modules/form/components/widgets/color-picker/Co
 import FormDesignerConfig from '@/modules/form/components/widgets/form-designer/Config';
 import NumberConfig from '@/modules/form/components/widgets/number/Config';
 import SelectConfig from '@/modules/form/components/widgets/select/Config';
+import * as _ from 'lodash';
+import { Engine } from '@/modules/engine/core/engine';
 
 export default {
   'el-input': {
@@ -54,31 +56,50 @@ export const WIDGETS = {
   colorPicker: 'colorPicker'
 };
 export const WidgetTypes = {
-  [WIDGETS.input]: require('./input/input-widget'),
-  [WIDGETS.text]: require('./text/text-widget'),
-  [WIDGETS.password]: require('./password/password-widget'),
-  [WIDGETS.number]: require('./number/number-widget'),
-  [WIDGETS.richeditor]: require('./text/text-widget'),
-  [WIDGETS.select]: require('./select/select-widget'),
-  [WIDGETS.cascader]: require('./cascader/cascader-widget'),
-  [WIDGETS.radioGroup]: require('./radio-group/radio-group-widget'),
-  [WIDGETS.checkboxGroup]: require('./checkbox-group/checkbox-group-widget'),
-  [WIDGETS.switch]: require('./switch/switch-widget'),
-  [WIDGETS.row]: require('./row/row-widget'),
-  [WIDGETS.time]: require('./time/time-widget'),
-  [WIDGETS.timeRange]: require('./time-range/time-range-widget'),
-  [WIDGETS.date]: require('./date/date-widget'),
-  [WIDGETS.dateRange]: require('./date-range/date-range-widget'),
-  [WIDGETS.button]: require('./button/button-widget'),
-  [WIDGETS.rating]: require('./rating/rating-widget'),
-  [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget')
+  [WIDGETS.input]: require('./input/input-widget').default,
+  [WIDGETS.text]: require('./text/text-widget').default,
+  [WIDGETS.password]: require('./password/password-widget').default,
+  [WIDGETS.number]: require('./number/number-widget').default,
+  [WIDGETS.richeditor]: require('./text/text-widget').default,
+  [WIDGETS.select]: require('./select/select-widget').default,
+  [WIDGETS.cascader]: require('./cascader/cascader-widget').default,
+  [WIDGETS.radioGroup]: require('./radio-group/radio-group-widget').default,
+  [WIDGETS.checkboxGroup]: require('./checkbox-group/checkbox-group-widget').default,
+  [WIDGETS.switch]: require('./switch/switch-widget').default,
+  [WIDGETS.row]: require('./row/row-widget').default,
+  [WIDGETS.time]: require('./time/time-widget').default,
+  [WIDGETS.timeRange]: require('./time-range/time-range-widget').default,
+  [WIDGETS.date]: require('./date/date-widget').default,
+  [WIDGETS.dateRange]: require('./date-range/date-range-widget').default,
+  [WIDGETS.button]: require('./button/button-widget').default,
+  [WIDGETS.rating]: require('./rating/rating-widget').default,
+  [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget').default
 };
 
 export class FormWidgetService {
-  widgetInstances;
+  widgetInstances = {};
+
+  registerWidget(widgetAlias, type) {
+    WidgetTypes[widgetAlias] = type;
+  }
+
+  getWidgetByAlias(widgetAlias) {
+    return WidgetTypes[widgetAlias];
+  }
+
+  unmarshallWidget(widgetJSON) {
+    if (typeof widgetJSON === 'string') {
+      widgetJSON = JSON.parse(widgetJSON);
+    }
+    if (typeof widgetJSON.widgetAlias === 'undefined') {
+      throw new Error('Unable to unmarshall given json as it doesn\'t have widgetAlias defined');
+    }
+    const Widget = WidgetTypes[widgetJSON.widgetAlias];
+    return Engine.unmarshall(new Widget(), widgetJSON);
+  }
 
   getWidgetInstances() {
-    if (!this.widgetInstances) {
+    if (_.isEmpty(this.widgetInstances)) {
       for (const i in WidgetTypes) {
         this.widgetInstances[i] = new WidgetTypes[i]();
       }
@@ -86,8 +107,18 @@ export class FormWidgetService {
     return this.widgetInstances;
   }
 
+  getWidgetInstancesAsArray() {
+    return Object.values(this.getWidgetInstances());
+  }
+
+  cleanWidgets() {
+    for (const key in this.widgetInstances) {
+      delete this.widgetInstances[key];
+    }
+  }
+
   refreshWidgetInstances() {
-    this.widgetInstances = null;
+    this.cleanWidgets();
     return this.getWidgetInstances();
   }
 

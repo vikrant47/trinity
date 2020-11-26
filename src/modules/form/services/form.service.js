@@ -19,6 +19,9 @@ export class FormService extends EngineObservable {
   definition = { form: { config: { tabs: {}}}};
   formConfig = {
     fields: [],
+    labelSuffix: '',
+    labelWidth: '100',
+    labelPosition: 'right',
     formModel: 'formModel', // name of the for model key
     formRules: 'formRules' // name of the form rules key
   };

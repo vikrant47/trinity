@@ -20,8 +20,8 @@
         </el-option-group>
       </el-select>
     </el-form-item>
-    <el-form-item v-if="activeData.__vModel__!==undefined" label="Name">
-      <el-input v-model="activeData.__vModel__" placeholder="Enter the field name" />
+    <el-form-item v-if="activeData.fieldName!==undefined" label="Name">
+      <el-input v-model="activeData.fieldName" placeholder="Enter the field name" />
     </el-form-item>
     <el-form-item v-if="activeData.component.componentName!==undefined" label="Widget">
       {{ activeData.component.componentName }}
@@ -76,7 +76,7 @@
     <el-form-item v-if="activeData.style&&activeData.style.width!==undefined" label="Component width">
       <el-input v-model="activeData.style.width" placeholder="Component width" clearable />
     </el-form-item>
-    <el-form-item v-if="activeData.__vModel__!==undefined" label="Defaults">
+    <el-form-item v-if="activeData.fieldName!==undefined" label="Defaults">
       <el-input
         :value="setDefaultValue(activeData.component.defaultValue)"
         placeholder="Default value"
@@ -579,7 +579,7 @@ export default {
       layoutTreeProps: {
         label(data, node) {
           const config = data.component;
-          return data.componentName || `${config.label}: ${data.__vModel__}`;
+          return data.componentName || `${config.label}: ${data.fieldName}`;
         }
       }
     };

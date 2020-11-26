@@ -18,7 +18,7 @@ export class SlotConfig {
 export class ComponentConfig {
   widget = WIDGETS.input;
   span = 24;
-  label;
+  label = 'String';
   formId;
   layout = ITEM_LAYOUT.colFormItem;
   regList = [];
@@ -60,7 +60,7 @@ export class WidgetConfig extends ComponentConfig {
 
   constructor(settings = {}) {
     super();
-    this.placeholder = 'Enter ' + (settings.component.label ? settings.component.label : 'Value');
+    // this.placeholder = 'Enter ' + (settings.component.label ? settings.component.label : 'Value');
     Object.assign(this, settings);
     this.component = new ComponentConfig(settings.component);
     this.slot = new ComponentConfig(settings.slot);

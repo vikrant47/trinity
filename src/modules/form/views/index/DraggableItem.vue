@@ -1,20 +1,29 @@
 <script>
 import draggable from 'vuedraggable';
 import render from '@/modules/form/components/render/render';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 const components = {
   itemBtns(h, currentItem, index, list) {
-    const { copyItem, deleteItem } = this.$listeners;
+    const { copyItem, deleteItem, showConfig } = this.$listeners;
     return [
-      <span class='drawing-item-copy' title='复制' onClick={event => {
-        copyItem(currentItem, list); event.stopPropagation();
+      <span class='drawing-item-copy' title='Copy' onClick={event => {
+        copyItem(currentItem, list);
+        event.stopPropagation();
       }}>
-        <i class='el-icon-copy-document' />
+        <i class='el-icon-copy-document'/>
       </span>,
-      <span class='drawing-item-delete' title='删除' onClick={event => {
-        deleteItem(index, list); event.stopPropagation();
+      <span class='drawing-item-delete' title='Delete' onClick={event => {
+        deleteItem(index, list);
+        event.stopPropagation();
       }}>
-        <i class='el-icon-delete' />
+        <i class='el-icon-delete'/>
+      </span>,
+      <span className='drawing-item-config' title='Configurations' onClick={event => {
+        showConfig(index, list);
+        event.stopPropagation();
+      }}>
+        <i className='el-icon-setting'/>
       </span>
     ];
   }
@@ -30,10 +39,13 @@ const layouts = {
     if (config.showLabel === false) labelWidth = '0';
     return (
       <el-col span={config.span} class={className}
-        nativeOnClick={event => { activeItem(currentItem); event.stopPropagation(); }}>
+        nativeOnClick={event => {
+          activeItem(currentItem);
+          event.stopPropagation();
+        }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} conf={currentItem} onInput={ event => {
+          <render key={config.renderKey} conf={currentItem} onInput={event => {
             this.$set(config, 'defaultValue', event);
           }}>
             {child}
@@ -58,7 +70,10 @@ const layouts = {
     return (
       <el-col span={config.span}>
         <el-row gutter={config.gutter} class={className}
-          nativeOnClick={event => { activeItem(currentItem); event.stopPropagation(); }}>
+          nativeOnClick={event => {
+            activeItem(currentItem);
+            event.stopPropagation();
+          }}>
           <span class='component-name'>{config.componentName}</span>
           <draggable list={config.children || []} animation={340}
             group='componentsGroup' class='drag-wrapper'>
@@ -72,7 +87,7 @@ const layouts = {
   raw(h, currentItem, index, list) {
     const config = currentItem.component;
     const child = renderChildren.apply(this, arguments);
-    return <render key={config.renderKey} conf={currentItem} onInput={ event => {
+    return <render key={config.renderKey} conf={currentItem} onInput={event => {
       this.$set(config, 'defaultValue', event);
     }}>
       {child}
@@ -93,7 +108,7 @@ function renderChildren(h, currentItem, index, list) {
 }
 
 function layoutIsNotFound() {
-  throw new Error(`没有与${this.currentItem.component.layout}匹配的layout`);
+  throw new Error(`Matching layout fount with ${this.currentItem.component.layout}`);
 }
 
 export default {

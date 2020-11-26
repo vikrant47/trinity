@@ -1,5 +1,6 @@
 import { deepClone } from '@/modules/form/utils';
 import FormDesigner from '@/modules/form/components/widgets/form-designer/FormDesigner';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 const widgets = {
   'form-designer': FormDesigner
@@ -53,7 +54,7 @@ function emitEvents(confClone) {
 function buildDataObject(confClone, dataObject) {
   Object.keys(confClone).forEach(key => {
     const val = confClone[key];
-    if (key === '__vModel__') {
+    if (key === 'fieldName') {
       vModel.call(this, dataObject, confClone.component.defaultValue);
     } else if (dataObject[key] !== undefined) {
       if (dataObject[key] === null ||
@@ -87,7 +88,7 @@ function makeDataObject() {
     class: {},
     attrs: {},
     props: {
-      value: this.formData[this.conf.__vModel__]
+      value: this.formData[this.conf.fieldName]
     },
     domProps: {},
     nativeOn: {},
@@ -118,6 +119,11 @@ export default {
     }
   },
   render(h) {
+    if (this.conf instanceof BaseWidget) {
+      //  const dataObject = this.conf.getVueConfig();
+      // Convert json form configuration to vue recognizable by render "Data Object"
+      return this.conf.componentRender(this, h);
+    }
     const confClone = deepClone(this.conf);
     const children = this.$slots.default || [];
     const dataObject = makeDataObject.call(this);

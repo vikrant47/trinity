@@ -92,7 +92,7 @@ const layouts = {
     }
     const required = !ruleTrigger[config.widget] && config.required ? 'required' : '';
     const tagDom = tags[config.widget] ? tags[config.widget](scheme) : null;
-    let str = `<el-form-item ${labelWidth} ${label} prop="${scheme.__vModel__}" ${required}>
+    let str = `<el-form-item ${labelWidth} ${label} prop="${scheme.fieldName}" ${required}>
         ${tagDom}
       </el-form-item>`;
     str = colWrapper(scheme, str);
@@ -205,8 +205,8 @@ const tags = {
     const {
       widget, disabled, vModel, clearable, placeholder, width
     } = attrBuilder(el);
-    const options = el.options ? `:options="${el.__vModel__}Options"` : '';
-    const props = el.props ? `:props="${el.__vModel__}Props"` : '';
+    const options = el.options ? `:options="${el.fieldName}Options"` : '';
+    const props = el.props ? `:props="${el.fieldName}Props"` : '';
     const showAllLevels = el['show-all-levels'] ? '' : ':show-all-levels="false"';
     const filterable = el.filterable ? 'filterable' : '';
     const separator = el.separator === '/' ? '' : `separator="${el.separator}"`;
@@ -271,15 +271,15 @@ const tags = {
   'el-upload': el => {
     const { widget } = el.component;
     const disabled = el.disabled ? ':disabled=\'true\'' : '';
-    const action = el.action ? `:action="${el.__vModel__}Action"` : '';
+    const action = el.action ? `:action="${el.fieldName}Action"` : '';
     const multiple = el.multiple ? 'multiple' : '';
     const listType = el['list-type'] !== 'text' ? `list-type="${el['list-type']}"` : '';
     const accept = el.accept ? `accept="${el.accept}"` : '';
     const name = el.name !== 'file' ? `name="${el.name}"` : '';
     const autoUpload = el['auto-upload'] === false ? ':auto-upload="false"' : '';
-    const beforeUpload = `:before-upload="${el.__vModel__}BeforeUpload"`;
-    const fileList = `:file-list="${el.__vModel__}fileList"`;
-    const ref = `ref="${el.__vModel__}"`;
+    const beforeUpload = `:before-upload="${el.fieldName}BeforeUpload"`;
+    const fileList = `:file-list="${el.fieldName}fileList"`;
+    const ref = `ref="${el.fieldName}"`;
     let child = buildElUploadChild(el);
 
     if (child) child = `\n${child}\n`; // 换行
@@ -296,7 +296,7 @@ const tags = {
 function attrBuilder(el) {
   return {
     widget: el.component.widget,
-    vModel: `v-model="${confGlobal.formModel}.${el.__vModel__}"`,
+    vModel: `v-model="${confGlobal.formModel}.${el.fieldName}"`,
     clearable: el.clearable ? 'clearable' : '',
     placeholder: el.placeholder ? `placeholder="${el.placeholder}"` : '',
     width: el.style && el.style.width ? ':style="{width: \'100%\'}"' : '',
@@ -332,7 +332,7 @@ function buildElSelectChild(scheme) {
   const children = [];
   const slot = scheme.slot;
   if (slot && slot.options && slot.options.length) {
-    children.push(`<el-option v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>`);
+    children.push(`<el-option v-for="(item, index) in ${scheme.fieldName}Options" :key="index" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>`);
   }
   return children.join('\n');
 }
@@ -345,7 +345,7 @@ function buildElRadioGroupChild(scheme) {
   if (slot && slot.options && slot.options.length) {
     const widget = config.optionType === 'button' ? 'el-radio-button' : 'el-radio';
     const border = config.border ? 'border' : '';
-    children.push(`<${widget} v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${widget}>`);
+    children.push(`<${widget} v-for="(item, index) in ${scheme.fieldName}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${widget}>`);
   }
   return children.join('\n');
 }
@@ -358,7 +358,7 @@ function buildElCheckboxGroupChild(scheme) {
   if (slot && slot.options && slot.options.length) {
     const widget = config.optionType === 'button' ? 'el-checkbox-button' : 'el-checkbox';
     const border = config.border ? 'border' : '';
-    children.push(`<${widget} v-for="(item, index) in ${scheme.__vModel__}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${widget}>`);
+    children.push(`<${widget} v-for="(item, index) in ${scheme.fieldName}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${widget}>`);
   }
   return children.join('\n');
 }
