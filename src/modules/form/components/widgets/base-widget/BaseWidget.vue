@@ -22,4 +22,5 @@
     </script>
 
     <style scoped />
-  </el-form-item></template>
+  </el-form-item>
+</template>

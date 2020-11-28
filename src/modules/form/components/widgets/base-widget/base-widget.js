@@ -38,24 +38,46 @@ export class BaseWidget {
     ref: null,
     refInFor: true
   };
+  slot = {};
   widgetAlias = 'input';
   formModel;
   children = [];
   palletSettings = {};
   fieldSettings = {};
-  component = new ComponentConfig();
+  component = {};
   configSection = {};
 
-  /** @property model: WidgetModel*/
-  constructor(settings = {}) {
-    Object.assign(this.fieldSettings, BaseWidget.defaultFieldSettings);
-    Object.assign(this.palletSettings, BaseWidget.defaultPalletSettings);
-    Object.assign(this.component, BaseWidget.defaultComponentConfig);
-    Object.assign(this.fieldSettings, settings);
+  /**
+   * @property model: WidgetModel
+   * Constructor always called before child field initialization
+   * Moving initialization to init
+   * */
+  constructor(settings = {}, componentConfig = {}) {
     this.widgetClass = this.constructor.name;
+    Object.assign(this.fieldSettings, BaseWidget.defaultFieldSettings, settings, this.getFieldSettings());
+    Object.assign(this.palletSettings, BaseWidget.defaultPalletSettings, this.getPalletSettings());
+    Object.assign(this.component, BaseWidget.defaultComponentConfig, componentConfig, this.getComponentConfig());
+    if (!this.component.label) {
+      this.component.label = this.palletSettings.label;
+    }
+    Object.assign(this.fieldSettings, settings);
   }
 
-  init() {
+  getFieldSettings() {
+    return {};
+  }
+
+  getPalletSettings() {
+    return {};
+  }
+
+  getComponentConfig() {
+    return {};
+  }
+
+  /**
+   * */
+  init(settings = {}, componentConfig = {}) {
     if (this.formModel) {
       if (typeof this.formModel[this.fieldSettings.fieldName] === 'undefined') {
         this.setValue(this.fieldSettings.defaultValue);
@@ -216,10 +238,6 @@ export class BaseWidget {
     return {};
   }
 
-  getComponent() {
-    return 'el-input';
-  }
-
   registerEvents() {
 
   }
@@ -228,11 +246,29 @@ export class BaseWidget {
 
   }
 
-  getChildren() {
-    return this;
+  getChildren(h) {
+    let children = [];
+    if (this.slot) {
+      children = Object.keys(this.slot).map((slotKey) => {
+        if (this[slotKey]) {
+          if (typeof this[slotKey] === 'function') {
+            return this[slotKey](h, slotKey);
+          }
+          return slotKey;
+        }
+      });
+    }
+    return children.reduce((children, child) => {
+      if (Array.isArray(child)) {
+        children = children.concat(child);
+      } else if (typeof child !== 'undefined') {
+        children.push(child);
+      }
+      return children;
+    }, []);
   }
 
-  getComponentAttributes() {
+  prepareComponentConfig() {
     this.init();
     this.fieldSettings.name = this.fieldSettings.fieldName;
     return JSON.parse(JSON.stringify(this.fieldSettings));
@@ -248,7 +284,7 @@ export class BaseWidget {
   }
 
   componentRender(component, h) {
-    return h(this.getComponent(), { attrs: this.getComponentAttributes() }, this.getChildren());
+    return h('el-input', this.prepareComponentConfig(), this.getChildren());
   }
 
   /** This method will return cue component object*/

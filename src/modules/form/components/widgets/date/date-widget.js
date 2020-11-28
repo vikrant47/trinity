@@ -1,6 +1,13 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 export default class DateWidget extends BaseWidget {
+  getPalletSettings() {
+    return {
+      label: 'Date',
+      icon: 'date'
+    };
+  }
+
   constructor(settings = {}) {
     if (settings.type === 'daterange' || settings.type === 'monthrange') {
       settings = Object.assign({
@@ -44,7 +51,10 @@ export default class DateWidget extends BaseWidget {
     super(settings);
   }
 
-  getComponent() {
-    return 'el-date-picker';
+  componentRender(component, h) {
+    return h('el-date-picker', {
+      attrs: this.prepareComponentConfig(),
+      props: {}
+    }, this.getChildren());
   }
 }

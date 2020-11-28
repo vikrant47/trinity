@@ -18,7 +18,7 @@ export class SlotConfig {
 export class ComponentConfig {
   widget = WIDGETS.input;
   span = 24;
-  label = 'String';
+  label = null;
   formId;
   layout = ITEM_LAYOUT.colFormItem;
   regList = [];

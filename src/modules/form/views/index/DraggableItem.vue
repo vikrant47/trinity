@@ -108,7 +108,7 @@ function renderChildren(h, currentItem, index, list) {
 }
 
 function layoutIsNotFound() {
-  throw new Error(`Matching layout fount with ${this.currentItem.component.layout}`);
+  throw new Error(`No matching layout found ${this.currentItem.component.layout}`);
 }
 
 export default {

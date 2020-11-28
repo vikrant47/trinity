@@ -1,31 +1,8 @@
-<template>
-  <div class="right-board">
-    <el-tabs v-model="currentTab" class="center-tabs">
-      <el-tab-pane label="Component properties" name="field" />
-      <el-tab-pane label="Form attributes" name="form" />
-    </el-tabs>
-    <div class="field-box">
-      <a class="document-link" target="_blank" :href="documentLink" title="View component documentation">
-        <i class="el-icon-link" />
-      </a>
-      <el-scrollbar class="right-scrollbar">
-        <!-- Component properties -->
-        <div>Parsing alias - {{ activeData.widgetAlias }}</div>
-        <div
-          is="parser"
-          v-if="activeData.widgetAlias"
-          :form-conf="activeData.configSection"
-          :form-data="activeData.fieldSettings"
-        />
-      </el-scrollbar>
-    </div>
-  </div>
-</template>
-
 <script>
 import { saveFormConf } from '@/modules/form/utils/db';
-import widgets from '@/modules/form/components/widgets';
+import widgets, { FormWidgetService } from '@/modules/form/components/widgets';
 import Parser from '../../parser/Parser';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 // Make the change Render Key available when the target component changes
 
@@ -81,11 +58,33 @@ export default {
       deep: true
     }
   },
-  methods: {}
+  render(h) {
+    let { currentTab, documentLink, activeData } = this;
+    if (!(activeData instanceof BaseWidget)) {
+      const Widget = new FormWidgetService().getWidgetByAlias(activeData.widgetAlias);
+      activeData = Object.assign(new Widget(activeData.fieldSettings, activeData.component), activeData);
+      activeData.loadConfigForConfigSection();
+    }
+    return <div class='right-board'>
+      <el-tabs v-model={currentTab} class='center-tabs'>
+        <el-tab-pane label='Component properties' name='field'/>
+        <el-tab-pane label='Form attributes' name='form'/>
+      </el-tabs>
+      <div class='field-box'>
+        <a class='document-link' target='_blank' href={documentLink} title='View component documentation'>
+          <i class='el-icon-link'/>
+        </a>
+        <el-scrollbar class='right-scrollbar'>
+          <div>Parsing alias - {activeData.widgetAlias}</div>
+          {h(Parser, { props: { formData: activeData.fieldSettings, formConf: activeData.configSection }})}
+        </el-scrollbar>
+      </div>
+    </div>;
+  }
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .right-board {
   height: 100%;
   overflow: scroll;

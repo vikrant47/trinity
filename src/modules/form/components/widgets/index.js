@@ -52,14 +52,13 @@ export const WIDGETS = {
   date: 'date',
   dateRange: 'dateRange',
   button: 'button',
-  rating: 'rating',
+  rate: 'rate',
   colorPicker: 'colorPicker'
 };
 export const WidgetTypes = {
   [WIDGETS.input]: require('./input/input-widget').default,
-  [WIDGETS.text]: require('./text/text-widget').default,
   [WIDGETS.number]: require('./number/number-widget').default,
-  [WIDGETS.richeditor]: require('./text/text-widget').default,
+  [WIDGETS.richeditor]: require('./input/input-widget').default,
   [WIDGETS.select]: require('./select/select-widget').default,
   [WIDGETS.cascader]: require('./cascader/cascader-widget').default,
   [WIDGETS.radioGroup]: require('./radio-group/radio-group-widget').default,
@@ -70,7 +69,7 @@ export const WidgetTypes = {
   [WIDGETS.timeRange]: require('./time-range/time-range-widget').default,
   [WIDGETS.date]: require('./date/date-widget').default,
   [WIDGETS.button]: require('./button/button-widget').default,
-  [WIDGETS.rating]: require('./rating/rating-widget').default,
+  [WIDGETS.rate]: require('./rate/rate-widget').default,
   [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget').default
 };
 

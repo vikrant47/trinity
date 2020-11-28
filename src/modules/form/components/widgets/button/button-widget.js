@@ -1,12 +1,22 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 export default class ButtonWidget extends BaseWidget {
-  palletSettings = {
-    label: 'Button',
-    icon: 'button'
-  };
+  getFieldSettings() {
+    return { type: 'primary' };
+  }
 
-  getComponent() {
-    return 'el-button';
+  getPalletSettings() {
+    return {
+      label: 'Button',
+      icon: 'button'
+    };
+  }
+
+  getChildren(h) {
+    return 'Button';
+  }
+
+  componentRender(component, h) {
+    return h('el-button', this.prepareComponentConfig(), this.getChildren());
   }
 }
