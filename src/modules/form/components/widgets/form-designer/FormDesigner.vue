@@ -73,13 +73,13 @@
                 v-for="(item, index) in drawingList"
                 :key="item.renderKey"
                 :drawing-list="drawingList"
-                :current-item="item"
+                :current-widget="item"
                 :index="index"
                 :active-id="activeId"
                 :form-conf="formConf"
-                @activeItem="activeDraggableItem"
-                @copyItem="drawingItemCopy"
-                @deleteItem="drawingItemDelete"
+                @activeWidget="activeDraggableItem"
+                @copyWidget="drawingItemCopy"
+                @deleteWidget="drawingItemDelete"
                 @showConfig="configVisisble=true"
               />
             </draggable>
@@ -97,7 +97,7 @@
       :before-close="onConfigClose"
     >
       <right-panel
-        :active-data="activeData"
+        :active-widget="activeWidget"
         :form-conf="formConf"
         :show-field="!!drawingList.length"
         @widget-change="tagChange"
@@ -149,7 +149,7 @@ import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
 import CodeTypeDialog from '@/modules/form/views/index/CodeTypeDialog';
-import DraggableItem from '@/modules/form/views/index/DraggableItem';
+import DraggableItem from '@/modules/form/components/widgets/form-designer/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
 } from '@/modules/form/utils/db';
@@ -158,9 +158,9 @@ import { FormWidgetService } from '@/modules/form/components/widgets';
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 let beautifier;
-const emptyActiveData = { style: {}, autosize: {}};
+const emptyactiveWidget = { style: {}, autosize: {}};
 let oldActiveId;
-let tempActiveData;
+let tempactiveWidget;
 const drawingListInDB = getDrawingList();
 const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
@@ -195,7 +195,7 @@ export default {
       jsonDrawerVisible: false,
       generateConf: null,
       showFileName: false,
-      activeData: drawingDefalut[0],
+      activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, saveDrawingList),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
@@ -221,15 +221,15 @@ export default {
   computed: {},
   watch: {
     // eslint-disable-next-line func-names
-    'activeData.component.label': function(val, oldVal) {
+    'activeWidget.widgetSettings.label': function(val, oldVal) {
       if (
-        this.activeData.placeholder === undefined ||
-        !this.activeData.component.widget ||
+        this.activeWidget.placeholder === undefined ||
+        !this.activeWidget.widgetSettings.widget ||
         oldActiveId !== this.activeId
       ) {
         return;
       }
-      this.activeData.placeholder = this.activeData.placeholder.replace(oldVal, '') + val;
+      this.activeWidget.placeholder = this.activeWidget.placeholder.replace(oldVal, '') + val;
     },
     activeId: {
       handler(val) {
@@ -253,7 +253,7 @@ export default {
   },
   mounted() {
     if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
-      this.drawingList = drawingListInDB;
+      this.drawingList = drawingListInDB.map(widgetJSON => new FormWidgetService().getWidgetInstance(widgetJSON));
     } else {
       this.drawingList = drawingDefalut;
     }
@@ -295,15 +295,15 @@ export default {
       }, obj);
     },
     setRespData(component, respData) {
-      const { dataPath, renderKey, dataConsumer } = component.component;
+      const { dataPath, renderKey, dataConsumer } = component.widgetSettings;
       if (!dataPath || !dataConsumer) return;
       const data = dataPath.split('.').reduce((pre, item) => pre[item], respData);
       this.setObjectValueByStringKeys(component, dataConsumer, data);
-      const i = this.drawingList.findIndex(item => item.component.renderKey === renderKey);
+      const i = this.drawingList.findIndex(item => item.widgetSettings.renderKey === renderKey);
       if (i > -1) this.$set(this.drawingList, i, component);
     },
     fetchData(component) {
-      const { dataType, method, url } = component.component;
+      const { dataType, method, url } = component.widgetSettings;
       if (dataType === 'dynamic' && method && url) {
         this.setLoading(component, true);
         this.$axios({
@@ -327,16 +327,16 @@ export default {
       this.configVisisble = true;
     },
     activeFormItem(currentItem) {
-      this.activeData = currentItem;
-      this.activeId = currentItem.component.formId;
+      this.activeWidget = currentItem;
+      this.activeId = currentItem.widgetSettings.formId;
       if (currentItem instanceof BaseWidget) {
         currentItem.loadConfigForConfigSection();
       }
     },
     onEnd(obj) {
       if (obj.from !== obj.to) {
-        this.fetchData(tempActiveData);
-        this.activeData = tempActiveData;
+        this.fetchData(tempactiveWidget);
+        this.activeWidget = tempactiveWidget;
         this.activeId = this.idGlobal;
       }
     },
@@ -352,11 +352,11 @@ export default {
       config.span = this.formConf.span; // When generating code, it will make a streamlined judgment based on the span
       this.createIdAndKey(clone);
       clone.placeholder !== undefined && (clone.placeholder += config.label);
-      tempActiveData = clone;
-      return tempActiveData;
+      tempactiveWidget = clone;
+      return tempactiveWidget;
     },
     createIdAndKey(item) {
-      const config = item.component;
+      const config = item.widgetSettings;
       config.formId = ++this.idGlobal;
       config.renderKey = `${config.formId}${+new Date()}`; // After changing the render Key, the component can be forced to update
       if (config.layout === 'colFormItem') {
@@ -446,37 +446,37 @@ export default {
     },
     tagChange(newTag) {
       newTag = this.cloneComponent(newTag);
-      const config = newTag.component;
-      newTag.fieldName = this.activeData.fieldName;
+      const config = newTag.widgetSettings;
+      newTag.fieldName = this.activeWidget.fieldName;
       config.formId = this.activeId;
-      config.span = this.activeData.component.span;
-      this.activeData.component.widget = config.widget;
-      this.activeData.component.tagIcon = config.tagIcon;
-      this.activeData.component.document = config.document;
-      if (typeof this.activeData.component.defaultValue === typeof config.defaultValue) {
-        config.defaultValue = this.activeData.component.defaultValue;
+      config.span = this.activeWidget.widgetSettings.span;
+      this.activeWidget.widgetSettings.widget = config.widget;
+      this.activeWidget.widgetSettings.tagIcon = config.tagIcon;
+      this.activeWidget.widgetSettings.document = config.document;
+      if (typeof this.activeWidget.widgetSettings.defaultValue === typeof config.defaultValue) {
+        config.defaultValue = this.activeWidget.widgetSettings.defaultValue;
       }
       Object.keys(newTag).forEach(key => {
-        if (this.activeData[key] !== undefined) {
-          newTag[key] = this.activeData[key];
+        if (this.activeWidget[key] !== undefined) {
+          newTag[key] = this.activeWidget[key];
         }
       });
-      this.activeData = newTag;
+      this.activeWidget = newTag;
       this.updateDrawingList(newTag, this.drawingList);
     },
     updateDrawingList(newTag, list) {
-      const index = list.findIndex(item => item.component.formId === this.activeId);
+      const index = list.findIndex(item => item.widgetSettings.formId === this.activeId);
       if (index > -1) {
         list.splice(index, 1, newTag);
       } else {
         list.forEach(item => {
-          if (Array.isArray(item.component.children)) this.updateDrawingList(newTag, item.component.children);
+          if (Array.isArray(item.widgetSettings.children)) this.updateDrawingList(newTag, item.widgetSettings.children);
         });
       }
     },
     refreshJson(data) {
-      this.drawingList = deepClone(data.fields);
-      delete data.fields;
+      this.drawingList = deepClone(data.widgets);
+      delete data.widgets;
       this.formConf = data;
     }
   }

@@ -142,7 +142,7 @@ import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
 import CodeTypeDialog from './CodeTypeDialog';
-import DraggableItem from './DraggableItem';
+import DraggableItem from '../../components/widgets/form-designer/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
 } from '@/modules/form/utils/db';

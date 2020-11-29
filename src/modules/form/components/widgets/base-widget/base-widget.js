@@ -10,7 +10,22 @@ export class BaseWidget {
     label: 'Input',
     icon: 'input'
   };
-  static defaultComponentConfig = new ComponentConfig();
+  static defaultWidgetSettings = {
+    widgetAlias: WIDGETS.input,
+    span: 24,
+    label: null,
+    formId: null,
+    layout: ITEM_LAYOUT.colFormItem,
+    regList: [],
+    tagIcon: 'date',
+    document: null,
+    required: true,
+    changeTag: true,
+    renderKey: null,
+    showLabel: true,
+    labelWidth: null,
+    defaultValue: null
+  };
   static defaultFieldSettings = {
     disabled: false,
     readonly: false,
@@ -23,7 +38,6 @@ export class BaseWidget {
     showStops: false,
     range: false,
     multiple: false,
-    fieldName: null,
     class: {},
     attrs: {},
     props: {},
@@ -38,13 +52,14 @@ export class BaseWidget {
     ref: null,
     refInFor: true
   };
+  fieldName = null;
   slot = {};
   widgetAlias = 'input';
-  formModel;
+  formModel = {};
   children = [];
   palletSettings = {};
   fieldSettings = {};
-  component = {};
+  widgetSettings = {};
   configSection = {};
 
   /**
@@ -52,13 +67,15 @@ export class BaseWidget {
    * Constructor always called before child field initialization
    * Moving initialization to init
    * */
-  constructor(settings = {}, componentConfig = {}) {
+  constructor(settings = { fieldSettings: {}, widgetSettings: {}}) {
+    const fieldSettings = settings.fieldSettings;
+    const widgetSettings = settings.widgetSettings;
     this.widgetClass = this.constructor.name;
-    Object.assign(this.fieldSettings, BaseWidget.defaultFieldSettings, settings, this.getFieldSettings());
-    Object.assign(this.palletSettings, BaseWidget.defaultPalletSettings, this.getPalletSettings());
-    Object.assign(this.component, BaseWidget.defaultComponentConfig, componentConfig, this.getComponentConfig());
-    if (!this.component.label) {
-      this.component.label = this.palletSettings.label;
+    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings, this.getFieldSettings(), fieldSettings);
+    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings, this.getPalletSettings());
+    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings, this.getWidgetSettings(), widgetSettings);
+    if (!this.widgetSettings.label) {
+      this.widgetSettings.label = this.palletSettings.label;
     }
     Object.assign(this.fieldSettings, settings);
   }
@@ -71,20 +88,24 @@ export class BaseWidget {
     return {};
   }
 
-  getComponentConfig() {
+  getWidgetSettings() {
     return {};
   }
 
   /**
    * */
   init(settings = {}, componentConfig = {}) {
-    if (this.formModel) {
-      if (typeof this.formModel[this.fieldSettings.fieldName] === 'undefined') {
-        this.setValue(this.fieldSettings.defaultValue);
-      }
-    }
+    this.updateValue();
     if (!this.fieldSettings.placeholder) {
-      this.fieldSettings.placeholder = 'Please Enter ' + (this.fieldSettings.label ? this.fieldSettings.label : 'Value');
+      this.fieldSettings.placeholder = 'Please Enter ' + (this.widgetSettings.label ? this.widgetSettings.label : 'Value');
+    }
+  }
+
+  updateValue() {
+    if (this.formModel) {
+      if (typeof this.formModel[this.fieldName] === 'undefined') {
+        this.setValue(this.widgetSettings.defaultValue);
+      }
     }
   }
 
@@ -94,22 +115,23 @@ export class BaseWidget {
 
   setFormModel(formModel) {
     this.formModel = formModel;
+    this.updateValue();
   }
 
   getValue() {
-    return this.formModel[this.fieldSettings.fieldName];
+    return this.formModel[this.fieldName];
   }
 
   setValue(value) {
-    this.formModel[this.fieldSettings.fieldName] = value;
+    this.formModel[this.fieldName] = value;
   }
 
   getConfigSectionFields() {
     return [
       {
-        widget: WIDGETS.select,
-        fieldSettings: {
-          fieldName: 'type',
+        widgetAlias: WIDGETS.select,
+        fieldName: 'type',
+        widgetSettings: {
           label: 'Widget',
           widgetIcon: 'select',
           defaultValue: 'string',
@@ -120,74 +142,74 @@ export class BaseWidget {
         },
         placeholder: 'Please Select Widget'
       }, {
-        fieldSettings: {
-          fieldName: 'name',
+        fieldName: 'name',
+        widgetSettings: {
           label: 'Name',
           required: true
         }
       }, {
-        fieldSettings: {
-          fieldName: 'title',
+        fieldName: 'title',
+        widgetSettings: {
           label: 'Title',
           required: true
         }
       }, {
-        fieldSettings: {
-          fieldName: 'placeholder',
+        fieldName: 'placeholder',
+        widgetSettings: {
           label: 'Placeholder'
         }
       },
       {
-        widget: WIDGETS.slider,
-        fieldSettings: {
-          fieldName: 'size',
+        fieldName: 'size',
+        widgetAlias: WIDGETS.slider,
+        widgetSettings: {
           label: 'Size',
           min: 0,
           max: 10
         }
       },
       {
-        widget: WIDGETS.switch,
-        fieldSettings: {
-          fieldName: 'showLabel',
+        fieldName: 'showLabel',
+        widgetAlias: WIDGETS.switch,
+        widgetSettings: {
           label: 'Show Label',
           default: true
         }
       },
       {
-        widget: WIDGETS.number,
-        fieldSettings: {
-          fieldName: 'labelWidth',
+        fieldName: 'labelWidth',
+        widgetAlias: WIDGETS.number,
+        widgetSettings: {
           label: 'Label Width',
           min: 0
         }
       },
       {
-        widget: WIDGETS.number,
-        fieldSettings: {
-          fieldName: 'span',
+        fieldName: 'span',
+        widgetAlias: WIDGETS.number,
+        widgetSettings: {
           label: 'Span',
           min: 0,
           max: 12
         }
       },
       {
-        fieldSettings: {
-          fieldName: 'widgetIcon',
+        fieldName: 'widgetIcon',
+        widgetSettings: {
           label: 'Icon'
         }
       },
       {
-        widget: WIDGETS.switch,
+        label: 'Required',
+        widgetAlias: WIDGETS.switch,
         fieldName: 'required',
-        fieldSettings: {
-          label: 'Required',
+        widgetSettings: {
           default: false
         }
       }, {
-        widget: WIDGETS.select,
-        fieldSettings: {
-          fieldName: 'layout',
+        fieldName: 'layout',
+        widgetAlias: WIDGETS.select,
+        widgetSettings: {
           label: 'Layout',
           widgetIcon: 'select',
           defaultValue: ITEM_LAYOUT.colFormItem,
@@ -205,15 +227,15 @@ export class BaseWidget {
         }
       },
       {
-        fieldSettings: {
-          fieldName: 'defaultValue',
+        fieldName: 'defaultValue',
+        widgetSettings: {
           label: 'Default'
         }
       },
       {
-        widget: WIDGETS.switch,
-        fieldSettings: {
-          fieldName: 'showWordLimit',
+        fieldName: 'showWordLimit',
+        widgetAlias: WIDGETS.switch,
+        widgetSettings: {
           label: 'Show Limit'
         }
       }
@@ -221,10 +243,10 @@ export class BaseWidget {
   }
 
   loadConfigForConfigSection() {
-    if (!this.configSection.fields) {
-      this.configSection.fields = this.getConfigSectionFields().map(conf => {
-        const Widget = new FormWidgetService().getWidgetByAlias(conf.widget || 'input');
-        return new Widget(conf);
+    if (!this.configSection.widgets) {
+      this.configSection.widgets = this.getConfigSectionFields().map(widgetJSON => {
+        widgetJSON.widgetAlias = widgetJSON.widgetAlias ? widgetJSON.widgetAlias : WIDGETS.input;
+        return new FormWidgetService().getWidgetInstance(widgetJSON, false);
       });
     }
     return this.configSection;
@@ -270,7 +292,8 @@ export class BaseWidget {
 
   prepareComponentConfig() {
     this.init();
-    this.fieldSettings.name = this.fieldSettings.fieldName;
+    this.fieldSettings.name = this.fieldName;
+    this.fieldSettings['v-model'] = this.formModel[this.fieldName];
     return JSON.parse(JSON.stringify(this.fieldSettings));
   }
 

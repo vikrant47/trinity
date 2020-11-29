@@ -28,7 +28,7 @@ function vModel(dataObject, defaultValue) {
 }
 
 function mountSlotFiles(h, confClone, children) {
-  const childObjs = widgets[confClone.component.widget];
+  const childObjs = widgets[confClone.widgetSettings.widget];
   if (childObjs) {
     Object.keys(childObjs).forEach(key => {
       const childFunc = childObjs[key];
@@ -55,7 +55,7 @@ function buildDataObject(confClone, dataObject) {
   Object.keys(confClone).forEach(key => {
     const val = confClone[key];
     if (key === 'fieldName') {
-      vModel.call(this, dataObject, confClone.component.defaultValue);
+      vModel.call(this, dataObject, confClone.widgetSettings.defaultValue);
     } else if (dataObject[key] !== undefined) {
       if (dataObject[key] === null ||
         dataObject[key] instanceof RegExp ||
@@ -76,7 +76,7 @@ function buildDataObject(confClone, dataObject) {
 }
 
 function clearAttrs(dataObject) {
-  delete dataObject.attrs.component;
+  delete dataObject.attrs.widgetSettings;
   delete dataObject.attrs.slot;
   delete dataObject.attrs.__methods__;
 }
@@ -106,11 +106,11 @@ function makeDataObject() {
 export default {
   name: 'FormItemRenderer',
   props: {
-    conf: {
-      type: Object,
+    widget: {
+      type: BaseWidget,
       required: true
     },
-    formData: {
+    formModel: {
       type: Object,
       require: true,
       default() {
@@ -119,23 +119,7 @@ export default {
     }
   },
   render(h) {
-    if (this.conf instanceof BaseWidget) {
-      //  const dataObject = this.conf.getVueConfig();
-      // Convert json form configuration to vue recognizable by render "Data Object"
-      return this.conf.componentRender(this, h);
-    }
-    const confClone = deepClone(this.conf);
-    const children = this.$slots.default || [];
-    const dataObject = makeDataObject.call(this);
-    // If a file with the same name as the current widget exists in the slots folder, the code in the file is executed
-    mountSlotFiles.call(this, h, confClone, children);
-
-    // send string events as messages
-    emitEvents.call(this, confClone);
-
-    // Convert json form configuration to vue recognizable by render "Data Object"
-    buildDataObject.call(this, confClone, dataObject);
-    const widget = this.conf.component.widget;
-    return h(widgets[widget] || widget, dataObject, children);
+    this.widget.setFormModel(this.formModel);
+    return this.widget.componentRender(this, h);
   }
 };

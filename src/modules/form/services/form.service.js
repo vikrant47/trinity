@@ -18,7 +18,7 @@ export class FormService extends EngineObservable {
   record = {};
   definition = { form: { config: { tabs: {}}}};
   formConfig = {
-    fields: [],
+    widgets: [],
     labelSuffix: '',
     labelWidth: '100',
     labelPosition: 'right',
@@ -64,7 +64,7 @@ export class FormService extends EngineObservable {
 
   populateFormConfig() {
     const tabs = this.definition.form.config.tabs || [];
-    return { fields: tabs.reduce((result, tab) => result.concat(tab.fields), []) };
+    return { widgets: tabs.reduce((result, tab) => result.concat(tab.widgets), []) };
   }
 
   updateHash() {

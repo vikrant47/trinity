@@ -2,19 +2,20 @@
 import draggable from 'vuedraggable';
 import render from '@/modules/form/components/render/render';
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
+import { WidgetConfig } from '@/modules/form/components/widgets/base-widget/widget-config';
 
 const components = {
-  itemBtns(h, currentItem, index, list) {
-    const { copyItem, deleteItem, showConfig } = this.$listeners;
+  itemBtns(h, currentWidget, index, list) {
+    const { copyWidget, deleteWidget, showConfig } = this.$listeners;
     return [
       <span class='drawing-item-copy' title='Copy' onClick={event => {
-        copyItem(currentItem, list);
+        copyWidget(currentWidget, list);
         event.stopPropagation();
       }}>
         <i class='el-icon-copy-document'/>
       </span>,
       <span class='drawing-item-delete' title='Delete' onClick={event => {
-        deleteItem(index, list);
+        deleteWidget(index, list);
         event.stopPropagation();
       }}>
         <i class='el-icon-delete'/>
@@ -29,9 +30,9 @@ const components = {
   }
 };
 const layouts = {
-  colFormItem(h, currentItem, index, list) {
-    const { activeItem } = this.$listeners;
-    const config = currentItem.component;
+  colFormItem(h, currentWidget, index, list) {
+    const { activeWidget } = this.$listeners;
+    const config = currentWidget.widgetSettings;
     const child = renderChildren.apply(this, arguments);
     let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
     if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
@@ -40,12 +41,12 @@ const layouts = {
     return (
       <el-col span={config.span} class={className}
         nativeOnClick={event => {
-          activeItem(currentItem);
+          activeWidget(currentWidget);
           event.stopPropagation();
         }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} conf={currentItem} onInput={event => {
+          <render key={config.renderKey} widget={currentWidget} onInput={event => {
             this.$set(config, 'defaultValue', event);
           }}>
             {child}
@@ -55,15 +56,15 @@ const layouts = {
       </el-col>
     );
   },
-  rowFormItem(h, currentItem, index, list) {
-    const { activeItem } = this.$listeners;
-    const config = currentItem.component;
+  rowFormItem(h, currentWidget, index, list) {
+    const { activeWidget } = this.$listeners;
+    const config = currentWidget.widgetSettings;
     const className = this.activeId === config.formId
       ? 'drawing-row-item active-from-item'
       : 'drawing-row-item';
     let child = renderChildren.apply(this, arguments);
-    if (currentItem.type === 'flex') {
-      child = <el-row type={currentItem.type} justify={currentItem.justify} align={currentItem.align}>
+    if (currentWidget.type === 'flex') {
+      child = <el-row type={currentWidget.type} justify={currentWidget.justify} align={currentWidget.align}>
         {child}
       </el-row>;
     }
@@ -71,7 +72,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-row gutter={config.gutter} class={className}
           nativeOnClick={event => {
-            activeItem(currentItem);
+            activeWidget(currentWidget);
             event.stopPropagation();
           }}>
           <span class='component-name'>{config.componentName}</span>
@@ -84,10 +85,10 @@ const layouts = {
       </el-col>
     );
   },
-  raw(h, currentItem, index, list) {
-    const config = currentItem.component;
+  raw(h, currentWidget, index, list) {
+    const config = currentWidget.widgetSettings;
     const child = renderChildren.apply(this, arguments);
-    return <render key={config.renderKey} conf={currentItem} onInput={event => {
+    return <render key={config.renderKey} conf={currentWidget} onInput={event => {
       this.$set(config, 'defaultValue', event);
     }}>
       {child}
@@ -95,11 +96,11 @@ const layouts = {
   }
 };
 
-function renderChildren(h, currentItem, index, list) {
-  const config = currentItem.component;
+function renderChildren(h, currentWidget, index, list) {
+  const config = currentWidget.widgetSettings;
   if (!Array.isArray(config.children)) return null;
   return config.children.map((el, i) => {
-    const layout = layouts[el.component.layout];
+    const layout = layouts[el.widgetSettings.layout];
     if (layout) {
       return layout.call(this, h, el, i, config.children);
     }
@@ -108,7 +109,7 @@ function renderChildren(h, currentItem, index, list) {
 }
 
 function layoutIsNotFound() {
-  throw new Error(`No matching layout found ${this.currentItem.component.layout}`);
+  throw new Error(`No matching layout found ${this.currentWidget.widgetSettings.layout}`);
 }
 
 export default {
@@ -116,18 +117,37 @@ export default {
     render,
     draggable
   },
-  props: [
-    'currentItem',
-    'index',
-    'drawingList',
-    'activeId',
-    'formConf'
-  ],
+  props: {
+    currentWidget: {
+      type: BaseWidget,
+      required: true
+    },
+    index: {
+      type: Number,
+      default() {
+        return -1;
+      }
+    },
+    drawingList: {
+      type: Array,
+      required: true
+    },
+    activeId: {
+      type: Number,
+      default() {
+        return null;
+      }
+    },
+    formConf: {
+      type: Object,
+      required: true
+    }
+  },
   render(h) {
-    const layout = layouts[this.currentItem.component.layout];
+    const layout = layouts[this.currentWidget.widgetSettings.layout];
 
     if (layout) {
-      return layout.call(this, h, this.currentItem, this.index, this.drawingList);
+      return layout.call(this, h, this.currentWidget, this.index, this.drawingList);
     }
     return layoutIsNotFound.call(this);
   }

@@ -296,7 +296,7 @@ export default {
       form.fields.forEach(item => {
         const val = data[item.fieldName];
         if (val) {
-          item.component.defaultValue = val;
+          item.widgetSettings.defaultValue = val;
         }
       });
     },

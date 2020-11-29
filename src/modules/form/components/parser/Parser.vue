@@ -1,6 +1,8 @@
 <script>
 import { deepClone } from '@/modules/form/utils';
 import FormItemRenderer from '@/modules/form/components/render/render.js';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
+import { FormWidgetService } from '@/modules/form/components/widgets';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -15,31 +17,34 @@ const ruleTrigger = {
 };
 
 const layouts = {
-  colFormItem(h, scheme, formData) {
-    const config = scheme.component;
-    const listeners = buildListeners.call(this, scheme);
+  colFormItem(h, widget, formData) {
+    if (!(widget instanceof BaseWidget)) {
+      widget = new FormWidgetService().getWidgetInstance(widget);
+    }
+    const config = widget.widgetSettings;
+    const listeners = buildListeners.call(this, widget);
 
     let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
     if (config.showLabel === false) labelWidth = '0';
     return (
       <el-col span={config.span}>
-        <el-form-item label-width={labelWidth} prop={scheme.fieldName}
+        <el-form-item label-width={labelWidth} prop={widget.fieldName}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <form-item-renderer conf={scheme} {...{ on: listeners }} form-data={formData}/>
+          <form-item-renderer widget={widget} {...{ on: listeners }} form-model={formData}/>
         </el-form-item>
       </el-col>
     );
   },
-  rowFormItem(h, scheme) {
+  rowFormItem(h, widget) {
     let child = renderChildren.apply(this, arguments);
-    if (scheme.type === 'flex') {
-      child = <el-row type={scheme.type} justify={scheme.justify} align={scheme.align}>
+    if (widget.type === 'flex') {
+      child = <el-row type={widget.type} justify={widget.justify} align={widget.align}>
         {child}
       </el-row>;
     }
     return (
-      <el-col span={scheme.span}>
-        <el-row gutter={scheme.gutter}>
+      <el-col span={widget.span}>
+        <el-row gutter={widget.gutter}>
           {child}
         </el-row>
       </el-col>
@@ -62,7 +67,7 @@ function renderFrom(h) {
         props={{ model: this[formConfCopy.formModel] }}
         rules={this[formConfCopy.formRules]}
       >
-        {renderFormItem.call(this, h, formConfCopy.fields, this[formConfCopy.formModel])}
+        {renderFormItem.call(this, h, formConfCopy.widgets, this[formConfCopy.formModel])}
         {formConfCopy.formBtns && formBtns.call(this, h)}
       </el-form>
     </el-row>
@@ -79,30 +84,30 @@ function formBtns(h) {
 }
 
 function renderFormItem(h, elementList, formData) {
-  return elementList.map(scheme => {
-    const config = scheme.component;
+  return elementList.map(widget => {
+    const config = widget.widgetSettings;
     const layout = layouts[config.layout];
 
     if (layout) {
-      return layout.call(this, h, scheme, formData);
+      return layout.call(this, h, widget, formData);
     }
     throw new Error(`No layout fount with ${config.layout} name`);
   });
 }
 
-function renderChildren(h, scheme) {
-  const config = scheme.component;
+function renderChildren(h, widget) {
+  const config = widget.widgetSettings;
   if (!Array.isArray(config.children)) return null;
   return renderFormItem.call(this, h, config.children);
 }
 
-function setValue(event, config, scheme) {
+function setValue(event, config, widget) {
   this.$set(config, 'defaultValue', event);
-  this.$set(this[this.formConf.formModel], scheme.fieldName, event);
+  this.$set(this[this.formConf.formModel], widget.fieldName, event);
 }
 
-function buildListeners(scheme) {
-  const config = scheme.component;
+function buildListeners(widget) {
+  const config = widget.widgetSettings;
   const methods = this.formConf.__methods__ || {};
   const listeners = {};
 
@@ -111,7 +116,7 @@ function buildListeners(scheme) {
     listeners[key] = event => methods[key].call(this, event);
   });
   // response render.js Neutral vModel $emit('input', val)
-  listeners.input = event => setValue.call(this, event, config, scheme);
+  listeners.input = event => setValue.call(this, event, config, widget);
 
   return listeners;
 }
@@ -140,24 +145,27 @@ export default {
       [this.formConf.formModel]: this.formData,
       [this.formConf.formRules]: {}
     };
-    this.initFormData(data.formConfCopy.fields, data[this.formConf.formModel]);
-    this.buildRules(data.formConfCopy.fields, data[this.formConf.formRules]);
+    this.initFormData(data.formConfCopy.widgets, data[this.formConf.formModel]);
+    this.buildRules(data.formConfCopy.widgets, data[this.formConf.formRules]);
     return data;
   },
   methods: {
     initFormData(componentList, formData) {
-      componentList.forEach(cur => {
-        const config = cur.component;
-        if (cur.fieldName && !formData[cur.fieldName]) formData[cur.fieldName] = config.defaultValue;
-        if (config.children) this.initFormData(config.children, formData);
+      componentList.forEach(widget => {
+        if (!(widget instanceof BaseWidget)) {
+          widget = new FormWidgetService().getWidgetInstance(widget);
+        }
+        const { widgetSettings } = widget;
+        if (widget.fieldName && !formData[widget.fieldName]) formData[widget.fieldName] = widgetSettings.defaultValue;
+        if (widgetSettings.children) this.initFormData(widgetSettings.children, formData);
       });
     },
     buildRules(componentList, rules) {
-      componentList.forEach(cur => {
-        const config = cur.component;
+      componentList.forEach(widget => {
+        const config = widget.widgetSettings;
         if (Array.isArray(config.regList)) {
           if (config.required) {
-            const required = { required: config.required, message: cur.placeholder };
+            const required = { required: config.required, message: widget.placeholder };
             if (Array.isArray(config.defaultValue)) {
               required.type = 'array';
               required.message = `Please select at least one${config.label}`;
@@ -165,7 +173,7 @@ export default {
             required.message === undefined && (required.message = `${config.label}Can not be empty`);
             config.regList.push(required);
           }
-          rules[cur.fieldName] = config.regList.map(item => {
+          rules[widget.fieldName] = config.regList.map(item => {
             // eslint-disable-next-line no-eval
             item.pattern && (item.pattern = eval(item.pattern));
             item.trigger = ruleTrigger && ruleTrigger[config.widget];
@@ -176,7 +184,7 @@ export default {
       });
     },
     resetForm() {
-      this.formConfCopy = deepClone(this.formConf);
+      // this.formConfCopy = deepClone(this.formConf);
       this.$refs[this.formConf.formRef].resetFields();
     },
     submitForm() {

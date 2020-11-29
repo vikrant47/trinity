@@ -15,13 +15,15 @@ export default {
     showField: {
       type: Boolean
     },
-    activeData: {
+    activeWidget: {
       type: Object,
       required: true
     },
     formConf: {
       type: Object,
-      required: true
+      default() {
+        return {};
+      }
     }
   },
   data() {
@@ -36,7 +38,7 @@ export default {
   },
   computed: {
     widgetConfigComponent() {
-      const widget = widgets[this.activeData.component.widget];
+      const widget = widgets[this.activeWidget.widgetSettings.widget];
       const config = widget.config;
       if (typeof config === 'function') {
         return config();
@@ -45,7 +47,7 @@ export default {
     },
     documentLink() {
       return (
-        this.activeData.component.document ||
+        this.activeWidget.widgetSettings.document ||
         'https://element.eleme.cn/#/zh-CN/component/installation'
       );
     }
@@ -59,12 +61,12 @@ export default {
     }
   },
   render(h) {
-    let { currentTab, documentLink, activeData } = this;
-    if (!(activeData instanceof BaseWidget)) {
-      const Widget = new FormWidgetService().getWidgetByAlias(activeData.widgetAlias);
-      activeData = Object.assign(new Widget(activeData.fieldSettings, activeData.component), activeData);
-      activeData.loadConfigForConfigSection();
+    const { currentTab, documentLink } = this;
+    let { activeWidget } = this;
+    if (!(activeWidget instanceof BaseWidget)) {
+      activeWidget = new FormWidgetService().getWidgetInstance(activeWidget);
     }
+    activeWidget.loadConfigForConfigSection();
     return <div class='right-board'>
       <el-tabs v-model={currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'/>
@@ -75,8 +77,8 @@ export default {
           <i class='el-icon-link'/>
         </a>
         <el-scrollbar class='right-scrollbar'>
-          <div>Parsing alias - {activeData.widgetAlias}</div>
-          {h(Parser, { props: { formData: activeData.fieldSettings, formConf: activeData.configSection }})}
+          <div>Parsing alias - {activeWidget.widgetAlias}</div>
+          {h(Parser, { props: { formData: activeWidget.fieldSettings, formConf: activeWidget.configSection }})}
         </el-scrollbar>
       </div>
     </div>;

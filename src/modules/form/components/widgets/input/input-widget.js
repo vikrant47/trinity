@@ -8,11 +8,11 @@ export default class InputWidget extends BaseWidget {
     };
   }
 
-  constructor(settings = {}) {
+  constructor(settings = {}, widgetSettings = {}) {
     if (settings.type === 'password') {
       settings.showPassword = true;
     }
-    super(settings);
+    super(settings, widgetSettings);
   }
 
   prefix(h, key) {

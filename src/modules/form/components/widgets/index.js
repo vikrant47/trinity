@@ -1,40 +1,6 @@
-import InputConfig from '@/modules/form/components/widgets/input/Config';
-import ButtonConfig from '@/modules/form/components/widgets/button/Config';
-import CascaderConfig from '@/modules/form/components/widgets/cascader/Config';
-import CheckboxConfig from '@/modules/form/components/widgets/checkbox-group/Config';
-import ColorPickerConfig from '@/modules/form/components/widgets/color-picker/Config';
-import FormDesignerConfig from '@/modules/form/components/widgets/form-designer/Config';
-import NumberConfig from '@/modules/form/components/widgets/number/Config';
-import SelectConfig from '@/modules/form/components/widgets/select/Config';
 import * as _ from 'lodash';
 import { Engine } from '@/modules/engine/core/engine';
 
-export default {
-  'el-input': {
-    config: InputConfig
-  },
-  'el-button': {
-    config: ButtonConfig
-  },
-  'el-cascader': {
-    config: CascaderConfig
-  },
-  'el-checkbox-group': {
-    config: CheckboxConfig
-  },
-  'el-color-picker': {
-    config: ColorPickerConfig
-  },
-  'form-designer': {
-    config: FormDesignerConfig
-  },
-  'el-number': {
-    config: NumberConfig
-  },
-  'el-select': {
-    config: SelectConfig
-  }
-};
 export const WIDGETS = {
   input: 'input',
   text: 'text',
@@ -53,7 +19,8 @@ export const WIDGETS = {
   dateRange: 'dateRange',
   button: 'button',
   rate: 'rate',
-  colorPicker: 'colorPicker'
+  colorPicker: 'colorPicker',
+  formDesigner: 'formDesigner'
 };
 export const WidgetTypes = {
   [WIDGETS.input]: require('./input/input-widget').default,
@@ -70,7 +37,8 @@ export const WidgetTypes = {
   [WIDGETS.date]: require('./date/date-widget').default,
   [WIDGETS.button]: require('./button/button-widget').default,
   [WIDGETS.rate]: require('./rate/rate-widget').default,
-  [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget').default
+  [WIDGETS.colorPicker]: require('./color-picker/color-picker-widget').default,
+  [WIDGETS.formDesigner]: require('./form-designer/form-designer-widget').default
 };
 
 export class FormWidgetService {
@@ -130,5 +98,26 @@ export class FormWidgetService {
       sections.push(widget);
     }
     return sections;
+  }
+
+  getWidgetInstanceByAlias(widgetAlias, fieldSettings = {}, widgetSettings = {}) {
+    const Widget = new FormWidgetService().getWidgetByAlias(widgetAlias);
+    return new Widget(fieldSettings, widgetSettings);
+  }
+
+  /** Return the widget instance from given json*/
+  getWidgetInstance(widgetJSON, loadConfigSection = true) {
+    if (typeof widgetJSON === 'string') {
+      widgetJSON = JSON.parse(widgetJSON);
+    }
+    if (typeof widgetJSON.widgetAlias !== 'string') {
+      throw new Error('Invalid json, widgetAlias key doesn\'t exists');
+    }
+    const Widget = new FormWidgetService().getWidgetByAlias(widgetJSON.widgetAlias);
+    widgetJSON = new Widget(widgetJSON);
+    /* if (loadConfigSection === true) {
+      widgetJSON.loadConfigForConfigSection();
+    }*/
+    return widgetJSON;
   }
 }

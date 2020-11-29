@@ -1,7 +1,7 @@
 export default {
   'list-type': (h, conf, key) => {
     const list = [];
-    const config = conf.component;
+    const config = conf.widgetSettings;
     if (conf['list-type'] === 'picture-card') {
       list.push(<i class='el-icon-plus'></i>);
     } else {
