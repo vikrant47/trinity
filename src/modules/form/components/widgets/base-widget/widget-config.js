@@ -1,3 +1,5 @@
+import { WIDGETS } from '@/modules/form/components/widgets';
+
 export const ITEM_LAYOUT = {
   colFormItem: 'colFormItem',
   rowFormItem: 'rowFormItem'
@@ -14,10 +16,10 @@ export class SlotConfig {
 }
 
 export class ComponentConfig {
-  tag = 'el-input';
+  widget = WIDGETS.input;
   span = 24;
-  label;
-  formId ;
+  label = null;
+  formId;
   layout = ITEM_LAYOUT.colFormItem;
   regList = [];
   tagIcon = 'date';
@@ -28,13 +30,9 @@ export class ComponentConfig {
   showLabel = true;
   labelWidth = null;
   defaultValue = null;
-
-  constructor(settings = {}) {
-    Object.assign(this, settings);
-  }
 }
 
-export class WidgetConfig {
+export class WidgetConfig extends ComponentConfig {
   type;
   style = {
     width: '100%'
@@ -47,7 +45,7 @@ export class WidgetConfig {
   fieldName;
   placeholder;
   Name;
-  filterable= true;
+  filterable = true;
   min = null;
   max = null;
   step = 1;
@@ -61,9 +59,14 @@ export class WidgetConfig {
   showWordLimit = true;
 
   constructor(settings = {}) {
-    this.placeholder = 'Enter ' + (settings.component.label ? settings.component.label : 'Value');
+    super();
+    // this.placeholder = 'Enter ' + (settings.component.label ? settings.component.label : 'Value');
     Object.assign(this, settings);
     this.component = new ComponentConfig(settings.component);
     this.slot = new ComponentConfig(settings.slot);
+  }
+
+  getComponentConfig() {
+    const componentConfig = {};
   }
 }

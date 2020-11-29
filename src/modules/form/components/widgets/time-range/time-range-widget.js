@@ -1,10 +1,10 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
-export default class UploadWidget extends BaseWidget {
+export default class TimeRangeWidget extends BaseWidget {
   getPalletSettings() {
     return {
-      label: 'Upload',
-      icon: 'upload'
+      label: 'Time Range',
+      icon: 'timerange'
     };
   }
 }

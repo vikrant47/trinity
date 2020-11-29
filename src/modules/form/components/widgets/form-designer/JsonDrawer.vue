@@ -47,7 +47,8 @@ export default {
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+  },
   mounted() {
     window.addEventListener('keydown', this.preventDefaultSave);
     const clipboard = new ClipboardJS('.copy-json-btn', {
@@ -84,7 +85,8 @@ export default {
         });
       });
     },
-    onClose() {},
+    onClose() {
+    },
     setEditorValue(id, codeStr) {
       if (this.jsonEditor) {
         this.jsonEditor.setValue(codeStr);
@@ -136,9 +138,10 @@ export default {
 ::v-deep .el-drawer__header {
   display: none;
 }
+
 @include action-bar;
 
-.json-editor{
+.json-editor {
   height: calc(100vh - 33px);
 }
 </style>

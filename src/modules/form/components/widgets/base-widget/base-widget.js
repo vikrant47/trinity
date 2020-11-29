@@ -1,14 +1,139 @@
-import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
+import {
+  ComponentConfig,
+  ITEM_LAYOUT
+} from '@/modules/form/components/widgets/base-widget/widget-config';
+import Vue from 'vue';
+import { FormWidgetService, WIDGETS } from '@/modules/form/components/widgets';
 
 export class BaseWidget {
-  getConfig() {
+  static defaultPalletSettings = {
+    label: 'Input',
+    icon: 'input'
+  };
+  static defaultWidgetSettings = {
+    widgetAlias: WIDGETS.input,
+    span: 24,
+    label: null,
+    formId: null,
+    layout: ITEM_LAYOUT.colFormItem,
+    regList: [],
+    tagIcon: 'date',
+    document: null,
+    required: true,
+    changeTag: true,
+    renderKey: null,
+    showLabel: true,
+    labelWidth: null,
+    defaultValue: null
+  };
+  static defaultFieldSettings = {
+    disabled: false,
+    readonly: false,
+    clearable: true,
+    placeholder: '',
+    filterable: true,
+    min: null,
+    max: null,
+    step: 1,
+    showStops: false,
+    range: false,
+    multiple: false,
+    class: {},
+    attrs: {},
+    props: {},
+    domProps: {},
+    nativeOn: {},
+    on: {},
+    style: {},
+    directives: [],
+    scopedSlots: {},
+    slot: null,
+    key: null,
+    ref: null,
+    refInFor: true
+  };
+  fieldName = null;
+  slot = {};
+  widgetAlias = 'input';
+  formModel = {};
+  children = [];
+  palletSettings = {};
+  fieldSettings = {};
+  widgetSettings = {};
+  configSection = {};
+
+  /**
+   * @property model: WidgetModel
+   * Constructor always called before child field initialization
+   * Moving initialization to init
+   * */
+  constructor(settings = { fieldSettings: {}, widgetSettings: {}}) {
+    const fieldSettings = settings.fieldSettings;
+    const widgetSettings = settings.widgetSettings;
+    this.widgetClass = this.constructor.name;
+    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings, this.getFieldSettings(), fieldSettings);
+    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings, this.getPalletSettings());
+    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings, this.getWidgetSettings(), widgetSettings);
+    if (!this.widgetSettings.label) {
+      this.widgetSettings.label = this.palletSettings.label;
+    }
+    Object.assign(this.fieldSettings, settings);
+  }
+
+  getFieldSettings() {
+    return {};
+  }
+
+  getPalletSettings() {
+    return {};
+  }
+
+  getWidgetSettings() {
+    return {};
+  }
+
+  /**
+   * */
+  init(settings = {}, componentConfig = {}) {
+    this.updateValue();
+    if (!this.fieldSettings.placeholder) {
+      this.fieldSettings.placeholder = 'Please Enter ' + (this.widgetSettings.label ? this.widgetSettings.label : 'Value');
+    }
+  }
+
+  updateValue() {
+    if (this.formModel) {
+      if (typeof this.formModel[this.fieldName] === 'undefined') {
+        this.setValue(this.widgetSettings.defaultValue);
+      }
+    }
+  }
+
+  setFieldName(fieldName) {
+    this.fieldName = fieldName;
+  }
+
+  setFormModel(formModel) {
+    this.formModel = formModel;
+    this.updateValue();
+  }
+
+  getValue() {
+    return this.formModel[this.fieldName];
+  }
+
+  setValue(value) {
+    this.formModel[this.fieldName] = value;
+  }
+
+  getConfigSectionFields() {
     return [
       {
+        widgetAlias: WIDGETS.select,
         fieldName: 'type',
-        component: {
+        widgetSettings: {
           label: 'Widget',
-          tag: 'el-select',
-          tagIcon: 'select',
+          widgetIcon: 'select',
           defaultValue: 'string',
           required: true
         },
@@ -18,83 +143,78 @@ export class BaseWidget {
         placeholder: 'Please Select Widget'
       }, {
         fieldName: 'name',
-        component: {
+        widgetSettings: {
           label: 'Name',
           required: true
         }
       }, {
         fieldName: 'title',
-        component: {
+        widgetSettings: {
           label: 'Title',
           required: true
         }
       }, {
         fieldName: 'placeholder',
-        component: {
+        widgetSettings: {
           label: 'Placeholder'
         }
       },
       {
         fieldName: 'size',
-        component: {
+        widgetAlias: WIDGETS.slider,
+        widgetSettings: {
           label: 'Size',
-          tag: 'el-slider'
-        },
-        min: 0,
-        max: 10
+          min: 0,
+          max: 10
+        }
       },
       {
         fieldName: 'showLabel',
-        component: {
+        widgetAlias: WIDGETS.switch,
+        widgetSettings: {
           label: 'Show Label',
-          tag: 'el-switch'
-        },
-        default: true
+          default: true
+        }
       },
       {
         fieldName: 'labelWidth',
-        component: {
+        widgetAlias: WIDGETS.number,
+        widgetSettings: {
           label: 'Label Width',
-          tag: 'el-input-number'
-        },
-        min: 0
+          min: 0
+        }
       },
       {
         fieldName: 'span',
-        component: {
+        widgetAlias: WIDGETS.number,
+        widgetSettings: {
           label: 'Span',
-          tag: 'el-input-number'
-        },
-        min: 0,
-        max: 12
+          min: 0,
+          max: 12
+        }
       },
       {
-        fieldName: 'tagIcon',
-        component: {
+        fieldName: 'widgetIcon',
+        widgetSettings: {
           label: 'Icon'
         }
       },
       {
-        fieldName: 'tagIcon',
-        component: {
-          label: 'Icon'
-        }
-      },
-      {
+        label: 'Required',
+        widgetAlias: WIDGETS.switch,
         fieldName: 'required',
-        component: {
-          label: 'Required',
-          tag: 'el-switch'
-        },
-        default: false
+        widgetSettings: {
+          default: false
+        }
       }, {
         fieldName: 'layout',
-        component: {
+        widgetAlias: WIDGETS.select,
+        widgetSettings: {
           label: 'Layout',
-          tag: 'el-select',
-          tagIcon: 'select',
+          widgetIcon: 'select',
           defaultValue: ITEM_LAYOUT.colFormItem,
-          required: true
+          required: true,
+          placeholder: 'Please Select Widget'
         },
         slot: {
           options: [{
@@ -104,30 +224,119 @@ export class BaseWidget {
             'label': 'Row Layout',
             'value': ITEM_LAYOUT.rowFormItem
           }]
-        },
-        placeholder: 'Please Select Widget'
+        }
       },
       {
         fieldName: 'defaultValue',
-        component: {
+        widgetSettings: {
           label: 'Default'
         }
       },
       {
         fieldName: 'showWordLimit',
-        component: {
-          label: 'Show Limit',
-          tag: 'el-switch'
+        widgetAlias: WIDGETS.switch,
+        widgetSettings: {
+          label: 'Show Limit'
         }
       }
     ];
+  }
+
+  loadConfigForConfigSection() {
+    if (!this.configSection.widgets) {
+      this.configSection.widgets = this.getConfigSectionFields().map(widgetJSON => {
+        widgetJSON.widgetAlias = widgetJSON.widgetAlias ? widgetJSON.widgetAlias : WIDGETS.input;
+        return new FormWidgetService().getWidgetInstance(widgetJSON, false);
+      });
+    }
+    return this.configSection;
+  }
+
+  getSection() {
+    return 'Primary';
   }
 
   getData() {
     return {};
   }
 
-  getComponent() {
-    return 'string';
+  registerEvents() {
+
+  }
+
+  updateModel() {
+
+  }
+
+  getChildren(h) {
+    let children = [];
+    if (this.slot) {
+      children = Object.keys(this.slot).map((slotKey) => {
+        if (this[slotKey]) {
+          if (typeof this[slotKey] === 'function') {
+            return this[slotKey](h, slotKey);
+          }
+          return slotKey;
+        }
+      });
+    }
+    return children.reduce((children, child) => {
+      if (Array.isArray(child)) {
+        children = children.concat(child);
+      } else if (typeof child !== 'undefined') {
+        children.push(child);
+      }
+      return children;
+    }, []);
+  }
+
+  prepareComponentConfig() {
+    this.init();
+    this.fieldSettings.name = this.fieldName;
+    this.fieldSettings['v-model'] = this.formModel[this.fieldName];
+    return JSON.parse(JSON.stringify(this.fieldSettings));
+  }
+
+  applyConfig(widgetConfig) {
+    Object.assign(this.fieldSettings, widgetConfig);
+    this.init();
+  }
+
+  componentCreated(component) {
+    component.widget.applyConfig(component.config);
+  }
+
+  componentRender(component, h) {
+    return h('el-input', this.prepareComponentConfig(), this.getChildren());
+  }
+
+  /** This method will return cue component object*/
+  getVueComponent() {
+    const _this = this;
+    return Vue.component({
+      name: this.constructor.name,
+      props: {
+        config: {
+          type: Object,
+          required: true,
+          default() {
+            return {};
+          }
+        }
+      },
+      data: function() {
+        return {
+          widget() {
+            return _this;
+          }
+        };
+      },
+      created() {
+        _this.componentCreated(this);
+      },
+      render(h) {
+        return _this.render(this, h);
+      }
+    });
   }
 }

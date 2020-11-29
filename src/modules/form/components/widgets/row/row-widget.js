@@ -1,14 +1,14 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
-export default class SliderWidget extends BaseWidget {
+export default class RowWidget extends BaseWidget {
   getPalletSettings() {
     return {
-      label: 'Slider',
-      icon: 'slider'
+      label: 'Row',
+      icon: 'row'
     };
   }
 
   componentRender(component, h) {
-    return h('el-slider', this.prepareComponentConfig(), this.getChildren());
+    return h('el-row', this.prepareComponentConfig(), this.getChildren());
   }
 }

@@ -1,14 +1,14 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
-export default class SliderWidget extends BaseWidget {
+export default class RateWidget extends BaseWidget {
   getPalletSettings() {
     return {
-      label: 'Slider',
-      icon: 'slider'
+      label: 'Rating',
+      icon: 'rate'
     };
   }
 
   componentRender(component, h) {
-    return h('el-slider', this.prepareComponentConfig(), this.getChildren());
+    return h('el-rate', this.prepareComponentConfig(), this.getChildren());
   }
 }

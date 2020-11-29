@@ -2,7 +2,7 @@
   <div>
     <el-dialog
       v-bind="$attrs"
-      title="外部资源引用"
+      title="External resource references"
       width="600px"
       :close-on-click-modal="false"
       v-on="$listeners"
@@ -14,7 +14,7 @@
         :key="index"
         v-model="resources[index]"
         class="url-item"
-        placeholder="请输入 css 或 js 资源路径"
+        placeholder="please enter css 或 js 资源路径"
         prefix-icon="el-icon-link"
         clearable
       >

@@ -16,27 +16,27 @@ export const formConf = {
 export const inputComponents = [
   {
     // Custom configuration of components
-    __config__: {
+    widgetSettings: {
       label: 'String',
       labelWidth: null,
       showLabel: true,
       changeTag: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'input',
       defaultValue: undefined,
       required: true,
       layout: 'colFormItem',
       span: 24,
-      document: 'https://element.eleme.cn/#/zh-CN/component/input',
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/input',
       // Regular check rule
       regList: []
     },
     // Component slot properties
-    __slot__: {
+    slot: {
       prepend: '',
       append: ''
     },
-    // The rest are attributes that can be written directly on the component label
+    // The rest are attributes that can be written directly on the widgetSettings level
     placeholder: 'please enter',
     style: { width: '100%' },
     clearable: true,
@@ -48,11 +48,11 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Text',
       labelWidth: null,
       showLabel: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'textarea',
       defaultValue: undefined,
       required: true,
@@ -60,7 +60,7 @@ export const inputComponents = [
       span: 24,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/input'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/input'
     },
     type: 'textarea',
     placeholder: 'please enter',
@@ -75,21 +75,21 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Password',
       showLabel: true,
       labelWidth: null,
       changeTag: true,
-      tag: 'el-input',
+      widget: 'el-input',
       tagIcon: 'password',
       defaultValue: undefined,
       layout: 'colFormItem',
       span: 24,
       required: true,
       regList: [],
-      document: 'https://element.eleme.cn/#/zh-CN/component/input'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/input'
     },
-    __slot__: {
+    slot: {
       prepend: '',
       append: ''
     },
@@ -105,19 +105,19 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Counter',
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'el-input-number',
+      widget: 'el-input-number',
       tagIcon: 'number',
       defaultValue: undefined,
       span: 24,
       layout: 'colFormItem',
       required: true,
       regList: [],
-      document: 'https://element.eleme.cn/#/zh-CN/component/input-number'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/input-number'
     },
     placeholder: '',
     min: undefined,
@@ -129,12 +129,12 @@ export const inputComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Editor',
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'tinymce',
+      widget: 'tinymce',
       tagIcon: 'rich-text',
       defaultValue: null,
       span: 24,
@@ -152,20 +152,20 @@ export const inputComponents = [
 // Selective components 【Left Panel】
 export const selectComponents = [
   {
-    __config__: {
+    widgetSettings: {
       label: 'Selection',
       showLabel: true,
       labelWidth: null,
-      tag: 'el-select',
+      widget: 'el-select',
       tagIcon: 'select',
       layout: 'colFormItem',
       span: 24,
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/select'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/select'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -182,7 +182,7 @@ export const selectComponents = [
     multiple: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Cascade',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/cascaderList',
       method: 'get',
@@ -190,7 +190,7 @@ export const selectComponents = [
       dataConsumer: 'options',
       showLabel: true,
       labelWidth: null,
-      tag: 'el-cascader',
+      widget: 'el-cascader',
       tagIcon: 'cascader',
       layout: 'colFormItem',
       defaultValue: [],
@@ -199,7 +199,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/cascader'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/cascader'
     },
     options: [{
       id: 1,
@@ -228,11 +228,11 @@ export const selectComponents = [
     separator: '/'
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Radio group',
       labelWidth: null,
       showLabel: true,
-      tag: 'el-radio-group',
+      widget: 'el-radio-group',
       tagIcon: 'radio',
       changeTag: true,
       defaultValue: undefined,
@@ -242,9 +242,9 @@ export const selectComponents = [
       regList: [],
       required: true,
       border: false,
-      document: 'https://element.eleme.cn/#/zh-CN/component/radio'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/radio'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -258,9 +258,9 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Checkboxes',
-      tag: 'el-checkbox-group',
+      widget: 'el-checkbox-group',
       tagIcon: 'checkbox',
       defaultValue: [],
       span: 24,
@@ -272,9 +272,9 @@ export const selectComponents = [
       regList: [],
       changeTag: true,
       border: false,
-      document: 'https://element.eleme.cn/#/zh-CN/component/checkbox'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/checkbox'
     },
-    __slot__: {
+    slot: {
       options: [{
         label: 'Option one',
         value: 1
@@ -290,9 +290,9 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'power switch',
-      tag: 'el-switch',
+      widget: 'el-switch',
       tagIcon: 'switch',
       defaultValue: false,
       span: 24,
@@ -302,7 +302,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/switch'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/switch'
     },
     style: {},
     disabled: false,
@@ -314,9 +314,9 @@ export const selectComponents = [
     'inactive-value': false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Slider',
-      tag: 'el-slider',
+      widget: 'el-slider',
       tagIcon: 'slider',
       defaultValue: null,
       span: 24,
@@ -326,7 +326,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/slider'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/slider'
     },
     disabled: false,
     min: 0,
@@ -336,9 +336,9 @@ export const selectComponents = [
     range: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Time selection',
-      tag: 'el-time-picker',
+      widget: 'el-time-picker',
       tagIcon: 'time',
       defaultValue: null,
       span: 24,
@@ -348,7 +348,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/time-picker'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/time-picker'
     },
     placeholder: 'please choose',
     style: { width: '100%' },
@@ -361,9 +361,9 @@ export const selectComponents = [
     'value-format': 'HH:mm:ss'
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'time limit',
-      tag: 'el-time-picker',
+      widget: 'el-time-picker',
       tagIcon: 'time-range',
       span: 24,
       showLabel: true,
@@ -373,7 +373,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/time-picker'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/time-picker'
     },
     style: { width: '100%' },
     disabled: false,
@@ -386,9 +386,9 @@ export const selectComponents = [
     'value-format': 'HH:mm:ss'
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Date selection',
-      tag: 'el-date-picker',
+      widget: 'el-date-picker',
       tagIcon: 'date',
       defaultValue: null,
       showLabel: true,
@@ -398,7 +398,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/date-picker'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/date-picker'
     },
     placeholder: 'please choose',
     type: 'date',
@@ -410,9 +410,9 @@ export const selectComponents = [
     readonly: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Date range',
-      tag: 'el-date-picker',
+      widget: 'el-date-picker',
       tagIcon: 'date-range',
       defaultValue: null,
       span: 24,
@@ -422,7 +422,7 @@ export const selectComponents = [
       layout: 'colFormItem',
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/date-picker'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/date-picker'
     },
     style: { width: '100%' },
     type: 'daterange',
@@ -436,9 +436,9 @@ export const selectComponents = [
     readonly: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'score',
-      tag: 'el-rate',
+      widget: 'el-rate',
       tagIcon: 'rate',
       defaultValue: 0,
       span: 24,
@@ -448,7 +448,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/rate'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/rate'
     },
     style: {},
     max: 5,
@@ -458,9 +458,9 @@ export const selectComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Color Picker',
-      tag: 'el-color-picker',
+      widget: 'el-color-picker',
       tagIcon: 'color',
       span: 24,
       defaultValue: null,
@@ -470,7 +470,7 @@ export const selectComponents = [
       required: true,
       regList: [],
       changeTag: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/color-picker'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/color-picker'
     },
     'show-alpha': false,
     'color-format': '',
@@ -478,9 +478,9 @@ export const selectComponents = [
     size: 'medium'
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'Upload',
-      tag: 'el-upload',
+      widget: 'el-upload',
       tagIcon: 'upload',
       layout: 'colFormItem',
       defaultValue: null,
@@ -494,9 +494,9 @@ export const selectComponents = [
       changeTag: true,
       fileSize: 2,
       sizeUnit: 'MB',
-      document: 'https://element.eleme.cn/#/zh-CN/component/upload'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/upload'
     },
-    __slot__: {
+    slot: {
       'list-type': true
     },
     action: 'https://jsonplaceholder.typicode.com/posts/',
@@ -509,33 +509,33 @@ export const selectComponents = [
   }
 ];
 
-// Layout component 【Left Panel】
+// Layout widgetSettings 【Left Panel】
 export const layoutComponents = [
   {
-    __config__: {
+    widgetSettings: {
       layout: 'rowFormItem',
       tagIcon: 'row',
       label: 'Row container',
       layoutTree: true,
-      document: 'https://element.eleme.cn/#/zh-CN/component/layout#row-attributes'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/layout#row-attributes'
     },
     type: 'default',
     justify: 'start',
     align: 'top'
   },
   {
-    __config__: {
+    widgetSettings: {
       label: 'push button',
       showLabel: true,
       changeTag: true,
       labelWidth: null,
-      tag: 'el-button',
+      widget: 'el-button',
       tagIcon: 'button',
       span: 24,
       layout: 'colFormItem',
-      document: 'https://element.eleme.cn/#/zh-CN/component/button'
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/button'
     },
-    __slot__: {
+    slot: {
       default: 'Main button'
     },
     type: 'primary',
@@ -547,11 +547,11 @@ export const layoutComponents = [
     disabled: false
   },
   {
-    __config__: {
+    widgetSettings: {
       layout: 'colFormItem',
       tagIcon: 'table',
-      tag: 'form-designer-preview',
-      document: 'https://element.eleme.cn/#/zh-CN/component/table',
+      widget: 'form-designer-preview',
+      document: 'https://element.eleme.cn/#/zh-CN/widgetSettings/table',
       span: 24,
       formId: 101,
       renderKey: 1595761764203,
@@ -566,44 +566,44 @@ export const layoutComponents = [
       dataConsumer: 'data',
       url: 'https://www.fastmock.site/mock/f8d7a54fb1e60561e2f720d5a810009d/fg/tableData',
       children: [{
-        __config__: {
+        widgetSettings: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660153
         },
         prop: 'date',
         label: '日期'
       }, {
-        __config__: {
+        widgetSettings: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660152
         },
         prop: 'address',
         label: 'Address'
       }, {
-        __config__: {
+        widgetSettings: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 15957617660151
         },
         prop: 'name',
         label: 'name'
       }, {
-        __config__: {
+        widgetSettings: {
           layout: 'raw',
-          tag: 'el-table-column',
+          widget: 'el-table-column',
           renderKey: 1595774496335,
           children: [
             {
-              __config__: {
+              widgetSettings: {
                 label: 'push button',
-                tag: 'el-button',
+                widget: 'el-button',
                 tagIcon: 'button',
                 layout: 'raw',
                 renderKey: 1595779809901
               },
-              __slot__: {
+              slot: {
                 default: 'Main button'
               },
               type: 'primary',

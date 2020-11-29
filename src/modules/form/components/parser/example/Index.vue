@@ -25,12 +25,12 @@ export default {
       formConf: {
         fields: [
           {
-            __config__: {
+            component: {
               label: 'Single line text',
               labelWidth: null,
               showLabel: true,
               changeTag: true,
-              tag: 'el-input',
+              widget: 'el-input',
               tagIcon: 'input',
               required: true,
               layout: 'colFormItem',
@@ -43,11 +43,11 @@ export default {
                 }
               ]
             },
-            __slot__: {
+            slot: {
               prepend: '',
               append: ''
             },
-            __vModel__: 'mobile',
+            fieldName: 'mobile',
             placeholder: 'Please enter phone number',
             style: {
               width: '100%'
@@ -61,9 +61,9 @@ export default {
             disabled: false
           },
           {
-            __config__: {
+            component: {
               label: 'Date range',
-              tag: 'el-date-picker',
+              widget: 'el-date-picker',
               tagIcon: 'date-range',
               defaultValue: null,
               span: 24,
@@ -90,19 +90,19 @@ export default {
             format: 'yyyy-MM-dd',
             'value-format': 'yyyy-MM-dd',
             readonly: false,
-            __vModel__: 'field101'
+            fieldName: 'field101'
           },
           {
-            __config__: {
+            component: {
               layout: 'rowFormItem',
               tagIcon: 'row',
               label: 'Row container',
               layoutTree: true,
               children: [
                 {
-                  __config__: {
+                  component: {
                     label: 'Mark',
-                    tag: 'el-rate',
+                    widget: 'el-rate',
                     tagIcon: 'rate',
                     defaultValue: 0,
                     span: 24,
@@ -122,7 +122,7 @@ export default {
                   'show-text': false,
                   'show-score': false,
                   disabled: false,
-                  __vModel__: 'field102'
+                  fieldName: 'field102'
                 }
               ],
               document: 'https://element.eleme.cn/#/zh-CN/component/layout',
@@ -137,19 +137,19 @@ export default {
             align: 'top'
           },
           {
-            __config__: {
+            component: {
               label: 'push button',
               showLabel: true,
               changeTag: true,
               labelWidth: null,
-              tag: 'el-button',
+              widget: 'el-button',
               tagIcon: 'button',
               span: 24,
               layout: 'colFormItem',
               document: 'https://element.eleme.cn/#/zh-CN/component/button',
               renderKey: 1594288459289
             },
-            __slot__: {
+            slot: {
               default: 'Test button 1'
             },
             type: 'primary',
@@ -192,12 +192,12 @@ export default {
       formConf2: {
         fields: [
           {
-            __config__: {
+            component: {
               label: 'Single line text',
               labelWidth: null,
               showLabel: true,
               changeTag: true,
-              tag: 'el-input',
+              widget: 'el-input',
               tagIcon: 'input',
               required: true,
               layout: 'colFormItem',
@@ -210,11 +210,11 @@ export default {
                 }
               ]
             },
-            __slot__: {
+            slot: {
               prepend: '',
               append: ''
             },
-            __vModel__: 'mobile',
+            fieldName: 'mobile',
             placeholder: 'Please enter phone number',
             style: {
               width: '100%'
@@ -228,9 +228,9 @@ export default {
             disabled: false
           },
           {
-            __config__: {
+            component: {
               label: 'Date range',
-              tag: 'el-date-picker',
+              widget: 'el-date-picker',
               tagIcon: 'date-range',
               defaultValue: null,
               span: 24,
@@ -257,7 +257,7 @@ export default {
             format: 'yyyy-MM-dd',
             'value-format': 'yyyy-MM-dd',
             readonly: false,
-            __vModel__: 'field101'
+            fieldName: 'field101'
           }
         ],
         formRef: 'elForm',
@@ -294,9 +294,9 @@ export default {
   methods: {
     fillFormData(form, data) {
       form.fields.forEach(item => {
-        const val = data[item.__vModel__];
+        const val = data[item.fieldName];
         if (val) {
-          item.__config__.defaultValue = val;
+          item.widgetSettings.defaultValue = val;
         }
       });
     },

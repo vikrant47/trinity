@@ -32,8 +32,8 @@
                 @click="addComponent(element)"
               >
                 <div class="components-body">
-                  <svg-icon :icon-class="element.__config__.tagIcon" />
-                  {{ element.__config__.label }}
+                  <svg-icon :icon-class="element.component.tagIcon" />
+                  {{ element.component.label }}
                 </div>
               </div>
             </draggable>
@@ -94,7 +94,7 @@
       :active-data="activeData"
       :form-conf="formConf"
       :show-field="!!drawingList.length"
-      @tag-change="tagChange"
+      @widget-change="tagChange"
       @fetch-data="fetchData"
     />
 
@@ -142,7 +142,7 @@ import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
 import CodeTypeDialog from './CodeTypeDialog';
-import DraggableItem from './DraggableItem';
+import DraggableItem from '../../components/widgets/form-designer/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
 } from '@/modules/form/utils/db';
@@ -206,10 +206,10 @@ export default {
   computed: {},
   watch: {
     // eslint-disable-next-line func-names
-    'activeData.__config__.label': function(val, oldVal) {
+    'activeData.component.label': function(val, oldVal) {
       if (
         this.activeData.placeholder === undefined ||
-        !this.activeData.__config__.tag ||
+        !this.activeData.component.widget ||
         oldActiveId !== this.activeId
       ) {
         return;
@@ -277,15 +277,15 @@ export default {
       }, obj);
     },
     setRespData(component, respData) {
-      const { dataPath, renderKey, dataConsumer } = component.__config__;
+      const { dataPath, renderKey, dataConsumer } = component.component;
       if (!dataPath || !dataConsumer) return;
       const data = dataPath.split('.').reduce((pre, item) => pre[item], respData);
       this.setObjectValueByStringKeys(component, dataConsumer, data);
-      const i = this.drawingList.findIndex(item => item.__config__.renderKey === renderKey);
+      const i = this.drawingList.findIndex(item => item.component.renderKey === renderKey);
       if (i > -1) this.$set(this.drawingList, i, component);
     },
     fetchData(component) {
-      const { dataType, method, url } = component.__config__;
+      const { dataType, method, url } = component.component;
       if (dataType === 'dynamic' && method && url) {
         this.setLoading(component, true);
         this.$axios({
@@ -306,7 +306,7 @@ export default {
     },
     activeFormItem(currentItem) {
       this.activeData = currentItem;
-      this.activeId = currentItem.__config__.formId;
+      this.activeId = currentItem.component.formId;
     },
     onEnd(obj) {
       if (obj.from !== obj.to) {
@@ -323,7 +323,7 @@ export default {
     },
     cloneComponent(origin) {
       const clone = deepClone(origin);
-      const config = clone.__config__;
+      const config = clone.component;
       config.span = this.formConf.span; // 生成代码时，会根据span做精简判断
       this.createIdAndKey(clone);
       clone.placeholder !== undefined && (clone.placeholder += config.label);
@@ -331,11 +331,11 @@ export default {
       return tempActiveData;
     },
     createIdAndKey(item) {
-      const config = item.__config__;
+      const config = item.component;
       config.formId = ++this.idGlobal;
       config.renderKey = `${config.formId}${+new Date()}`; // 改变renderKey后可以实现强制更新组件
       if (config.layout === 'colFormItem') {
-        item.__vModel__ = `field${this.idGlobal}`;
+        item.fieldName = `field${this.idGlobal}`;
       } else if (config.layout === 'rowFormItem') {
         config.componentName = `row${this.idGlobal}`;
         !Array.isArray(config.children) && (config.children = []);
@@ -421,15 +421,15 @@ export default {
     },
     tagChange(newTag) {
       newTag = this.cloneComponent(newTag);
-      const config = newTag.__config__;
-      newTag.__vModel__ = this.activeData.__vModel__;
+      const config = newTag.component;
+      newTag.fieldName = this.activeData.fieldName;
       config.formId = this.activeId;
-      config.span = this.activeData.__config__.span;
-      this.activeData.__config__.tag = config.tag;
-      this.activeData.__config__.tagIcon = config.tagIcon;
-      this.activeData.__config__.document = config.document;
-      if (typeof this.activeData.__config__.defaultValue === typeof config.defaultValue) {
-        config.defaultValue = this.activeData.__config__.defaultValue;
+      config.span = this.activeData.component.span;
+      this.activeData.component.widget = config.widget;
+      this.activeData.component.tagIcon = config.tagIcon;
+      this.activeData.component.document = config.document;
+      if (typeof this.activeData.component.defaultValue === typeof config.defaultValue) {
+        config.defaultValue = this.activeData.component.defaultValue;
       }
       Object.keys(newTag).forEach(key => {
         if (this.activeData[key] !== undefined) {
@@ -440,12 +440,12 @@ export default {
       this.updateDrawingList(newTag, this.drawingList);
     },
     updateDrawingList(newTag, list) {
-      const index = list.findIndex(item => item.__config__.formId === this.activeId);
+      const index = list.findIndex(item => item.component.formId === this.activeId);
       if (index > -1) {
         list.splice(index, 1, newTag);
       } else {
         list.forEach(item => {
-          if (Array.isArray(item.__config__.children)) this.updateDrawingList(newTag, item.__config__.children);
+          if (Array.isArray(item.component.children)) this.updateDrawingList(newTag, item.component.children);
         });
       }
     },

@@ -49,8 +49,8 @@ export function makeUpJs(formConfig, type) {
 
 // 构建组件属性
 function buildAttributes(scheme, dataList, ruleList, optionsList, methodList, propsList, uploadVarList, created) {
-  const config = scheme.__config__;
-  const slot = scheme.__slot__;
+  const config = scheme.component;
+  const slot = scheme.slot;
   buildData(scheme, dataList);
   buildRules(scheme, ruleList);
 
@@ -58,7 +58,7 @@ function buildAttributes(scheme, dataList, ruleList, optionsList, methodList, pr
   if (scheme.options || (slot && slot.options && slot.options.length)) {
     buildOptions(scheme, optionsList);
     if (config.dataType === 'dynamic') {
-      const model = `${scheme.__vModel__}Options`;
+      const model = `${scheme.fieldName}Options`;
       const options = titleCase(model);
       const methodName = `get${options}`;
       buildOptionMethod(methodName, model, methodList, scheme);
@@ -72,10 +72,10 @@ function buildAttributes(scheme, dataList, ruleList, optionsList, methodList, pr
   }
 
   // 处理el-upload的action
-  if (scheme.action && config.tag === 'el-upload') {
+  if (scheme.action && config.widget === 'el-upload') {
     uploadVarList.push(
-      `${scheme.__vModel__}Action: '${scheme.action}',
-      ${scheme.__vModel__}fileList: [],`
+      `${scheme.fieldName}Action: '${scheme.action}',
+      ${scheme.fieldName}fileList: [],`
     );
     methodList.push(buildBeforeUpload(scheme));
     // 非自动上传时，生成手动上传的函数
@@ -142,59 +142,59 @@ function mixinMethod(type) {
 
 // 构建data
 function buildData(scheme, dataList) {
-  const config = scheme.__config__;
-  if (scheme.__vModel__ === undefined) return;
+  const config = scheme.component;
+  if (scheme.fieldName === undefined) return;
   const defaultValue = JSON.stringify(config.defaultValue);
-  dataList.push(`${scheme.__vModel__}: ${defaultValue},`);
+  dataList.push(`${scheme.fieldName}: ${defaultValue},`);
 }
 
 // 构建校验规则
 function buildRules(scheme, ruleList) {
-  const config = scheme.__config__;
-  if (scheme.__vModel__ === undefined) return;
+  const config = scheme.component;
+  if (scheme.fieldName === undefined) return;
   const rules = [];
-  if (ruleTrigger[config.tag]) {
+  if (ruleTrigger[config.widget]) {
     if (config.required) {
       const type = isArray(config.defaultValue) ? 'type: \'array\',' : '';
       let message = isArray(config.defaultValue) ? `请至少选择一个${config.label}` : scheme.placeholder;
       if (message === undefined) message = `${config.label}不能为空`;
-      rules.push(`{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.tag]}' }`);
+      rules.push(`{ required: true, ${type} message: '${message}', trigger: '${ruleTrigger[config.widget]}' }`);
     }
     if (config.regList && isArray(config.regList)) {
       config.regList.forEach(item => {
         if (item.pattern) {
           rules.push(
             // eslint-disable-next-line no-eval
-            `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${ruleTrigger[config.tag]}' }`
+            `{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${ruleTrigger[config.widget]}' }`
           );
         }
       });
     }
-    ruleList.push(`${scheme.__vModel__}: [${rules.join(',')}],`);
+    ruleList.push(`${scheme.fieldName}: [${rules.join(',')}],`);
   }
 }
 
 // 构建options
 function buildOptions(scheme, optionsList) {
-  if (scheme.__vModel__ === undefined) return;
+  if (scheme.fieldName === undefined) return;
   // el-cascader直接有options属性，其他组件都是定义在slot中，所以有两处判断
   let { options } = scheme;
-  if (!options) options = scheme.__slot__.options;
-  if (scheme.__config__.dataType === 'dynamic') {
+  if (!options) options = scheme.slot.options;
+  if (scheme.component.dataType === 'dynamic') {
     options = [];
   }
-  const str = `${scheme.__vModel__}Options: ${JSON.stringify(options)},`;
+  const str = `${scheme.fieldName}Options: ${JSON.stringify(options)},`;
   optionsList.push(str);
 }
 
 function buildProps(scheme, propsList) {
-  const str = `${scheme.__vModel__}Props: ${JSON.stringify(scheme.props.props)},`;
+  const str = `${scheme.fieldName}Props: ${JSON.stringify(scheme.props.props)},`;
   propsList.push(str);
 }
 
 // el-upload的BeforeUpload
 function buildBeforeUpload(scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   const unitNum = units[config.sizeUnit];
   let rightSizeCode = '';
   let acceptCode = '';
@@ -214,7 +214,7 @@ function buildBeforeUpload(scheme) {
     }`;
     returnList.push('isAccept');
   }
-  const str = `${scheme.__vModel__}BeforeUpload(file) {
+  const str = `${scheme.fieldName}BeforeUpload(file) {
     ${rightSizeCode}
     ${acceptCode}
     return ${returnList.join('&&')}
@@ -225,13 +225,13 @@ function buildBeforeUpload(scheme) {
 // el-upload的submit
 function buildSubmitUpload(scheme) {
   const str = `submitUpload() {
-    this.$refs['${scheme.__vModel__}'].submit()
+    this.$refs['${scheme.fieldName}'].submit()
   },`;
   return str;
 }
 
 function buildOptionMethod(methodName, model, methodList, scheme) {
-  const config = scheme.__config__;
+  const config = scheme.component;
   const str = `${methodName}() {
     // 注意：this.$axios是通过Vue.prototype.$axios = axios挂载产生的
     this.$axios({

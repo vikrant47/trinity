@@ -269,7 +269,8 @@ export default {
       this.resourceVisible = true;
     },
     setResource(arr) {
-      const scripts = []; const
+      const scripts = [];
+      const
         links = [];
       if (Array.isArray(arr)) {
         arr.forEach(item => {
@@ -292,6 +293,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../styles/mixin';
+
 .tab-editor {
   position: absolute;
   top: 33px;
@@ -300,13 +302,15 @@ export default {
   right: 0;
   font-size: 14px;
 }
+
 .left-editor {
   position: relative;
   height: 100%;
   background: #1e1e1e;
   overflow: hidden;
 }
-.setting{
+
+.setting {
   position: absolute;
   right: 15px;
   top: 3px;
@@ -315,8 +319,10 @@ export default {
   cursor: pointer;
   z-index: 1;
 }
+
 .right-preview {
   height: 100%;
+
   .result-wrapper {
     height: calc(100vh - 33px);
     width: 100%;
@@ -325,6 +331,7 @@ export default {
     box-sizing: border-box;
   }
 }
+
 @include action-bar;
 ::v-deep .el-drawer__header {
   display: none;
