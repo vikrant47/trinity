@@ -133,7 +133,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../styles/mixin';
+@import '../../../../styles/mixin';
 
 ::v-deep .el-drawer__header {
   display: none;

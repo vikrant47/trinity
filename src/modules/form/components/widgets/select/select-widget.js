@@ -22,13 +22,19 @@ export default class SelectWidget extends BaseWidget {
 
   options(h, key) {
     const list = [];
-    this.fieldSettings.slot.options.forEach(item => {
+    this.slot.options.forEach(item => {
       list.push(<el-option label={item.label} value={item.value} disabled={item.disabled}/>);
     });
     return list;
   }
 
+  getComponentConfig() {
+    const config = super.getComponentConfig();
+    config.attrs.value = this.getValue();
+    return config;
+  }
+
   componentRender(component, h) {
-    return h('el-select', this.prepareComponentConfig(), this.getChildren());
+    return h('el-select', this.getComponentConfig(), this.getChildren(h));
   }
 }

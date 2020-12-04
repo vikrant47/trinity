@@ -158,36 +158,34 @@ export class ListDataService extends EngineObservable {
     return this.refresh();
   }
 
-  refresh() {
-    return new Promise((resolve, reject) => {
-      this.emit(ListDataService.events.beforeRefresh);
-      if (this.settings.remote === false) {
-        this.emit(ListDataService.events.afterRefresh, this.rows);
-        return this.rows;
-      }
-      this.enableLoading();
+  async refresh() {
+    this.emit(ListDataService.events.beforeRefresh);
+    if (this.settings.remote === false) {
+      this.emit(ListDataService.events.afterRefresh, this.rows);
+      return this.rows;
+    }
+    this.enableLoading();
+    try {
       // request rows
-      new RestQuery(this.settings.modelAlias).paginate({
+      const result = await new RestQuery(this.settings.modelAlias).paginate({
         // attributes: this.getColumnNames(),
         page: this.pagination.page,
         limit: this.pagination.limit,
         where: this.getQuery(),
         order: [{ attribute: this.order.attribute, direction: this.order.direction }]
-      }).then(result => {
-        this.pagination.total = result.total;
-        this.rows = result.data;
-        // time Show table in milliseconds
-        setTimeout(() => {
-          this.disableLoading();
-          this.emit(ListDataService.events.afterRefresh, this.rows);
-        }, this.settings.loaderDelay);
-        resolve(result);
-      }).catch(err => {
-        this.disableLoading();
-        this.emit(ListDataService.events.error, err);
-        reject(err);
       });
-    });
+      this.pagination.total = result.total;
+      this.rows = result.data;
+      // time Show table in milliseconds
+      setTimeout(() => {
+        this.disableLoading();
+        this.emit(ListDataService.events.afterRefresh, this.rows);
+      }, this.settings.loaderDelay);
+    } catch (err) {
+      this.disableLoading();
+      this.emit(ListDataService.events.error, err);
+      throw err;
+    }
   }
 
   getColumnNames() {
@@ -209,30 +207,28 @@ export class ListDataService extends EngineObservable {
     return this.definition;
   }
 
-  loadDefinition() {
-    return new Promise((resolve, reject) => {
+  async loadDefinition() {
+    try {
       this.emit(ListDataService.events.beforeLoadDefinition);
       if (this.settings.remote === false) {
         this.sanitizeDefinition();
       }
       this.enableLoading();
       // request data
-      new ModelService(this.settings.modelAlias).requestDefinition({
+      this.definition = await new ModelService(this.settings.modelAlias).requestDefinition({
         list: this.settings.list === 'default' ? 'default' : atob(this.settings.list)
-      }).then(definition => {
-        this.definition = definition;
-        this.sanitizeDefinition();
-        // time Show table in milliseconds
-        setTimeout(() => {
-          this.disableLoading();
-        }, this.settings.loaderDelay);
-        resolve(definition);
-        this.emit(ListDataService.events.afterRefresh, definition);
-      }).catch(err => {
-        this.disableLoading();
-        this.emit(ListDataService.events.error, err);
-        reject(err);
       });
-    });
+      this.sanitizeDefinition();
+      // time Show table in milliseconds
+      setTimeout(() => {
+        this.disableLoading();
+      }, this.settings.loaderDelay);
+      this.emit(ListDataService.events.afterRefresh, this.definition);
+      return this.definition;
+    } catch (err) {
+      this.disableLoading();
+      this.emit(ListDataService.events.error, err);
+      throw err;
+    }
   }
 }

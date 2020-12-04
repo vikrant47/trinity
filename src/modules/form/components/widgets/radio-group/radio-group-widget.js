@@ -10,8 +10,8 @@ export default class RadioGroupWidget extends BaseWidget {
 
   options(h, key) {
     const list = [];
-    this.fieldSettings.slot.options.forEach(item => {
-      if (this.fieldSettings.component.optionType === 'button') {
+    this.slot.options.forEach(item => {
+      if (this.widgetSettings.optionType === 'button') {
         list.push(<el-radio-button label={item.value}>{item.label}</el-radio-button>);
       } else {
         list.push(<el-radio label={item.value} border={this.fieldSettings.border}>{item.label}</el-radio>);
@@ -21,6 +21,6 @@ export default class RadioGroupWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-radio-group', this.prepareComponentConfig(), this.getChildren(h));
+    return h('el-radio-group', this.getComponentConfig(), this.getChildren(h));
   }
 }

@@ -1,8 +1,7 @@
 <script>
 import draggable from 'vuedraggable';
-import render from '@/modules/form/components/render/render';
+import render from '@/modules/form/components/widgets/form-designer/render/render';
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-import { WidgetConfig } from '@/modules/form/components/widgets/base-widget/widget-config';
 
 const components = {
   itemBtns(h, currentWidget, index, list) {
@@ -46,9 +45,12 @@ const layouts = {
         }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} widget={currentWidget} onInput={event => {
-            this.$set(config, 'defaultValue', event);
-          }}>
+          <render key={config.renderKey} widget={currentWidget}
+            form-model = {{}}
+            field-name = {config.renderKey}
+            onInput={event => {
+              this.$set(config, 'defaultValue', event);
+            }}>
             {child}
           </render>
         </el-form-item>
@@ -88,9 +90,12 @@ const layouts = {
   raw(h, currentWidget, index, list) {
     const config = currentWidget.widgetSettings;
     const child = renderChildren.apply(this, arguments);
-    return <render key={config.renderKey} conf={currentWidget} onInput={event => {
-      this.$set(config, 'defaultValue', event);
-    }}>
+    return <render key={config.renderKey} widget={currentWidget}
+      form-model = {{}}
+      field-name = {config.renderKey}
+      onInput={event => {
+        this.$set(config, 'defaultValue', event);
+      }}>
       {child}
     </render>;
   }

@@ -52,9 +52,6 @@ export default class DateWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-date-picker', {
-      attrs: this.prepareComponentConfig(),
-      props: {}
-    }, this.getChildren());
+    return h('el-date-picker', this.getComponentConfig(), this.getChildren());
   }
 }
