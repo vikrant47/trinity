@@ -9,6 +9,6 @@ export default class RowWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-row', this.prepareComponentConfig(), this.getChildren());
+    return h('el-row', this.getComponentConfig(), this.getChildren());
   }
 }

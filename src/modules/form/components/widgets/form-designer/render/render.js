@@ -1,24 +1,5 @@
-import { deepClone } from '@/modules/form/utils';
-import FormDesigner from '@/modules/form/components/widgets/form-designer/FormDesigner';
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-
-const widgets = {
-  'form-designer': FormDesigner
-};
-const componentChild = {};
-/**
- * Mount the files in ./slots to the object component Child
- * The file name is key, corresponding to component.widget in the JSON configuration
- * The content of the file is value, parse the slot in the JSON configuration
- */
-const slotsFiles = require.context('./slots', false, /\.js$/);
-const keys = slotsFiles.keys() || [];
-keys.forEach(key => {
-  const widget = key.replace(/^\.\/(.*)\.\w+$/, '$1');
-  const value = slotsFiles(key).default;
-  componentChild[widget] = value;
-});
-
+/*
 function vModel(dataObject, defaultValue) {
   dataObject.props.value = typeof dataObject.props.value === 'undefined' ? defaultValue : dataObject.props.value;
 
@@ -88,7 +69,7 @@ function makeDataObject() {
     class: {},
     attrs: {},
     props: {
-      value: this.formData[this.conf.fieldName]
+      value: this.formModel[this.conf.fieldName]
     },
     domProps: {},
     nativeOn: {},
@@ -101,10 +82,10 @@ function makeDataObject() {
     ref: null,
     refInFor: true
   };
-}
+}*/
 
 export default {
-  name: 'FormItemRenderer',
+  name: 'Render',
   props: {
     widget: {
       type: BaseWidget,
@@ -112,12 +93,10 @@ export default {
     },
     formModel: {
       type: Object,
-      require: true,
-      default() {
-        return {};
-      }
+      require: true
     }
   },
+  watch: {},
   render(h) {
     this.widget.setFormModel(this.formModel);
     return this.widget.componentRender(this, h);

@@ -1,8 +1,7 @@
 <script>
-import { deepClone } from '@/modules/form/utils';
-import FormItemRenderer from '@/modules/form/components/render/render.js';
+import Render from '@/modules/form/components/widgets/form-designer/render/render.js';
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-import { FormWidgetService } from '@/modules/form/components/widgets';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -17,10 +16,11 @@ const ruleTrigger = {
 };
 
 const layouts = {
-  colFormItem(h, widget, formData) {
+  colFormItem(h, widget) {
     if (!(widget instanceof BaseWidget)) {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
+    widget.setFormModel(this.formModel);
     const config = widget.widgetSettings;
     const listeners = buildListeners.call(this, widget);
 
@@ -30,7 +30,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-form-item label-width={labelWidth} prop={widget.fieldName}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <form-item-renderer widget={widget} {...{ on: listeners }} form-model={formData}/>
+          <render widget={widget} {...{ on: listeners }} form-model={this.formModel}/>
         </el-form-item>
       </el-col>
     );
@@ -53,22 +53,22 @@ const layouts = {
 };
 
 function renderFrom(h) {
-  const { formConfCopy } = this;
+  const { formConf } = this;
 
   return (
-    <el-row gutter={formConfCopy.gutter}>
+    <el-row gutter={formConf.gutter}>
       <el-form
-        size={formConfCopy.size}
-        label-position={formConfCopy.labelPosition}
-        disabled={formConfCopy.disabled}
-        label-width={`${formConfCopy.labelWidth}px`}
-        ref={formConfCopy.formRef}
+        size={formConf.size}
+        label-position={formConf.labelPosition}
+        disabled={formConf.disabled}
+        label-width={`${formConf.labelWidth}px`}
+        ref={formConf.formRef}
         // model cannot be assigned directly https://github.com/vuejs/jsx/issues/49#issuecomment-472013664
-        props={{ model: this[formConfCopy.formModel] }}
-        rules={this[formConfCopy.formRules]}
+        props={{ model: this.formModel }}
+        rules={this[formConf.formRules]}
       >
-        {renderFormItem.call(this, h, formConfCopy.widgets, this[formConfCopy.formModel])}
-        {formConfCopy.formBtns && formBtns.call(this, h)}
+        {renderFormItem.call(this, h, formConf.widgets, this.formModel)}
+        {formConf.formBtns && formBtns.call(this, h)}
       </el-form>
     </el-row>
   );
@@ -83,13 +83,13 @@ function formBtns(h) {
   </el-col>;
 }
 
-function renderFormItem(h, elementList, formData) {
+function renderFormItem(h, elementList, formModel) {
   return elementList.map(widget => {
     const config = widget.widgetSettings;
     const layout = layouts[config.layout];
 
     if (layout) {
-      return layout.call(this, h, widget, formData);
+      return layout.call(this, h, widget, formModel);
     }
     throw new Error(`No layout fount with ${config.layout} name`);
   });
@@ -103,7 +103,7 @@ function renderChildren(h, widget) {
 
 function setValue(event, config, widget) {
   this.$set(config, 'defaultValue', event);
-  this.$set(this[this.formConf.formModel], widget.fieldName, event);
+  this.$set(this.formModel, widget.fieldName, event);
 }
 
 function buildListeners(widget) {
@@ -124,14 +124,14 @@ function buildListeners(widget) {
 export default {
   name: 'Parser',
   components: {
-    FormItemRenderer
+    Render
   },
   props: {
     formConf: {
       type: Object,
       required: true
     },
-    formData: {
+    formModel: {
       type: Object,
       required: true,
       default() {
@@ -139,25 +139,24 @@ export default {
       }
     }
   },
-  data() {
-    const data = {
-      formConfCopy: this.formConf,
-      [this.formConf.formModel]: this.formData,
-      [this.formConf.formRules]: {}
-    };
-    this.initFormData(data.formConfCopy.widgets, data[this.formConf.formModel]);
-    this.buildRules(data.formConfCopy.widgets, data[this.formConf.formRules]);
-    return data;
+  mounted() {
+    if (!this.formConf.rules) {
+      this.formConf.rules = {};
+    }
+    this.initFormData(this.formConf.widgets, this.formModel);
+    this.buildRules(this.formConf.widgets, this.formConf.rules);
   },
   methods: {
-    initFormData(componentList, formData) {
-      componentList.forEach(widget => {
-        if (!(widget instanceof BaseWidget)) {
-          widget = new FormWidgetService().getWidgetInstance(widget);
-        }
+    initFormData(widgets, formModel) {
+      widgets.forEach(widget => {
+        widget.setFormModel(this.formConf.model);
         const { widgetSettings } = widget;
-        if (widget.fieldName && !formData[widget.fieldName]) formData[widget.fieldName] = widgetSettings.defaultValue;
-        if (widgetSettings.children) this.initFormData(widgetSettings.children, formData);
+        if (widget.fieldName && !formModel[widget.fieldName]) {
+          formModel[widget.fieldName] = widgetSettings.defaultValue;
+        }
+        if (widgetSettings.children) {
+          this.initFormData(widgetSettings.children, formModel);
+        }
       });
     },
     buildRules(componentList, rules) {
@@ -168,9 +167,9 @@ export default {
             const required = { required: config.required, message: widget.placeholder };
             if (Array.isArray(config.defaultValue)) {
               required.type = 'array';
-              required.message = `Please select at least one${config.label}`;
+              required.message = `Please select at least one ${config.label}`;
             }
-            required.message === undefined && (required.message = `${config.label}Can not be empty`);
+            required.message === undefined && (required.message = `${config.label} Can not be empty`);
             config.regList.push(required);
           }
           rules[widget.fieldName] = config.regList.map(item => {
@@ -184,14 +183,14 @@ export default {
       });
     },
     resetForm() {
-      // this.formConfCopy = deepClone(this.formConf);
+      // this.formConf = deepClone(this.formConf);
       this.$refs[this.formConf.formRef].resetFields();
     },
     submitForm() {
       this.$refs[this.formConf.formRef].validate(valid => {
         if (!valid) return false;
         // TriggerTheSubmitEvent
-        this.$emit('submit', this[this.formConf.formModel]);
+        this.$emit('submit', this[this.formModel]);
         return true;
       });
     }

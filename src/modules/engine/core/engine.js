@@ -48,31 +48,36 @@ export class Engine {
     return data.filter(record => !record.child);
   }
 
-  static transientProps = ['transient'];
+  static transientProps = ['transient', '__ob__', 'undefined'];
 
   /** This will convert given object to a plain json object*/
-  static marshall(object) {
-    if (typeof object === 'object') {
-      let transients = this.transientProps;
-      if (Array.isArray(object['transient'])) {
-        transients = transients.concat(object['transient']);
+  static marshall(instance) {
+    if (typeof instance !== 'undefined' && instance !== null) {
+      if (typeof instance.marshall === 'function') {
+        return instance.marshall();
       }
-      for (const key in object) {
-        if (transients.indexOf(key) < 0) {
-          if (typeof object[key].marshall === 'function') {
-            object[key] = object[key].marshall();
-          } else {
-            object[key] = this.marshall(object[key]);
+      if (typeof instance === 'object') {
+        let transients = this.transientProps;
+        if (Array.isArray(instance['transient'])) {
+          transients = transients.concat(instance['transient']);
+        }
+        for (const key in instance) {
+          if (instance.hasOwnProperty(key) && typeof instance[key] !== 'function' && transients.indexOf(key) < 0) {
+            if (instance[key] && typeof instance[key].marshall === 'function') {
+              instance[key] = instance[key].marshall();
+            } else {
+              instance[key] = this.marshall(instance[key]);
+            }
           }
         }
+        return instance;
+      } else if (Array.isArray(instance)) {
+        return instance.map(entry => this.marshall(entry));
+      } else if (instance instanceof Date) {
+        return instance.getTime();
       }
-      return object;
-    } else if (Array.isArray(object)) {
-      return object.map(entry => this.marshall(entry));
-    } else if (object instanceof Date) {
-      return object.getTime();
     }
-    return object;
+    return instance;
   }
 
   /** This will populate given pojo to given instance*/
@@ -80,12 +85,18 @@ export class Engine {
     if (typeof object === 'string') {
       object = JSON.parse(object);
     }
+    if (typeof instance.unmarshall === 'function') {
+      instance.unmarshall(object);
+      return instance;
+    }
     if (typeof object === 'object') {
       for (const key in object) {
-        if (typeof instance[key].unmarshall === 'function') {
-          instance[key] = instance[key].unmarshall(object[key]);
-        } else {
-          instance[key] = this.unmarshall(instance[key], object[key]);
+        if (typeof instance[key] !== 'undefined') {
+          if (instance[key] !== null && typeof instance[key].unmarshall === 'function') {
+            instance[key] = instance[key].unmarshall(object[key]);
+          } else {
+            instance[key] = object[key];
+          }
         }
       }
       return instance;
@@ -96,6 +107,14 @@ export class Engine {
     } else if (object instanceof Date) {
       return object.getTime();
     }
-    return object;
+    return instance;
+  }
+
+  static serialize(object) {
+    return JSON.stringify(this.marshall(object));
+  }
+
+  static unserialize(instance, serialized) {
+    return this.unmarshall(instance, JSON.parse(serialized));
   }
 }

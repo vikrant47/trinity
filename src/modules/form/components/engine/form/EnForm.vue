@@ -7,7 +7,7 @@
       <parser
         :key="formService.hashCode"
         :form-conf="formService.formConfig"
-        :form-data="formService.formData"
+        :form-model="formService.formModel"
         @submit="submitForm"
       />
     </div>
@@ -17,7 +17,7 @@
 <script>
 
 import Vue from 'vue';
-import Parser from '@/modules/form/components/parser/Parser';
+import Parser from '@/modules/form/components/widgets/form-designer/render/Parser';
 import { FormService } from '@/modules/form/services/form.service';
 import { FormEventHandler } from '@/modules/form/services/form.event.handler';
 import locale from 'element-ui/lib/locale/lang/en';
@@ -67,8 +67,11 @@ export default {
         };
       }
     },
-    record: () => {
-      return {};
+    record: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {

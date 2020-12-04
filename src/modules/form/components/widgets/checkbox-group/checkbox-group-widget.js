@@ -10,8 +10,8 @@ export default class CheckboxGroupWidget extends BaseWidget {
 
   options(h, key) {
     const list = [];
-    this.fieldSettings.slot.options.forEach(item => {
-      if (this.fieldSettings.component.optionType === 'button') {
+    this.slot.options.forEach(item => {
+      if (this.widgetSettings.optionType === 'button') {
         list.push(<el-checkbox-button label={item.value}>{item.label}</el-checkbox-button>);
       } else {
         list.push(<el-checkbox label={item.value} border={this.fieldSettings.border}>{item.label}</el-checkbox>);
@@ -21,6 +21,6 @@ export default class CheckboxGroupWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-checkbox', this.prepareComponentConfig(), this.getChildren());
+    return h('el-checkbox', this.getComponentConfig(), this.getChildren());
   }
 }

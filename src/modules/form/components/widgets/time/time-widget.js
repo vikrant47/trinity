@@ -21,7 +21,7 @@ export default class TimeWidget extends BaseWidget {
   }
 
   buildTimeRangeComponents(h) {
-    const attrs = this.prepareComponentConfig();
+    const attrs = this.getComponentConfig();
     const fromAttrs = Object.assign({}, attrs, {
       start: attrs['fromStart'],
       steps: attrs['formSteps'],
@@ -44,6 +44,6 @@ export default class TimeWidget extends BaseWidget {
     if (this.type === 'timerange') {
       h('div', { class: { 'time-range': true }}, this.buildTimeRangeComponents(h));
     }
-    return h('time-select', this.prepareComponentConfig(), this.getChildren());
+    return h('time-select', this.getComponentConfig(), this.getChildren());
   }
 }

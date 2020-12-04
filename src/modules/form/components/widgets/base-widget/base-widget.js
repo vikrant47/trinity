@@ -1,9 +1,10 @@
 import {
-  ComponentConfig,
   ITEM_LAYOUT
 } from '@/modules/form/components/widgets/base-widget/widget-config';
 import Vue from 'vue';
-import { FormWidgetService, WIDGETS } from '@/modules/form/components/widgets';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import _ from 'lodash';
+import { Engine } from '@/modules/engine/core/engine';
 
 export class BaseWidget {
   static defaultPalletSettings = {
@@ -11,7 +12,6 @@ export class BaseWidget {
     icon: 'input'
   };
   static defaultWidgetSettings = {
-    widgetAlias: WIDGETS.input,
     span: 24,
     label: null,
     formId: null,
@@ -52,32 +52,31 @@ export class BaseWidget {
     ref: null,
     refInFor: true
   };
+  transient = ['configSection'];
   fieldName = null;
   slot = {};
   widgetAlias = 'input';
-  formModel = {};
+  formModel;
   children = [];
   palletSettings = {};
   fieldSettings = {};
   widgetSettings = {};
-  configSection = {};
+  configSection = {
+    model: {},
+    widgets: [],
+    rules: {} // will store all error messages
+  };
+  widgetClass = null;
 
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
    * Moving initialization to init
    * */
-  constructor(settings = { fieldSettings: {}, widgetSettings: {}}) {
-    const fieldSettings = settings.fieldSettings;
-    const widgetSettings = settings.widgetSettings;
+  constructor() {
+    // Object.assign(this, settings);
     this.widgetClass = this.constructor.name;
-    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings, this.getFieldSettings(), fieldSettings);
-    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings, this.getPalletSettings());
-    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings, this.getWidgetSettings(), widgetSettings);
-    if (!this.widgetSettings.label) {
-      this.widgetSettings.label = this.palletSettings.label;
-    }
-    Object.assign(this.fieldSettings, settings);
+    this.unmarshall({});
   }
 
   getFieldSettings() {
@@ -94,11 +93,38 @@ export class BaseWidget {
 
   /**
    * */
-  init(settings = {}, componentConfig = {}) {
-    this.updateValue();
+  unmarshall(settings = {}) {
+    if (settings.fieldName) {
+      this.fieldName = settings.fieldName;
+    }
+    if (settings.slot) {
+      this.slot = settings.slot;
+    }
+    if (settings.children) {
+      this.children = settings.children;
+    }
+    this.fieldSettings = _.assign(
+      {},
+      BaseWidget.defaultFieldSettings,
+      this.getFieldSettings(),
+      settings.fieldSettings
+    );
+    this.palletSettings = _.assign(
+      {}, BaseWidget.defaultPalletSettings, this.getPalletSettings(), settings.palletSettings
+    );
+    this.widgetSettings = _.assign(
+      { renderKey: new Date().getTime() }, BaseWidget.defaultWidgetSettings, this.getWidgetSettings(), settings.widgetSettings
+    );
+    if (!this.widgetSettings.label) {
+      this.widgetSettings.label = this.palletSettings.label;
+    }
+    if (settings.formModel) {
+      this.setFormModel(settings.formModel);
+    }
     if (!this.fieldSettings.placeholder) {
       this.fieldSettings.placeholder = 'Please Enter ' + (this.widgetSettings.label ? this.widgetSettings.label : 'Value');
     }
+    return this;
   }
 
   updateValue() {
@@ -111,6 +137,7 @@ export class BaseWidget {
 
   setFieldName(fieldName) {
     this.fieldName = fieldName;
+    this.updateValue();
   }
 
   setFormModel(formModel) {
@@ -118,19 +145,40 @@ export class BaseWidget {
     this.updateValue();
   }
 
+  getFormModel() {
+    return this.formModel;
+  }
+
   getValue() {
-    return this.formModel[this.fieldName];
+    return _.get(this.formModel, this.fieldName);
   }
 
   setValue(value) {
-    this.formModel[this.fieldName] = value;
+    _.set(this.formModel, this.fieldName, value);
+  }
+
+  marshall() {
+    return Engine.marshall(Object.assign({}, this, {
+      configSection: null,
+      formModel: {
+        [this.fieldName]: this.formModel && this.formModel[this.fieldName] || null,
+        marshall: null
+      }
+    }));
+  }
+
+  clone() {
+    return this.unmarshall(JSON.parse(JSON.stringify(this.marshall())));
   }
 
   getConfigSectionFields() {
     return [
       {
         widgetAlias: WIDGETS.select,
-        fieldName: 'type',
+        fieldName: 'widgetAlias',
+        fieldSettings: {
+          placeholder: 'Please Select Widget'
+        },
         widgetSettings: {
           label: 'Widget',
           widgetIcon: 'select',
@@ -138,29 +186,33 @@ export class BaseWidget {
           required: true
         },
         slot: {
-          options: []
-        },
-        placeholder: 'Please Select Widget'
+          options: Object.keys(WIDGETS).map((widgetName) => {
+            return {
+              label: _.camelCase(WIDGETS[widgetName]),
+              value: widgetName
+            };
+          })
+        }
       }, {
-        fieldName: 'name',
+        fieldName: 'fieldName',
         widgetSettings: {
           label: 'Name',
           required: true
         }
       }, {
-        fieldName: 'title',
+        fieldName: 'fieldSettings.title',
         widgetSettings: {
           label: 'Title',
           required: true
         }
       }, {
-        fieldName: 'placeholder',
+        fieldName: 'fieldSettings.placeholder',
         widgetSettings: {
           label: 'Placeholder'
         }
       },
       {
-        fieldName: 'size',
+        fieldName: 'fieldSettings.size',
         widgetAlias: WIDGETS.slider,
         widgetSettings: {
           label: 'Size',
@@ -169,7 +221,7 @@ export class BaseWidget {
         }
       },
       {
-        fieldName: 'showLabel',
+        fieldName: 'widgetSettings.showLabel',
         widgetAlias: WIDGETS.switch,
         widgetSettings: {
           label: 'Show Label',
@@ -177,7 +229,7 @@ export class BaseWidget {
         }
       },
       {
-        fieldName: 'labelWidth',
+        fieldName: 'widgetSettings.labelWidth',
         widgetAlias: WIDGETS.number,
         widgetSettings: {
           label: 'Label Width',
@@ -185,7 +237,7 @@ export class BaseWidget {
         }
       },
       {
-        fieldName: 'span',
+        fieldName: 'fieldSettings.span',
         widgetAlias: WIDGETS.number,
         widgetSettings: {
           label: 'Span',
@@ -194,7 +246,7 @@ export class BaseWidget {
         }
       },
       {
-        fieldName: 'widgetIcon',
+        fieldName: 'fieldSettings.icon',
         widgetSettings: {
           label: 'Icon'
         }
@@ -202,19 +254,21 @@ export class BaseWidget {
       {
         label: 'Required',
         widgetAlias: WIDGETS.switch,
-        fieldName: 'required',
+        fieldName: 'fieldSettings.required',
         widgetSettings: {
           default: false
         }
       }, {
-        fieldName: 'layout',
+        fieldName: 'widgetSettings.layout',
         widgetAlias: WIDGETS.select,
+        fieldSettings: {
+          required: true,
+          placeholder: 'Please Select Widget'
+        },
         widgetSettings: {
           label: 'Layout',
           widgetIcon: 'select',
-          defaultValue: ITEM_LAYOUT.colFormItem,
-          required: true,
-          placeholder: 'Please Select Widget'
+          defaultValue: ITEM_LAYOUT.colFormItem
         },
         slot: {
           options: [{
@@ -227,13 +281,13 @@ export class BaseWidget {
         }
       },
       {
-        fieldName: 'defaultValue',
+        fieldName: 'widgetSettings.defaultValue',
         widgetSettings: {
           label: 'Default'
         }
       },
       {
-        fieldName: 'showWordLimit',
+        fieldName: 'fieldSettings.showWordLimit',
         widgetAlias: WIDGETS.switch,
         widgetSettings: {
           label: 'Show Limit'
@@ -243,10 +297,12 @@ export class BaseWidget {
   }
 
   loadConfigForConfigSection() {
-    if (!this.configSection.widgets) {
-      this.configSection.widgets = this.getConfigSectionFields().map(widgetJSON => {
-        widgetJSON.widgetAlias = widgetJSON.widgetAlias ? widgetJSON.widgetAlias : WIDGETS.input;
-        return new FormWidgetService().getWidgetInstance(widgetJSON, false);
+    if (this.configSection.widgets.length === 0) {
+      this.configSection.widgets = this.getConfigSectionFields().map(marshalledWidget => {
+        marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
+        const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
+        const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
+        return widget;
       });
     }
     return this.configSection;
@@ -290,24 +346,35 @@ export class BaseWidget {
     }, []);
   }
 
-  prepareComponentConfig() {
-    this.init();
-    this.fieldSettings.name = this.fieldName;
-    this.fieldSettings['v-model'] = this.formModel[this.fieldName];
-    return JSON.parse(JSON.stringify(this.fieldSettings));
+  getComponentAttrs(component) {
+    const fieldSettings = JSON.parse(JSON.stringify(this.fieldSettings));
+    fieldSettings.name = this.fieldName;
+    // this.fieldSettings['value'] = this.formModel[this.fieldName];
+    // this.fieldSettings['v-model'] = this.fieldName;
+    fieldSettings.props.value = this.formModel[this.fieldName];
+    fieldSettings.on.input = val => {
+      component.$emit('input', val);
+    };
+    return fieldSettings;
   }
 
-  applyConfig(widgetConfig) {
-    Object.assign(this.fieldSettings, widgetConfig);
-    this.init();
+  getComponentProps() {
+    return { value: this.formModel[this.fieldName] };
+  }
+
+  getComponentConfig() {
+    return {
+      attrs: this.getComponentAttrs(),
+      props: this.getComponentProps()
+    };
   }
 
   componentCreated(component) {
-    component.widget.applyConfig(component.config);
+    // component.widget.applyConfig(component.config);
   }
 
   componentRender(component, h) {
-    return h('el-input', this.prepareComponentConfig(), this.getChildren());
+    return h('el-input', this.getComponentAttrs(component), this.getChildren(h));
   }
 
   /** This method will return cue component object*/

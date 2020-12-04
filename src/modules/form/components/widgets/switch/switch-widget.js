@@ -9,6 +9,6 @@ export default class SwitchWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-switch', this.prepareComponentConfig(), this.getChildren());
+    return h('el-switch', this.getComponentConfig(), this.getChildren());
   }
 }

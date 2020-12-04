@@ -84,8 +84,8 @@ import {
 } from '@/modules/form/components/generator/html';
 import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
-import { exportDefault, beautifierConf, titleCase } from '@/modules/form/utils';
-import ResourceDialog from '../../../views/index/ResourceDialog';
+import { exportDefault, beautifierConf } from '@/modules/form/utils';
+import ResourceDialog from '../../../../views/index/ResourceDialog';
 import loadMonaco from '@/modules/form/utils/loadMonaco';
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 
@@ -104,7 +104,7 @@ let monaco;
 
 export default {
   components: { ResourceDialog },
-  props: ['formData', 'generateConf'],
+  props: { formModel: { type: Object }, generateConf: { type: Object }},
   data() {
     return {
       activeTab: 'html',
@@ -157,9 +157,9 @@ export default {
     },
     onOpen() {
       const { type } = this.generateConf;
-      this.htmlCode = makeUpHtml(this.formData, type);
-      this.jsCode = makeUpJs(this.formData, type);
-      this.cssCode = makeUpCss(this.formData);
+      this.htmlCode = makeUpHtml(this.formModel, type);
+      this.jsCode = makeUpJs(this.formModel, type);
+      this.cssCode = makeUpCss(this.formModel);
 
       loadBeautifier(btf => {
         beautifier = btf;
@@ -292,7 +292,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../styles/mixin';
+@import '../../../../styles/mixin';
 
 .tab-editor {
   position: absolute;
