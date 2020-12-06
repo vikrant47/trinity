@@ -105,25 +105,6 @@
         @fetch-data="fetchData"
       />
     </el-drawer>
-
-    <form-drawer
-      :visible.sync="drawerVisible"
-      :form-model="formModel"
-      size="100%"
-      :generate-conf="generateConf"
-    />
-    <json-drawer
-      size="60%"
-      :visible.sync="jsonDrawerVisible"
-      :json-str="JSON.stringify(formModel)"
-      @refresh="refreshJson"
-    />
-    <code-type-dialog
-      :visible.sync="dialogVisible"
-      title="Choose build type"
-      :show-file-name="showFileName"
-      @confirm="generate"
-    />
     <input id="copyNode" type="hidden">
   </div>
 </template>
@@ -133,8 +114,6 @@ import draggable from 'vuedraggable';
 import { debounce } from 'throttle-debounce';
 import { saveAs } from 'file-saver';
 import ClipboardJS from 'clipboard';
-import FormDrawer from '@/modules/form/components/widgets/form-designer/designer/FormDrawer';
-import JsonDrawer from '@/modules/form/components/widgets/form-designer/designer/JsonDrawer';
 import RightPanel from '@/modules/form/components/widgets/form-designer/designer/RightPanel';
 import {
   inputComponents, selectComponents, layoutComponents, formConf
@@ -148,7 +127,6 @@ import {
 import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
-import CodeTypeDialog from '@/modules/form/views/index/CodeTypeDialog';
 import DraggableItem from '@/modules/form/components/widgets/form-designer/designer/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
@@ -166,10 +144,7 @@ export default {
   name: 'FormDesigner',
   components: {
     draggable,
-    FormDrawer,
-    JsonDrawer,
     RightPanel,
-    CodeTypeDialog,
     DraggableItem
   },
   data() {

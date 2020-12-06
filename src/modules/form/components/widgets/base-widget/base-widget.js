@@ -215,12 +215,15 @@ export class BaseWidget {
       },
       {
         fieldName: 'fieldSettings.size',
-        widgetAlias: WIDGETS.slider,
-        widgetSettings: {
-          label: 'Size',
-          min: 0,
-          max: 10
-        }
+        widgetAlias: WIDGETS.select,
+        slot: {
+          options: [{
+            label: 'Large', value: 'large'
+          },
+          {
+            label: 'small', value: 'small'
+          }]
+        },
       },
       {
         fieldName: 'widgetSettings.showLabel',
@@ -234,6 +237,7 @@ export class BaseWidget {
         fieldName: 'widgetSettings.labelWidth',
         widgetAlias: WIDGETS.number,
         widgetSettings: {
+          defaultValue: '0',
           label: 'Label Width',
           min: 0
         }
