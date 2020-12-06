@@ -1,6 +1,7 @@
 <script>
 import Render from '@/modules/form/components/widgets/form-designer/render/render.js';
-import { Engine } from '@/modules/engine/core/engine';
+import _ from 'lodash';
+import { TemplateEngine } from '@/modules/engine/core/template.engine';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -101,8 +102,14 @@ function renderChildren(h, widget) {
 }
 
 function setValue(event, config, widget) {
-  this.$set(config, 'defaultValue', event);
-  this.$set(this.formData, widget.fieldName, event);
+  if (typeof event !== 'undefined') {
+    this.$set(config, 'defaultValue', event);
+    if (widget.fieldName.indexOf('.') > 0) {
+      const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
+      this.$set(result.value, result.prop, event);
+    }
+    this.$set(this.formData, widget.fieldName, event);
+  }
 }
 
 function buildListeners(widget) {
@@ -140,7 +147,7 @@ export default {
   },
   data() {
     return {
-      formData: Engine.clone(this.formModel),
+      formData: this.formModel,
       widgetConf: this.formConf
     };
   },
@@ -148,16 +155,17 @@ export default {
     if (!this.formConf.rules) {
       this.formConf.rules = {};
     }
-    // this.initFormData(this.formConf.widgets, this.formData);
+    this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
   },
   methods: {
     initFormData(widgets, formModel) {
       widgets.forEach(widget => {
-        widget.setFormModel(this.formConf.model);
+        // widget.setFormModel(this.formConf.model);
         const { widgetSettings } = widget;
-        if (widget.fieldName && !formModel[widget.fieldName]) {
-          formModel[widget.fieldName] = widgetSettings.defaultValue;
+        const value = _.get(formModel, widget.fieldName);
+        if (widget.fieldName && value === 'undefined') {
+          _.set(formModel, widget.fieldName, widgetSettings.defaultValue);
         }
         if (widgetSettings.children) {
           this.initFormData(widgetSettings.children, formModel);

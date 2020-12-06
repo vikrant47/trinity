@@ -74,7 +74,7 @@ export class Engine {
       } else if (Array.isArray(instance)) {
         return instance.map(entry => this.marshall(entry));
       } else if (instance instanceof Date) {
-        return instance.getTime();
+        return new Date(instance.getTime());
       }
     }
     return instance;
@@ -119,7 +119,10 @@ export class Engine {
   }
 
   /** Clone given object by stringify and parsing it back*/
-  static clone(object) {
+  static clone(object, useMarshalling = false, target = {}) {
+    if (useMarshalling === true) {
+      return this.unmarshall(target, this.marshall(object));
+    }
     return JSON.parse(JSON.stringify(object));
   }
 }

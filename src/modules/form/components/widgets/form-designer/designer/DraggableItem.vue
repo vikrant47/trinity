@@ -18,11 +18,11 @@ const components = {
       }}>
         <i class='el-icon-delete'/>
       </span>,
-      <span className='drawing-item-config' title='Configurations' onClick={event => {
+      <span class='drawing-item-config' title='Configurations' onClick={event => {
         showConfig(index, list);
         event.stopPropagation();
       }}>
-        <i className='el-icon-setting'/>
+        <i class='el-icon-setting'/>
       </span>
     ];
   }

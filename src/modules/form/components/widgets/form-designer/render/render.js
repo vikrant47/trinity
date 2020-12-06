@@ -1,4 +1,3 @@
-import { Engine } from '@/modules/engine/core/engine';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 /*
 function vModel(dataObject, defaultValue) {
@@ -100,7 +99,8 @@ export default {
   watch: {},
   render(h) {
     const widget = new FormWidgetService().getWidgetInstance(this.widget);
-    widget.setFormModel(Engine.clone(this.formModel));
+    // const formModel = Engine.clone(this.formModel);
+    widget.setFormModel(this.formModel);
     return widget.componentRender(this, h);
   }
 };

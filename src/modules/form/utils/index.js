@@ -109,7 +109,7 @@ export function jsonClone(obj) {
   return parse(stringify(obj));
 }
 
-// 深拷贝对象
+// Deep copy object
 export function deepClone(obj) {
   const _toString = Object.prototype.toString;
 

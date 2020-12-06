@@ -7,7 +7,7 @@
       <parser
         :key="formService.hashCode"
         :form-conf="formService.formConfig"
-        :form-model="formService.formModel"
+        :form-model="formService.formData"
         @submit="submitForm"
       />
     </div>

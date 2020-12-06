@@ -24,7 +24,18 @@ export class BaseWidget {
     renderKey: null,
     showLabel: true,
     labelWidth: null,
-    defaultValue: null
+    defaultValue: null,
+    class: {},
+    domProps: {},
+    nativeOn: {},
+    on: {},
+    style: {},
+    directives: [],
+    scopedSlots: {},
+    slot: null,
+    key: null,
+    ref: null,
+    refInFor: true
   };
   static defaultFieldSettings = {
     disabled: false,
@@ -38,19 +49,6 @@ export class BaseWidget {
     showStops: false,
     range: false,
     multiple: false,
-    class: {},
-    attrs: {},
-    props: {},
-    domProps: {},
-    nativeOn: {},
-    on: {},
-    style: {},
-    directives: [],
-    scopedSlots: {},
-    slot: null,
-    key: null,
-    ref: null,
-    refInFor: true
   };
   transient = ['configSection'];
   fieldName = null;
@@ -132,7 +130,7 @@ export class BaseWidget {
 
   updateValue() {
     if (this.formModel) {
-      if (typeof this.formModel[this.fieldName] === 'undefined') {
+      if (typeof this.getValue(this.fieldName) === 'undefined') {
         this.setValue(this.widgetSettings.defaultValue);
       }
     }
@@ -353,14 +351,16 @@ export class BaseWidget {
   getComponentConfig(component) {
     const fieldSettings = Engine.clone(this.fieldSettings);
     fieldSettings.name = this.fieldName;
+    const config = Object.assign({ attrs: fieldSettings, on: {}}, Engine.clone(this.widgetSettings));
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
-    fieldSettings.attrs.value = this.formModel[this.fieldName];
-    fieldSettings.on.input = val => {
+    fieldSettings.value = _.get(this.formModel, this.fieldName);
+
+    config.on.input = val => {
       component.$emit('input', val);
     };
-    Object.assign(fieldSettings, this.widgetSettings);
-    return fieldSettings;
+    // console.log('setting value for field ', this.fieldName, this.formModel, config);
+    return config;
   }
 
   componentCreated(component) {

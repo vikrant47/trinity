@@ -80,7 +80,7 @@
                 @activeWidget="activeDraggableItem"
                 @copyWidget="drawingItemCopy"
                 @deleteWidget="drawingItemDelete"
-                @showConfig="configVisisble=true"
+                @showConfig="configVisible=true"
               />
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
@@ -91,8 +91,9 @@
       </el-scrollbar>
     </div>
     <el-drawer
-      title="Config"
-      :visible.sync="configVisisble"
+      :destroy-on-close="true"
+      :modal-append-to-body="false"
+      :visible.sync="configVisible"
       direction="rtl"
       :before-close="onConfigClose"
     >
@@ -173,7 +174,7 @@ export default {
   },
   data() {
     return {
-      configVisisble: false,
+      configVisible: false,
       logo: '',
       idGlobal,
       formConf,
@@ -319,7 +320,7 @@ export default {
     },
     activeDraggableItem(currentItem) {
       this.activeFormItem(currentItem);
-      this.configVisisble = true;
+      // this.configVisible = true;
     },
     activeFormItem(currentItem) {
       new FormWidgetService().createIdAndKey(currentItem);
