@@ -84,7 +84,7 @@
               />
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
-              Drag in or click on components from the left to design the form
+              Drag in or click on widgets from the left to design the form
             </div>
           </el-form>
         </el-row>
@@ -167,7 +167,10 @@ export default {
       generateConf: null,
       showFileName: false,
       activeWidget: drawingDefalut[0],
-      saveDrawingListDebounce: debounce(340, saveDrawingList),
+      saveDrawingListDebounce: debounce(340, (list) => {
+        this.$emit('input', { widgets: list }); // emitting event to top form item
+        return saveDrawingList(list);
+      }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
         /* {

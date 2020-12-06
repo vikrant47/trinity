@@ -48,7 +48,7 @@ export class BaseWidget {
     step: 1,
     showStops: false,
     range: false,
-    multiple: false,
+    multiple: false
   };
   transient = ['configSection'];
   fieldName = null;
@@ -215,6 +215,9 @@ export class BaseWidget {
       },
       {
         fieldName: 'fieldSettings.size',
+        widgetSettings: {
+          label: 'Size'
+        },
         widgetAlias: WIDGETS.select,
         slot: {
           options: [{
@@ -223,7 +226,7 @@ export class BaseWidget {
           {
             label: 'small', value: 'small'
           }]
-        },
+        }
       },
       {
         fieldName: 'widgetSettings.showLabel',

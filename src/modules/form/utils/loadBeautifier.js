@@ -1,10 +1,10 @@
-import loadScript from './loadScript'
-import ELEMENT from 'element-ui'
+/* import loadScript from './loadScript';
+import ELEMENT from 'element-ui';
 
-let beautifierObj
+let beautifierObj;*/
 
 export default function loadBeautifier(cb) {
-  if (beautifierObj) {
+  /* if (beautifierObj) {
     cb(beautifierObj)
     return
   }
@@ -22,5 +22,5 @@ export default function loadBeautifier(cb) {
     // eslint-disable-next-line no-undef
     beautifierObj = beautifier
     cb(beautifierObj)
-  })
+  })*/
 }
