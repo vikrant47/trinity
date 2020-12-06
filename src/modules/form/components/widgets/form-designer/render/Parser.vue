@@ -1,7 +1,6 @@
 <script>
 import Render from '@/modules/form/components/widgets/form-designer/render/render.js';
-import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { Engine } from '@/modules/engine/core/engine';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -17,10 +16,10 @@ const ruleTrigger = {
 
 const layouts = {
   colFormItem(h, widget) {
-    if (!(widget instanceof BaseWidget)) {
+    /* if (!(widget instanceof BaseWidget)) {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
-    widget.setFormModel(this.formModel);
+    widget.setFormModel(this.formModel);*/
     const config = widget.widgetSettings;
     const listeners = buildListeners.call(this, widget);
 
@@ -30,7 +29,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-form-item label-width={labelWidth} prop={widget.fieldName}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render widget={widget} {...{ on: listeners }} form-model={this.formModel}/>
+          <render widget={widget} {...{ on: listeners }} form-model={this.formData}/>
         </el-form-item>
       </el-col>
     );
@@ -64,7 +63,7 @@ function renderFrom(h) {
         label-width={`${formConf.labelWidth}px`}
         ref={formConf.formRef}
         // model cannot be assigned directly https://github.com/vuejs/jsx/issues/49#issuecomment-472013664
-        props={{ model: this.formModel }}
+        props={{ model: this.formData }}
         rules={this[formConf.formRules]}
       >
         {renderFormItem.call(this, h, formConf.widgets, this.formModel)}
@@ -103,7 +102,7 @@ function renderChildren(h, widget) {
 
 function setValue(event, config, widget) {
   this.$set(config, 'defaultValue', event);
-  this.$set(this.formModel, widget.fieldName, event);
+  this.$set(this.formData, widget.fieldName, event);
 }
 
 function buildListeners(widget) {
@@ -139,11 +138,17 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      formData: Engine.clone(this.formModel),
+      widgetConf: this.formConf
+    };
+  },
   mounted() {
     if (!this.formConf.rules) {
       this.formConf.rules = {};
     }
-    this.initFormData(this.formConf.widgets, this.formModel);
+    // this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
   },
   methods: {

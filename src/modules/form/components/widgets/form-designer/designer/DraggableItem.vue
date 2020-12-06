@@ -1,7 +1,6 @@
 <script>
 import draggable from 'vuedraggable';
 import render from '@/modules/form/components/widgets/form-designer/render/render';
-import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 const components = {
   itemBtns(h, currentWidget, index, list) {
@@ -124,7 +123,7 @@ export default {
   },
   props: {
     currentWidget: {
-      type: BaseWidget,
+      type: Object,
       required: true
     },
     index: {

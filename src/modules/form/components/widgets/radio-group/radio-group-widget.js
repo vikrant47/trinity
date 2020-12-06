@@ -21,6 +21,6 @@ export default class RadioGroupWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-radio-group', this.getComponentConfig(), this.getChildren(h));
+    return h('el-radio-group', this.getComponentConfig(component), this.getChildren(h));
   }
 }

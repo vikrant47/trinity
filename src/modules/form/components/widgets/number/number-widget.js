@@ -9,6 +9,6 @@ export default class NumberWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-input-number', this.getComponentConfig(), this.getChildren());
+    return h('el-input-number', this.getComponentConfig(component), this.getChildren());
   }
 }

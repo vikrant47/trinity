@@ -94,6 +94,9 @@ export class BaseWidget {
   /**
    * */
   unmarshall(settings = {}) {
+    if (settings.widgetAlias) {
+      this.widgetAlias = settings.widgetAlias;
+    }
     if (settings.fieldName) {
       this.fieldName = settings.fieldName;
     }
@@ -168,7 +171,8 @@ export class BaseWidget {
   }
 
   clone() {
-    return this.unmarshall(JSON.parse(JSON.stringify(this.marshall())));
+    const marshalledWidget = this.marshall();
+    return new this.constructor().unmarshall(Engine.clone(marshalledWidget));
   }
 
   getConfigSectionFields() {
@@ -346,27 +350,17 @@ export class BaseWidget {
     }, []);
   }
 
-  getComponentAttrs(component) {
-    const fieldSettings = JSON.parse(JSON.stringify(this.fieldSettings));
+  getComponentConfig(component) {
+    const fieldSettings = Engine.clone(this.fieldSettings);
     fieldSettings.name = this.fieldName;
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
-    fieldSettings.props.value = this.formModel[this.fieldName];
+    fieldSettings.attrs.value = this.formModel[this.fieldName];
     fieldSettings.on.input = val => {
       component.$emit('input', val);
     };
+    Object.assign(fieldSettings, this.widgetSettings);
     return fieldSettings;
-  }
-
-  getComponentProps() {
-    return { value: this.formModel[this.fieldName] };
-  }
-
-  getComponentConfig() {
-    return {
-      attrs: this.getComponentAttrs(),
-      props: this.getComponentProps()
-    };
   }
 
   componentCreated(component) {
@@ -374,7 +368,7 @@ export class BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-input', this.getComponentAttrs(component), this.getChildren(h));
+    return h('el-input', this.getComponentConfig(component), this.getChildren(h));
   }
 
   /** This method will return cue component object*/

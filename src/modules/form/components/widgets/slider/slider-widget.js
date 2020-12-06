@@ -9,6 +9,6 @@ export default class SliderWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-slider', this.getComponentConfig(), this.getChildren());
+    return h('el-slider', this.getComponentConfig(component), this.getChildren());
   }
 }

@@ -20,8 +20,8 @@ export default class TimeWidget extends BaseWidget {
     super(settings);
   }
 
-  buildTimeRangeComponents(h) {
-    const attrs = this.getComponentConfig();
+  buildTimeRangeComponents(component, h) {
+    const attrs = this.getComponentConfig(component);
     const fromAttrs = Object.assign({}, attrs, {
       start: attrs['fromStart'],
       steps: attrs['formSteps'],
@@ -42,8 +42,8 @@ export default class TimeWidget extends BaseWidget {
 
   componentRender(component, h) {
     if (this.type === 'timerange') {
-      h('div', { class: { 'time-range': true }}, this.buildTimeRangeComponents(h));
+      h('div', { class: { 'time-range': true }}, this.buildTimeRangeComponents(component, h));
     }
-    return h('time-select', this.getComponentConfig(), this.getChildren());
+    return h('time-select', this.getComponentConfig(component), this.getChildren(component));
   }
 }

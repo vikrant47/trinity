@@ -3,7 +3,6 @@ import { ModelService } from '@/modules/engine/services/model.service';
 import { RestQuery } from '@/modules/engine/services/rest.query';
 import $router from '../../../router/routers';
 import { Engine } from '@/modules/engine/core/engine';
-import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 
 export class FormService extends EngineObservable {
   static events = {
@@ -66,7 +65,7 @@ export class FormService extends EngineObservable {
   populateFormConfig() {
     const tabs = this.definition.form.config.tabs || [];
     const widgets = tabs.reduce((result, tab) => result.concat(tab.widgets), []);
-    return { widgets: new FormWidgetService().unserializeWidget(widgets) };
+    return { widgets };
   }
 
   updateHash() {
