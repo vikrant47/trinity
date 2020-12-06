@@ -10,6 +10,6 @@ export default class FormDesignerWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h(FormDesigner, this.getComponentConfig(), this.getChildren());
+    return h(FormDesigner, this.getComponentConfig(component), this.getChildren());
   }
 }

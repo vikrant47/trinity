@@ -117,4 +117,9 @@ export class Engine {
   static unserialize(instance, serialized) {
     return this.unmarshall(instance, JSON.parse(serialized));
   }
+
+  /** Clone given object by stringify and parsing it back*/
+  static clone(object) {
+    return JSON.parse(JSON.stringify(object));
+  }
 }

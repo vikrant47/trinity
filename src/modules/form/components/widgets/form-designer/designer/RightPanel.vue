@@ -1,6 +1,7 @@
 <script>
 import { saveFormConf } from '@/modules/form/utils/db';
 import Parser from '../render/Parser';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 // Make the change Render Key available when the target component changes
 
 export default {
@@ -61,8 +62,8 @@ export default {
   },
   render(h) {
     const { currentTab } = this;
-    const { activeWidget } = this;
-    this.activeWidget.loadConfigForConfigSection();
+    const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
+    activeWidget.loadConfigForConfigSection();
     return <div class='right-board'>
       <el-tabs v-model={currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'/>

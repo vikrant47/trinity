@@ -1,4 +1,3 @@
-import { Engine } from '@/modules/engine/core/engine';
 import * as _ from 'lodash';
 import { WidgetTypes } from '@/modules/form/components/widgets/base-widget/widget-types';
 
@@ -35,6 +34,10 @@ export class FormWidgetService {
     WidgetTypes[widgetAlias] = type;
   }
 
+  getConfigSection(widgetJSON) {
+    return this.getWidgetInstance(widgetJSON).loadConfigForConfigSection();
+  }
+
   getWidgetByAlias(widgetAlias) {
     return WidgetTypes[widgetAlias];
   }
@@ -61,6 +64,7 @@ export class FormWidgetService {
     if (_.isEmpty(this.widgetInstances)) {
       for (const i in WidgetTypes) {
         this.widgetInstances[i] = new WidgetTypes[i]();
+        this.widgetInstances[i].widgetAlias = i;
       }
     }
     return this.widgetInstances;
@@ -105,12 +109,12 @@ export class FormWidgetService {
     } else if (typeof widgetJSON.widgetAlias === 'string') {
       Widget = new FormWidgetService().getWidgetByAlias(widgetJSON.widgetAlias);
     } else {
-      Widget = new FormWidgetService().getWidgetByClass(widgetJSON.widgetAlias);
+      Widget = new FormWidgetService().getWidgetByClass(widgetJSON.widgetClass);
     }
     if (Widget === null) {
       throw new Error('Invalid json,No matching widgetAlias / widgetClass found');
     }
-    const widget = Engine.unmarshall(new Widget(), widgetJSON);
+    const widget = new Widget().unmarshall(widgetJSON);
     /* if (loadConfigSection === true) {
       widgetJSON.loadConfigForConfigSection();
     }*/

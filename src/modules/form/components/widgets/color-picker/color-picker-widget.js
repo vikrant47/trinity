@@ -9,6 +9,6 @@ export default class colorPickerWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-color-picker', this.getComponentConfig(), this.getChildren());
+    return h('el-color-picker', this.getComponentConfig(component), this.getChildren());
   }
 }

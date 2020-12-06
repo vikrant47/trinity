@@ -9,6 +9,6 @@ export default class CascaderWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-cascader', this.getComponentConfig(), this.getChildren());
+    return h('el-cascader', this.getComponentConfig(component), this.getChildren());
   }
 }

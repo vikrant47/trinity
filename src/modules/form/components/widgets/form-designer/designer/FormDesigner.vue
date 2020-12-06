@@ -248,7 +248,7 @@ export default {
   },
   mounted() {
     if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
-      this.drawingList = drawingListInDB.map(widgetJSON => new FormWidgetService().getWidgetInstance(widgetJSON));
+      this.drawingList = drawingListInDB;
     } else {
       this.drawingList = drawingDefalut;
     }
@@ -334,13 +334,13 @@ export default {
       }
     },
     addWidget(item) {
-      const clone = item.clone();
+      const clone = deepClone(item);
       this.fetchData(clone);
       this.drawingList.push(clone);
       this.activeFormItem(clone);
     },
     cloneWidget(original) {
-      const clone = original.clone();// deepClone(origin);
+      const clone = deepClone(original);// deepClone(origin);
       const fieldSettings = { clone };
       fieldSettings.span = this.formConf.span; // When generating code, it will make a streamlined judgment based on the span
       new FormWidgetService().createIdAndKey(clone);
@@ -350,7 +350,7 @@ export default {
     },
     AssembleFormData() {
       this.formModel = {
-        fields: new FormWidgetService().clone(this.drawingList),
+        fields: deepClone(this.drawingList),
         ...this.formConf
       };
     },
@@ -380,7 +380,7 @@ export default {
       );
     },
     drawingItemCopy(item, list) {
-      const clone = item.clone();
+      const clone = deepClone(item);
       list.push(clone);
       this.activeFormItem(clone);
     },

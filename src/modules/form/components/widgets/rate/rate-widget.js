@@ -9,6 +9,6 @@ export default class RateWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-rate', this.getComponentConfig(), this.getChildren());
+    return h('el-rate', this.getComponentConfig(component), this.getChildren());
   }
 }

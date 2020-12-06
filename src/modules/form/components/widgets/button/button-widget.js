@@ -17,6 +17,6 @@ export default class ButtonWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-button', this.getComponentConfig(), this.getChildren(h));
+    return h('el-button', this.getComponentConfig(component), this.getChildren(h));
   }
 }

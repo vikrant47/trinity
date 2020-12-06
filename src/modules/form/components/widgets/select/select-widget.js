@@ -28,13 +28,7 @@ export default class SelectWidget extends BaseWidget {
     return list;
   }
 
-  getComponentConfig() {
-    const config = super.getComponentConfig();
-    config.attrs.value = this.getValue();
-    return config;
-  }
-
   componentRender(component, h) {
-    return h('el-select', this.getComponentConfig(), this.getChildren(h));
+    return h('el-select', this.getComponentConfig(component), this.getChildren(h));
   }
 }

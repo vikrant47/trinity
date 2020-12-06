@@ -21,6 +21,6 @@ export default class CheckboxGroupWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-checkbox', this.getComponentConfig(), this.getChildren());
+    return h('el-checkbox', this.getComponentConfig(component), this.getChildren());
   }
 }
