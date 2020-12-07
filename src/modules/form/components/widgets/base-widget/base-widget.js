@@ -1,4 +1,5 @@
 import {
+  DEFAULT_CONFIG_SECTION,
   ITEM_LAYOUT
 } from '@/modules/form/components/widgets/base-widget/widget-config';
 import Vue from 'vue';
@@ -24,7 +25,18 @@ export class BaseWidget {
     renderKey: null,
     showLabel: true,
     labelWidth: null,
-    defaultValue: null
+    defaultValue: null,
+    class: {},
+    domProps: {},
+    nativeOn: {},
+    on: {},
+    style: {},
+    directives: [],
+    scopedSlots: {},
+    slot: null,
+    key: null,
+    ref: null,
+    refInFor: true
   };
   static defaultFieldSettings = {
     disabled: false,
@@ -37,24 +49,12 @@ export class BaseWidget {
     step: 1,
     showStops: false,
     range: false,
-    multiple: false,
-    class: {},
-    attrs: {},
-    props: {},
-    domProps: {},
-    nativeOn: {},
-    on: {},
-    style: {},
-    directives: [],
-    scopedSlots: {},
-    slot: null,
-    key: null,
-    ref: null,
-    refInFor: true
+    multiple: false
   };
   transient = ['configSection'];
   fieldName = null;
   slot = {};
+  events = {};
   widgetAlias = 'input';
   formModel;
   children = [];
@@ -67,7 +67,8 @@ export class BaseWidget {
     rules: {} // will store all error messages
   };
   widgetClass = null;
-
+  component; // reference of render component
+  componentConfig = {};// final component config
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -76,7 +77,14 @@ export class BaseWidget {
   constructor() {
     // Object.assign(this, settings);
     this.widgetClass = this.constructor.name;
+    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.getFieldSettings());
+    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.getPalletSettings());
+    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.getWidgetSettings());
     this.unmarshall({});
+  }
+
+  getEvents() {
+    return this.events;
   }
 
   getFieldSettings() {
@@ -106,18 +114,9 @@ export class BaseWidget {
     if (settings.children) {
       this.children = settings.children;
     }
-    this.fieldSettings = _.assign(
-      {},
-      BaseWidget.defaultFieldSettings,
-      this.getFieldSettings(),
-      settings.fieldSettings
-    );
-    this.palletSettings = _.assign(
-      {}, BaseWidget.defaultPalletSettings, this.getPalletSettings(), settings.palletSettings
-    );
-    this.widgetSettings = _.assign(
-      { renderKey: new Date().getTime() }, BaseWidget.defaultWidgetSettings, this.getWidgetSettings(), settings.widgetSettings
-    );
+    Object.assign(this.fieldSettings, settings.fieldSettings);
+    Object.assign(this.palletSettings, settings.palletSettings);
+    Object.assign(this.widgetSettings, settings.widgetSettings);
     if (!this.widgetSettings.label) {
       this.widgetSettings.label = this.palletSettings.label;
     }
@@ -132,8 +131,12 @@ export class BaseWidget {
 
   updateValue() {
     if (this.formModel) {
-      if (typeof this.formModel[this.fieldName] === 'undefined') {
-        this.setValue(this.widgetSettings.defaultValue);
+      const value = this.getValue();
+      if (typeof value === 'undefined') {
+        console.warn('Enable to update value for field name ', this.fieldName);
+      }
+      if (this.componentConfig.attrs) {
+        this.componentConfig.attrs.value = value;
       }
     }
   }
@@ -158,6 +161,12 @@ export class BaseWidget {
 
   setValue(value) {
     _.set(this.formModel, this.fieldName, value);
+    this.updateValue();
+    if (this.component) {
+      this.component.$emit('input', value); // setting value in form-item by emitting input event
+    } else {
+      console.warn('Unable to emit value. No render component reference found in widget', this);
+    }
   }
 
   marshall() {
@@ -176,128 +185,7 @@ export class BaseWidget {
   }
 
   getConfigSectionFields() {
-    return [
-      {
-        widgetAlias: WIDGETS.select,
-        fieldName: 'widgetAlias',
-        fieldSettings: {
-          placeholder: 'Please Select Widget'
-        },
-        widgetSettings: {
-          label: 'Widget',
-          widgetIcon: 'select',
-          defaultValue: 'string',
-          required: true
-        },
-        slot: {
-          options: Object.keys(WIDGETS).map((widgetName) => {
-            return {
-              label: _.camelCase(WIDGETS[widgetName]),
-              value: widgetName
-            };
-          })
-        }
-      }, {
-        fieldName: 'fieldName',
-        widgetSettings: {
-          label: 'Name',
-          required: true
-        }
-      }, {
-        fieldName: 'fieldSettings.title',
-        widgetSettings: {
-          label: 'Title',
-          required: true
-        }
-      }, {
-        fieldName: 'fieldSettings.placeholder',
-        widgetSettings: {
-          label: 'Placeholder'
-        }
-      },
-      {
-        fieldName: 'fieldSettings.size',
-        widgetAlias: WIDGETS.slider,
-        widgetSettings: {
-          label: 'Size',
-          min: 0,
-          max: 10
-        }
-      },
-      {
-        fieldName: 'widgetSettings.showLabel',
-        widgetAlias: WIDGETS.switch,
-        widgetSettings: {
-          label: 'Show Label',
-          default: true
-        }
-      },
-      {
-        fieldName: 'widgetSettings.labelWidth',
-        widgetAlias: WIDGETS.number,
-        widgetSettings: {
-          label: 'Label Width',
-          min: 0
-        }
-      },
-      {
-        fieldName: 'fieldSettings.span',
-        widgetAlias: WIDGETS.number,
-        widgetSettings: {
-          label: 'Span',
-          min: 0,
-          max: 12
-        }
-      },
-      {
-        fieldName: 'fieldSettings.icon',
-        widgetSettings: {
-          label: 'Icon'
-        }
-      },
-      {
-        label: 'Required',
-        widgetAlias: WIDGETS.switch,
-        fieldName: 'fieldSettings.required',
-        widgetSettings: {
-          default: false
-        }
-      }, {
-        fieldName: 'widgetSettings.layout',
-        widgetAlias: WIDGETS.select,
-        fieldSettings: {
-          required: true,
-          placeholder: 'Please Select Widget'
-        },
-        widgetSettings: {
-          label: 'Layout',
-          widgetIcon: 'select',
-          defaultValue: ITEM_LAYOUT.colFormItem
-        },
-        slot: {
-          options: [{
-            'label': 'Column Layout',
-            'value': ITEM_LAYOUT.colFormItem
-          }, {
-            'label': 'Row Layout',
-            'value': ITEM_LAYOUT.rowFormItem
-          }]
-        }
-      },
-      {
-        fieldName: 'widgetSettings.defaultValue',
-        widgetSettings: {
-          label: 'Default'
-        }
-      },
-      {
-        fieldName: 'fieldSettings.showWordLimit',
-        widgetAlias: WIDGETS.switch,
-        widgetSettings: {
-          label: 'Show Limit'
-        }
-      }
-    ];
+    return DEFAULT_CONFIG_SECTION;
   }
 
   loadConfigForConfigSection() {
@@ -351,16 +239,20 @@ export class BaseWidget {
   }
 
   getComponentConfig(component) {
-    const fieldSettings = Engine.clone(this.fieldSettings);
+    const fieldSettings = this.fieldSettings;
     fieldSettings.name = this.fieldName;
+    const config = Object.assign({ attrs: fieldSettings, on: {}}, Engine.clone(this.widgetSettings));
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
-    fieldSettings.attrs.value = this.formModel[this.fieldName];
-    fieldSettings.on.input = val => {
+    fieldSettings.value = _.get(this.formModel, this.fieldName);
+
+    config.on.input = val => {
       component.$emit('input', val);
     };
-    Object.assign(fieldSettings, this.widgetSettings);
-    return fieldSettings;
+    Object.assign(config.on, this.getEvents());
+    // console.log('setting value for field ', this.fieldName, this.formModel, config);
+    this.componentConfig = config;
+    return this.componentConfig;
   }
 
   componentCreated(component) {
@@ -368,36 +260,38 @@ export class BaseWidget {
   }
 
   componentRender(component, h) {
+    this.component = component;
     return h('el-input', this.getComponentConfig(component), this.getChildren(h));
+  }
+
+  getMethods() {
+    return {};
   }
 
   /** This method will return cue component object*/
   getVueComponent() {
     const _this = this;
-    return Vue.component({
-      name: this.constructor.name,
-      props: {
-        config: {
-          type: Object,
-          required: true,
-          default() {
-            return {};
+    if (!this.component) {
+      this.component = Vue.component({
+        name: this.constructor.name,
+        props: {
+          model: {
+            type: Object,
+            required: true,
+            default() {
+              return {};
+            }
           }
+        },
+        created() {
+          _this.componentCreated(this);
+        },
+        methods: _this.getMethods(),
+        render(h) {
+          return _this.componentRender(this, h);
         }
-      },
-      data: function() {
-        return {
-          widget() {
-            return _this;
-          }
-        };
-      },
-      created() {
-        _this.componentCreated(this);
-      },
-      render(h) {
-        return _this.render(this, h);
-      }
-    });
+      });
+    }
+    return this.component;
   }
 }

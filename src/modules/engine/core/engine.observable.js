@@ -1,16 +1,29 @@
 export class EngineObservable {
   constructor() {
     this.events = {};
+    this.waitPromises = {};
   }
 
   emit(eventName, ...args) {
-    const _this = this;
-    if (this.events[eventName]) {
-      this.events[eventName].forEach((callbaack) => {
-        callbaack.apply(_this, args);
+    this.resolveWaiters(eventName, args);
+    this.triggerCallbacks(eventName, args);
+    return this;
+  }
+
+  resolveWaiters(eventName, ...args) {
+    if (this.waitPromises[eventName]) {
+      this.waitPromises[eventName].forEach((promise) => {
+        promise.resolve(args);
       });
     }
-    return this;
+  }
+
+  triggerCallbacks(eventName, ...args) {
+    if (this.events[eventName]) {
+      this.events[eventName].forEach((callback) => {
+        callback.apply(this, args);
+      });
+    }
   }
 
   on(eventNames, callback) {
@@ -26,6 +39,15 @@ export class EngineObservable {
     return this;
   }
 
+  waitFor(eventName) {
+    if (!this.waitPromises[eventName]) {
+      this.waitPromises[eventName] = [];
+    }
+    return new Promise((resolve, reject) => {
+      this.waitPromises[eventName].push({ resolve, reject });
+    });
+  }
+
   destroy() {
     for (const event in this.events) {
       delete this.events[event];
@@ -34,19 +56,21 @@ export class EngineObservable {
 }
 
 export class AsyncEventObservable extends EngineObservable {
-  emit(eventName, ...args) {
-    const _this = this;
+  async emit(eventName, ...args) {
+    this.resolveWaiters(eventName, args);
+    await this.triggerCallbacks(eventName, args);
+    return this;
+  }
+
+  async triggerCallbacks(eventName, ...args) {
     if (this.events[eventName]) {
-      return Promise.all(this.events[eventName].map((callbaack) => {
-        return new Promise((resolve, reject) => {
-          try {
-            resolve(callbaack.apply(_this, args));
-          } catch (e) {
-            reject(e);
-          }
-        });
+      await Promise.all(this.events[eventName].map(async(callback) => {
+        try {
+          await callback.apply(this, args);
+        } catch (e) {
+          throw e;
+        }
       }));
     }
-    return this;
   }
 }

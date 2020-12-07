@@ -80,19 +80,20 @@
                 @activeWidget="activeDraggableItem"
                 @copyWidget="drawingItemCopy"
                 @deleteWidget="drawingItemDelete"
-                @showConfig="configVisisble=true"
+                @showConfig="configVisible=true"
               />
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
-              Drag in or click on components from the left to design the form
+              Drag in or click on widgets from the left to design the form
             </div>
           </el-form>
         </el-row>
       </el-scrollbar>
     </div>
     <el-drawer
-      title="Config"
-      :visible.sync="configVisisble"
+      :destroy-on-close="true"
+      :modal-append-to-body="false"
+      :visible.sync="configVisible"
       direction="rtl"
       :before-close="onConfigClose"
     >
@@ -104,25 +105,6 @@
         @fetch-data="fetchData"
       />
     </el-drawer>
-
-    <form-drawer
-      :visible.sync="drawerVisible"
-      :form-model="formModel"
-      size="100%"
-      :generate-conf="generateConf"
-    />
-    <json-drawer
-      size="60%"
-      :visible.sync="jsonDrawerVisible"
-      :json-str="JSON.stringify(formModel)"
-      @refresh="refreshJson"
-    />
-    <code-type-dialog
-      :visible.sync="dialogVisible"
-      title="Choose build type"
-      :show-file-name="showFileName"
-      @confirm="generate"
-    />
     <input id="copyNode" type="hidden">
   </div>
 </template>
@@ -132,8 +114,6 @@ import draggable from 'vuedraggable';
 import { debounce } from 'throttle-debounce';
 import { saveAs } from 'file-saver';
 import ClipboardJS from 'clipboard';
-import FormDrawer from '@/modules/form/components/widgets/form-designer/designer/FormDrawer';
-import JsonDrawer from '@/modules/form/components/widgets/form-designer/designer/JsonDrawer';
 import RightPanel from '@/modules/form/components/widgets/form-designer/designer/RightPanel';
 import {
   inputComponents, selectComponents, layoutComponents, formConf
@@ -147,7 +127,6 @@ import {
 import { makeUpJs } from '@/modules/form/components/generator/js';
 import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
-import CodeTypeDialog from '@/modules/form/views/index/CodeTypeDialog';
 import DraggableItem from '@/modules/form/components/widgets/form-designer/designer/DraggableItem';
 import {
   getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
@@ -165,15 +144,12 @@ export default {
   name: 'FormDesigner',
   components: {
     draggable,
-    FormDrawer,
-    JsonDrawer,
     RightPanel,
-    CodeTypeDialog,
     DraggableItem
   },
   data() {
     return {
-      configVisisble: false,
+      configVisible: false,
       logo: '',
       idGlobal,
       formConf,
@@ -191,7 +167,10 @@ export default {
       generateConf: null,
       showFileName: false,
       activeWidget: drawingDefalut[0],
-      saveDrawingListDebounce: debounce(340, saveDrawingList),
+      saveDrawingListDebounce: debounce(340, (list) => {
+        this.$emit('input', { widgets: list }); // emitting event to top form item
+        return saveDrawingList(list);
+      }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
       leftComponents: [
         /* {
@@ -319,7 +298,7 @@ export default {
     },
     activeDraggableItem(currentItem) {
       this.activeFormItem(currentItem);
-      this.configVisisble = true;
+      // this.configVisible = true;
     },
     activeFormItem(currentItem) {
       new FormWidgetService().createIdAndKey(currentItem);

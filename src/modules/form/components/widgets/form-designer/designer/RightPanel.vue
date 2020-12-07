@@ -2,6 +2,7 @@
 import { saveFormConf } from '@/modules/form/utils/db';
 import Parser from '../render/Parser';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
 // Make the change Render Key available when the target component changes
 
 export default {
@@ -30,7 +31,8 @@ export default {
       currentNode: null,
       dialogVisible: false,
       iconsVisible: false,
-      currentIconModel: null
+      currentIconModel: null,
+      formModel: new FormWidgetService().getWidgetInstance(this.activeWidget)
     };
   },
   computed: {
@@ -42,11 +44,13 @@ export default {
     }
   },
   watch: {
-    'activeWidget.configSection.model': {
+    'formModel': {
       handler(model) {
-        /* for (const key in model) {
-
-        }*/
+        setTimeout(() => { // intended delay
+          for (const key in model) {
+            this.$set(this.activeWidget, key, model[key]);
+          }
+        }, 500);
       },
       deep: true
     },
@@ -62,8 +66,12 @@ export default {
   },
   render(h) {
     const { currentTab } = this;
+    // const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     activeWidget.loadConfigForConfigSection();
+    const engineForm = new EngineForm();
+    engineForm.setFormConfig(activeWidget.configSection);
+    engineForm.setRecord(this.formModel);
     return <div class='right-board'>
       <el-tabs v-model={currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'/>
@@ -71,7 +79,7 @@ export default {
       </el-tabs>
       <div class='field-box'>
         <el-scrollbar class='right-scrollbar'>
-          {h(Parser, { props: { formModel: activeWidget.configSection.model, formConf: activeWidget.configSection }})}
+          {h(Parser, { props: { engineForm: engineForm }})}
         </el-scrollbar>
       </div>
     </div>;
@@ -80,9 +88,13 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.el-tab {
+  margin-bottom: 10px;
+}
+
 .right-board {
   height: 100%;
-  overflow: scroll;
+  overflow: hidden;
   /*width: 350px;
   position: absolute;
   right: 0;
@@ -92,9 +104,10 @@ export default {
 
 .field-box {
   position: relative;
-  height: calc(100vh - 42px);
+  height: 68%;
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .el-scrollbar {

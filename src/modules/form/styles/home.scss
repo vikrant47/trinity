@@ -170,7 +170,7 @@ $lighterBlue: #409EFF;
       background: $selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
+    & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-config{
       display: initial;
     }
     & > .component-name{
@@ -230,11 +230,11 @@ $lighterBlue: #409EFF;
       background: $selectedColor;
       border-radius: 6px;
     }
-    & > .drawing-item-copy, & > .drawing-item-delete{
+    & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-config{
       display: initial;
     }
   }
-  & > .drawing-item-copy, & > .drawing-item-delete{
+  & > .drawing-item-copy, & > .drawing-item-delete, & > .drawing-item-config{
     display: none;
     position: absolute;
     top: -10px;
@@ -249,7 +249,7 @@ $lighterBlue: #409EFF;
     z-index: 1;
   }
   & > .drawing-item-copy{
-    right: 56px;
+    right: 68px;
     border-color: $lighterBlue;
     color: $lighterBlue;
     background: #fff;
@@ -259,7 +259,7 @@ $lighterBlue: #409EFF;
     }
   }
   & > .drawing-item-delete{
-    right: 24px;
+    right: 44px;
     border-color: #F56C6C;
     color: #F56C6C;
     background: #fff;
@@ -268,4 +268,21 @@ $lighterBlue: #409EFF;
       color: #fff;
     }
   }
+  & > .drawing-item-config{
+    right: 20px;
+    border-color: #F56C6C;
+    color: #F56C6C;
+    background: #fff;
+    &:hover{
+      background: #F56C6C;
+      color: #fff;
+    }
+  }
+}
+
+.el-drawer__header{
+  margin-bottom: 0px;
+}
+.el-tabs{
+  margin-bottom: 10px;
 }

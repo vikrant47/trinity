@@ -1,13 +1,12 @@
 <template>
   <div class="form-container">
     <div class="head-container">
-      <en-form-toolbar v-if="toolbar" :actions="formService.actions" />
+      <en-form-toolbar v-if="toolbar" :actions="engineForm.actions" />
     </div>
     <div class="form-parser">
       <parser
-        :key="formService.hashCode"
-        :form-conf="formService.formConfig"
-        :form-model="formService.formModel"
+        :key="engineForm.hashCode"
+        :engine-form="engineForm"
         @submit="submitForm"
       />
     </div>
@@ -18,7 +17,7 @@
 
 import Vue from 'vue';
 import Parser from '@/modules/form/components/widgets/form-designer/render/Parser';
-import { FormService } from '@/modules/form/services/form.service';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import { FormEventHandler } from '@/modules/form/services/form.event.handler';
 import locale from 'element-ui/lib/locale/lang/en';
 import ElementUI from 'element-ui';
@@ -76,27 +75,24 @@ export default {
   },
   data() {
     return {
-      formService: null
+      engineForm: new EngineForm({
+        formConfig: this.formConfig,
+        remote: this.remote,
+        modelAlias: this.modelAlias,
+        formId: this.formId,
+        recordId: this.recordId,
+        controls: this.controls,
+        record: this.record || {},
+        actions: this.actions || []
+      })
     };
   },
   beforeCreate() {
     this.formEventHandler = new FormEventHandler(this);
   },
-  created() {
-    const formService = new FormService({
-      formConfig: this.formConfig,
-      remote: this.remote,
-      modelAlias: this.modelAlias,
-      formId: this.formId,
-      recordId: this.recordId,
-      controls: this.controls,
-      record: this.record || {},
-      actions: this.actions || []
-    });
-    formService.loadDefinition().then(() => {
-      formService.refresh();
-    });
-    Vue.set(this, 'formService', formService);
+  async mounted() {
+    await this.engineForm.loadDefinition();
+    await this.engineForm.refresh();
   },
   methods: {
     submitForm() {

@@ -1,6 +1,10 @@
 <script>
 import Render from '@/modules/form/components/widgets/form-designer/render/render.js';
-import { Engine } from '@/modules/engine/core/engine';
+import _ from 'lodash';
+import { TemplateEngine } from '@/modules/engine/core/template.engine';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
+import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -20,6 +24,7 @@ const layouts = {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
     widget.setFormModel(this.formModel);*/
+    const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
     const config = widget.widgetSettings;
     const listeners = buildListeners.call(this, widget);
 
@@ -29,7 +34,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-form-item label-width={labelWidth} prop={widget.fieldName}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render widget={widget} {...{ on: listeners }} form-model={this.formData}/>
+          <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}/>
         </el-form-item>
       </el-col>
     );
@@ -101,8 +106,14 @@ function renderChildren(h, widget) {
 }
 
 function setValue(event, config, widget) {
-  this.$set(config, 'defaultValue', event);
-  this.$set(this.formData, widget.fieldName, event);
+  if (typeof event !== 'undefined') {
+    this.$set(config, 'defaultValue', event);
+    if (widget.fieldName.indexOf('.') > 0) {
+      const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
+      this.$set(result.value, result.prop, event);
+    }
+    this.$set(this.formData, widget.fieldName, event);
+  }
 }
 
 function buildListeners(widget) {
@@ -126,38 +137,35 @@ export default {
     Render
   },
   props: {
-    formConf: {
-      type: Object,
+    engineForm: {
+      type: EngineForm,
       required: true
-    },
-    formModel: {
-      type: Object,
-      required: true,
-      default() {
-        return {};
-      }
     }
   },
   data() {
     return {
-      formData: Engine.clone(this.formModel),
-      widgetConf: this.formConf
+      formData: this.engineForm.getRecord(),
+      formConf: this.engineForm.getFormConfig()
     };
   },
-  mounted() {
+  async mounted() {
     if (!this.formConf.rules) {
       this.formConf.rules = {};
     }
-    // this.initFormData(this.formConf.widgets, this.formData);
+    const record = await this.engineForm.waitFor(FORM_EVENTS.model.fetch);
+    this.formData = record[0];
+    this.$emit('beforeInit');
+    this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
   },
   methods: {
     initFormData(widgets, formModel) {
       widgets.forEach(widget => {
-        widget.setFormModel(this.formConf.model);
+        // widget.setFormModel(this.formConf.model);
         const { widgetSettings } = widget;
-        if (widget.fieldName && !formModel[widget.fieldName]) {
-          formModel[widget.fieldName] = widgetSettings.defaultValue;
+        const value = _.get(formModel, widget.fieldName);
+        if (widget.fieldName && (typeof value === 'undefined' || value === null)) {
+          _.set(formModel, widget.fieldName, widgetSettings.defaultValue);
         }
         if (widgetSettings.children) {
           this.initFormData(widgetSettings.children, formModel);

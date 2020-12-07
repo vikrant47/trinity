@@ -1,6 +1,7 @@
 <script>
 import draggable from 'vuedraggable';
 import render from '@/modules/form/components/widgets/form-designer/render/render';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 
 const components = {
   itemBtns(h, currentWidget, index, list) {
@@ -18,17 +19,18 @@ const components = {
       }}>
         <i class='el-icon-delete'/>
       </span>,
-      <span className='drawing-item-config' title='Configurations' onClick={event => {
+      <span class='drawing-item-config' title='Configurations' onClick={event => {
         showConfig(index, list);
         event.stopPropagation();
       }}>
-        <i className='el-icon-setting'/>
+        <i class='el-icon-setting'/>
       </span>
     ];
   }
 };
 const layouts = {
   colFormItem(h, currentWidget, index, list) {
+    const widgetInstance = new FormWidgetService().getWidgetInstance(currentWidget);
     const { activeWidget } = this.$listeners;
     const config = currentWidget.widgetSettings;
     const child = renderChildren.apply(this, arguments);
@@ -44,7 +46,7 @@ const layouts = {
         }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} widget={currentWidget}
+          <render key={config.renderKey} widget={widgetInstance}
             form-model = {{}}
             field-name = {config.renderKey}
             onInput={event => {

@@ -1,5 +1,4 @@
-import { Engine } from '@/modules/engine/core/engine';
-import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 /*
 function vModel(dataObject, defaultValue) {
   dataObject.props.value = typeof dataObject.props.value === 'undefined' ? defaultValue : dataObject.props.value;
@@ -89,7 +88,7 @@ export default {
   name: 'Render',
   props: {
     widget: {
-      type: Object,
+      type: BaseWidget,
       required: true
     },
     formModel: {
@@ -97,10 +96,15 @@ export default {
       require: true
     }
   },
+  data() {
+    return {
+      methods: this.widget.getMethods()
+    };
+  },
   watch: {},
   render(h) {
-    const widget = new FormWidgetService().getWidgetInstance(this.widget);
-    widget.setFormModel(Engine.clone(this.formModel));
-    return widget.componentRender(this, h);
+    // const formModel = Engine.clone(this.formModel);
+    this.widget.setFormModel(this.formModel);
+    return this.widget.componentRender(this, h);
   }
 };
