@@ -16,5 +16,6 @@ export const WidgetTypes = {
   [WIDGETS.button]: require('../button/button-widget').default,
   [WIDGETS.rate]: require('../rate/rate-widget').default,
   [WIDGETS.colorPicker]: require('../color-picker/color-picker-widget').default,
-  [WIDGETS.formDesigner]: require('../form-designer/form-designer-widget').default
+  [WIDGETS.formDesigner]: require('../form-designer/form-designer-widget').default,
+  [WIDGETS.reference]: require('../reference/reference-widget').default
 };

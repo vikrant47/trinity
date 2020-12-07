@@ -2,6 +2,9 @@
 import Render from '@/modules/form/components/widgets/form-designer/render/render.js';
 import _ from 'lodash';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
+import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -21,6 +24,7 @@ const layouts = {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
     widget.setFormModel(this.formModel);*/
+    const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
     const config = widget.widgetSettings;
     const listeners = buildListeners.call(this, widget);
 
@@ -30,7 +34,7 @@ const layouts = {
       <el-col span={config.span}>
         <el-form-item label-width={labelWidth} prop={widget.fieldName}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render widget={widget} {...{ on: listeners }} form-model={this.formData}/>
+          <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}/>
         </el-form-item>
       </el-col>
     );
@@ -133,28 +137,24 @@ export default {
     Render
   },
   props: {
-    formConf: {
-      type: Object,
+    engineForm: {
+      type: EngineForm,
       required: true
-    },
-    formModel: {
-      type: Object,
-      required: true,
-      default() {
-        return {};
-      }
     }
   },
   data() {
     return {
-      formData: this.formModel,
-      widgetConf: this.formConf
+      formData: this.engineForm.getRecord(),
+      formConf: this.engineForm.getFormConfig()
     };
   },
-  mounted() {
+  async mounted() {
     if (!this.formConf.rules) {
       this.formConf.rules = {};
     }
+    const record = await this.engineForm.waitFor(FORM_EVENTS.model.fetch);
+    this.formData = record[0];
+    this.$emit('beforeInit');
     this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
   },

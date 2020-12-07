@@ -16,7 +16,7 @@
           :processor="action.processor"
           :context="{
             formComponent: $parent,
-            formService: formService,
+            engineForm: engineForm,
           }"
         />
       </div>
@@ -40,14 +40,14 @@ export default {
   },
   data() {
     return {
-      formService: null,
+      engineForm: null,
       formEventHandler: null
     };
   },
   created() {
-    const formService = this.$parent.formService;
+    const engineForm = this.$parent.engineForm;
     const formEventHandler = this.$parent.formEventHandler;
-    Vue.set(this, 'formService', formService);
+    Vue.set(this, 'engineForm', engineForm);
     Vue.set(this, 'formEventHandler', formEventHandler);
     // this.$parent.crud.updateProp('searchToggle', true);
   },

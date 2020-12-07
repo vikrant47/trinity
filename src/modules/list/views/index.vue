@@ -13,7 +13,7 @@
 
 <script>
 import EnList from '@/modules/list/components/list/EnList';
-import { FormService } from '@/modules/form/services/form.service';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
 
 export default {
   name: 'App',
@@ -26,7 +26,7 @@ export default {
   methods: {
     cellClick(event, row, column) {
       if (column.field === 'id') {
-        FormService.navigate(this.modelAlias, 'default', 'update', row.id);
+        EngineForm.navigate(this.modelAlias, 'default', 'update', row.id);
       }
     }
   }
