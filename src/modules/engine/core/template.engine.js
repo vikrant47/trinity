@@ -1,9 +1,18 @@
 import * as expEval from 'expression-eval';
 
 export class TemplateEngine {
-  static evalExpression(expression, context) {
+  static evalString(expression, context) {
     const parsed = expEval.parse(expression); // abstract syntax tree (AST)
     return expEval.eval(parsed, context); // 2.4
+  }
+
+  /** Evaluate expression inside ${exp}*/
+  static evalExpression(expression, context) {
+    expression = expression.trim();
+    if (expression.startsWith('${') && expression.endsWith('}')) {
+      return this.evalString(expression.substring(2, expression.length - 1), context);
+    }
+    return expression;
   }
 
   /**
@@ -17,8 +26,8 @@ export class TemplateEngine {
       const edges = path.split('.');
       const spliced = edges.splice(depth * -1);
       path = edges.join('.');
-      return { value: this.evalExpression(path, context), prop: spliced.join('.') };
+      return { value: this.evalString(path, context), prop: spliced.join('.') };
     }
-    return { value: this.evalExpression(path, context) };
+    return { value: this.evalString(path, context) };
   }
 }

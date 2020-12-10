@@ -1,4 +1,5 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
+
 /*
 function vModel(dataObject, defaultValue) {
   dataObject.props.value = typeof dataObject.props.value === 'undefined' ? defaultValue : dataObject.props.value;
@@ -83,7 +84,6 @@ function makeDataObject() {
     refInFor: true
   };
 }*/
-
 export default {
   name: 'Render',
   props: {
@@ -94,6 +94,18 @@ export default {
     formModel: {
       type: Object,
       require: true
+    },
+    evalContext: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    wrapper: { // weather to create wrapper divs
+      type: Boolean,
+      default() {
+        return true;
+      }
     }
   },
   data() {
@@ -102,9 +114,37 @@ export default {
     };
   },
   watch: {},
+  mounted() {
+    this.widget.setRenderComponent(this);
+    this.widget.mounted();
+  },
   render(h) {
+    this.widget.setRenderComponent(this);
     // const formModel = Engine.clone(this.formModel);
+    this.widget.setEvalContext(this.evalContext);
     this.widget.setFormModel(this.formModel);
-    return this.widget.componentRender(this, h);
+    this.widget.beforeRender();
+    const widgetSettings = this.widget.widgetSettings;
+    let labelWidth = widgetSettings.labelWidth ? `${widgetSettings.labelWidth}px` : null;
+    if (widgetSettings.showLabel === false) labelWidth = '0';
+    let template = null;
+    if (this.wrapper === true) {
+      template = h('el-col', { attrs: { span: widgetSettings.span, vShow: widgetSettings.visible }}, [
+        h('el-form-item', {
+          attrs: {
+            labelWidth,
+            prop: this.widget.fieldName,
+            label: widgetSettings.showLabel ? widgetSettings.label : '',
+            required: widgetSettings.required
+          }
+        }, [
+          this.widget.componentRender(this, h)
+        ])
+      ]);
+    } else {
+      template = this.widget.componentRender(this, h);
+    }
+    this.widget.afterRender();
+    return template;
   }
 };

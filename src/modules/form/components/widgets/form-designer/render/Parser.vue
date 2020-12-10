@@ -25,18 +25,18 @@ const layouts = {
     }
     widget.setFormModel(this.formModel);*/
     const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
-    const config = widget.widgetSettings;
-    const listeners = buildListeners.call(this, widget);
-
-    let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
-    if (config.showLabel === false) labelWidth = '0';
-    return (
-      <el-col span={config.span}>
+    this.engineForm.addWidgetRef(widgetInstance);
+    const listeners = buildListeners.call(this, widgetInstance);
+    /* (
+      <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
         <el-form-item label-width={labelWidth} prop={widget.fieldName}
-          label={config.showLabel ? config.label : ''} required={config.required}>
-          <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}/>
+                      label={widgetSettings.showLabel ? widgetSettings.label : ''} required={widgetSettings.required}>
+          <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData} eval-context={this.evalContext} />
         </el-form-item>
       </el-col>
+    )*/
+    return (
+      <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData} eval-context={this.evalContext} />
     );
   },
   rowFormItem(h, widget) {
@@ -140,6 +140,12 @@ export default {
     engineForm: {
       type: EngineForm,
       required: true
+    },
+    evalContext: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {

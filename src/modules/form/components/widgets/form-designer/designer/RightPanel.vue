@@ -32,7 +32,7 @@ export default {
       dialogVisible: false,
       iconsVisible: false,
       currentIconModel: null,
-      formModel: new FormWidgetService().getWidgetInstance(this.activeWidget)
+      formModel: this.activeWidget
     };
   },
   computed: {
@@ -79,7 +79,7 @@ export default {
       </el-tabs>
       <div class='field-box'>
         <el-scrollbar class='right-scrollbar'>
-          {h(Parser, { props: { engineForm: engineForm }})}
+          {h(Parser, { props: { engineForm: engineForm, evalContext: { activeWidget: activeWidget }}})}
         </el-scrollbar>
       </div>
     </div>;

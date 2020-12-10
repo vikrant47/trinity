@@ -1,10 +1,18 @@
 export class EngineObservable {
+  eventSeen = [];
+
   constructor() {
     this.events = {};
     this.waitPromises = {};
   }
 
+  /** This will add event to seen list*/
+  visitEvent(event) {
+    this.eventSeen.push(event);
+  }
+
   emit(eventName, ...args) {
+    this.visitEvent(eventName);
     this.resolveWaiters(eventName, args);
     this.triggerCallbacks(eventName, args);
     return this;
@@ -13,8 +21,9 @@ export class EngineObservable {
   resolveWaiters(eventName, ...args) {
     if (this.waitPromises[eventName]) {
       this.waitPromises[eventName].forEach((promise) => {
-        promise.resolve(args);
+        promise.resolve.apply(this, args);
       });
+      delete this.waitPromises[eventName]; // removing promises registry for resolved
     }
   }
 
@@ -44,7 +53,11 @@ export class EngineObservable {
       this.waitPromises[eventName] = [];
     }
     return new Promise((resolve, reject) => {
+      /* if (this.eventSeen.indexOf(eventName) >= 0) {
+        resolve();
+      } else {*/
       this.waitPromises[eventName].push({ resolve, reject });
+      /* }*/
     });
   }
 
@@ -57,6 +70,7 @@ export class EngineObservable {
 
 export class AsyncEventObservable extends EngineObservable {
   async emit(eventName, ...args) {
+    this.visitEvent(eventName);
     this.resolveWaiters(eventName, args);
     await this.triggerCallbacks(eventName, args);
     return this;

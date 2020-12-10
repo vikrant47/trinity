@@ -10,7 +10,7 @@ export class FormWidgetService {
     widgetSettings.formId = ++idGlobal;
     widgetSettings.renderKey = `${widgetSettings.formId}${+new Date()}`; // After changing the render Key, the component can be forced to update
     if (widgetSettings.layout === 'colFormItem') {
-      widgetSettings.fieldName = `field${idGlobal}`;
+      widget.fieldName = `field${idGlobal}`;
     } else if (widgetSettings.layout === 'rowFormItem') {
       widgetSettings.componentName = `row${idGlobal}`;
       !Array.isArray(widgetSettings.children) && (widgetSettings.children = []);

@@ -80,7 +80,7 @@
                 @activeWidget="activeDraggableItem"
                 @copyWidget="drawingItemCopy"
                 @deleteWidget="drawingItemDelete"
-                @showConfig="configVisible=true"
+                @showConfig="showConfig"
               />
             </draggable>
             <div v-show="!drawingList.length" class="empty-info">
@@ -296,12 +296,16 @@ export default {
         if (t) t.value = val;
       }
     },
+    showConfig(currentItem) {
+      this.activeFormItem(currentItem);
+      this.configVisible = true;
+    },
     activeDraggableItem(currentItem) {
       this.activeFormItem(currentItem);
       // this.configVisible = true;
     },
     activeFormItem(currentItem) {
-      new FormWidgetService().createIdAndKey(currentItem);
+      //  new FormWidgetService().createIdAndKey(currentItem);
       this.activeWidget = currentItem;
       this.activeId = currentItem.widgetSettings.formId;
     },

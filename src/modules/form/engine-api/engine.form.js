@@ -6,6 +6,7 @@ import { ModelService } from '@/modules/engine/services/model.service';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 
 export class EngineForm extends AsyncEventObservable {
+  $widgetRefs = {};
   actions = [];
   hashCode = 0;
   loading = false;
@@ -37,6 +38,11 @@ export class EngineForm extends AsyncEventObservable {
     this.settings = Object.assign(this.settings, settings);
     this.definition.form.config = this.settings.formConfig;
     this.registerEvents();
+  }
+
+  /** Add widget instance ref in engine form*/
+  addWidgetRef(widget) {
+    this.$widgetRefs[widget.getFieldName()] = widget;
   }
 
   setRecord(record) {

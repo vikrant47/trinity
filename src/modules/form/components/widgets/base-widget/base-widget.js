@@ -6,6 +6,7 @@ import Vue from 'vue';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 import _ from 'lodash';
 import { Engine } from '@/modules/engine/core/engine';
+import { TemplateEngine } from '@/modules/engine/core/template.engine';
 
 export class BaseWidget {
   static defaultPalletSettings = {
@@ -36,7 +37,9 @@ export class BaseWidget {
     slot: null,
     key: null,
     ref: null,
-    refInFor: true
+    refInFor: true,
+    visible: true,
+    triggers: []
   };
   static defaultFieldSettings = {
     disabled: false,
@@ -44,14 +47,15 @@ export class BaseWidget {
     clearable: true,
     placeholder: '',
     filterable: true,
-    min: null,
-    max: null,
+    min: undefined,
+    max: undefined,
     step: 1,
     showStops: false,
     range: false,
     multiple: false
   };
-  transient = ['configSection'];
+  designMode = false;
+  transient = ['configSection', 'evalContext'];
   fieldName = null;
   slot = {};
   events = {};
@@ -67,8 +71,9 @@ export class BaseWidget {
     rules: {} // will store all error messages
   };
   widgetClass = null;
-  component; // reference of render component
+  renderComponent; // reference of render component
   componentConfig = {};// final component config
+  evalContext = {};// context to store variable for evaluations
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -81,6 +86,13 @@ export class BaseWidget {
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.getPalletSettings());
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.getWidgetSettings());
     this.unmarshall({});
+  }
+
+  getFieldName() {
+    if (!this.fieldName) {
+      throw new Error('fieldName not defined for widget -> ' + Engine.serialize(this));
+    }
+    return this.fieldName;
   }
 
   getEvents() {
@@ -133,7 +145,7 @@ export class BaseWidget {
     if (this.formModel) {
       const value = this.getValue();
       if (typeof value === 'undefined') {
-        console.warn('Enable to update value for field name ', this.fieldName);
+        console.warn('Unable to update value for field name ', this.fieldName, this);
       }
       if (this.componentConfig.attrs) {
         this.componentConfig.attrs.value = value;
@@ -162,8 +174,8 @@ export class BaseWidget {
   setValue(value) {
     _.set(this.formModel, this.fieldName, value);
     this.updateValue();
-    if (this.component) {
-      this.component.$emit('input', value); // setting value in form-item by emitting input event
+    if (this.renderComponent) {
+      // this.component.$emit('input', value); // setting value in form-item by emitting input event
     } else {
       console.warn('Unable to emit value. No render component reference found in widget', this);
     }
@@ -247,6 +259,7 @@ export class BaseWidget {
     fieldSettings.value = _.get(this.formModel, this.fieldName);
 
     config.on.input = val => {
+      this.getMethods(); // TODO: remove this - just reference for debugging
       component.$emit('input', val);
     };
     Object.assign(config.on, this.getEvents());
@@ -255,12 +268,58 @@ export class BaseWidget {
     return this.componentConfig;
   }
 
-  componentCreated(component) {
+  /** This will trigger the update event to parent components*/
+  update() {
+    this.renderComponent.$emit('widgetUpdate', this);
+  }
+  /** set render component instance*/
+  setRenderComponent(renderComponent) {
+    this.renderComponent = renderComponent;
+  }
+  setEvalContext(evalContext) {
+    this.evalContext = evalContext;
+  }
+
+  buildContext() {
+    return Object.assign({}, this.evalContext, {
+      form: this.formModel,
+      widget: this
+    });
+  }
+
+  handleTriggers() {
+    let triggers = this.widgetSettings.triggers;
+    if (triggers) {
+      if (!Array.isArray(triggers)) {
+        triggers = [triggers];
+      }
+      for (const trigger of triggers) {
+        if (trigger.action === 'show' || trigger.action === 'hide') {
+          const result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
+          this.widgetSettings.visible = trigger.action === 'show' ? result : !result;
+        }
+      }
+      this.update();
+    }
+  }
+
+  /** Lifecycle events*/
+  mounted() {
+
+  }
+
+  beforeRender() {
+  }
+
+  afterRender() {
+    this.handleTriggers();
+  }
+
+  beforeCreate(component) {
     // component.widget.applyConfig(component.config);
   }
 
   componentRender(component, h) {
-    this.component = component;
     return h('el-input', this.getComponentConfig(component), this.getChildren(h));
   }
 
@@ -271,8 +330,8 @@ export class BaseWidget {
   /** This method will return cue component object*/
   getVueComponent() {
     const _this = this;
-    if (!this.component) {
-      this.component = Vue.component({
+    if (!this.renderComponent) {
+      this.renderComponent = Vue.component({
         name: this.constructor.name,
         props: {
           model: {
@@ -292,6 +351,6 @@ export class BaseWidget {
         }
       });
     }
-    return this.component;
+    return this.renderComponent;
   }
 }
