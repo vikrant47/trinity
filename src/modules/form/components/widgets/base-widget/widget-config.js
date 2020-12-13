@@ -36,9 +36,16 @@ export const DEFAULT_CONFIG_SECTION = [
     }
   }, {
     fieldName: 'fieldName',
+    widgetAlias: WIDGETS.reference,
     widgetSettings: {
       label: 'Name',
-      required: true
+      required: true,
+      targetModel: 'engine_fields',
+      key: 'id',
+      displayField: 'name',
+      where: {
+        model: '${form.model}'
+      }
     }
   }, {
     fieldName: 'widgetSettings.label',
@@ -103,15 +110,24 @@ export const DEFAULT_CONFIG_SECTION = [
   },
   {
     fieldName: 'fieldSettings.icon',
+    widgetAlias: WIDGETS.icon,
     widgetSettings: {
       label: 'Icon'
     }
   },
   {
-    label: 'Required',
     widgetAlias: WIDGETS.switch,
-    fieldName: 'fieldSettings.required',
+    fieldName: 'fieldSettings.disabled',
     widgetSettings: {
+      label: 'Disabled',
+      default: false
+    }
+  },
+  {
+    widgetAlias: WIDGETS.switch,
+    fieldName: 'widgetSettings.required',
+    widgetSettings: {
+      label: 'Required',
       default: false
     }
   }, {
@@ -139,7 +155,8 @@ export const DEFAULT_CONFIG_SECTION = [
   {
     fieldName: 'widgetSettings.defaultValue',
     widgetSettings: {
-      label: 'Default'
+      label: 'Default',
+      required: false
     }
   },
   {
@@ -150,3 +167,32 @@ export const DEFAULT_CONFIG_SECTION = [
     }
   }
 ];
+export const DEFAULT_FORM_CONFIG = [{
+  fieldName: 'labelSuffix',
+  widgetSettings: {
+    label: 'Label Suffix',
+    required: true
+  }
+}, {
+  widgetAlias: WIDGETS.number,
+  fieldName: 'labelWidth',
+  widgetSettings: {
+    label: 'Label Width',
+    required: true
+  }
+}, {
+  fieldName: 'labelPosition',
+  widgetSettings: {
+    label: 'Label Position'
+  },
+  widgetAlias: WIDGETS.select,
+  slot: {
+    options: [{
+      label: 'Left', value: 'left'
+    }, {
+      label: 'Right', value: 'right'
+    }, {
+      label: 'Top', value: 'top'
+    }]
+  }
+}];

@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 export class Engine {
+  static TRANSIENTS = ['transient', '__ob__', 'undefined'];
   static NOTIFICATION_TYPE = {
     SUCCESS: 'success',
     WARNING: 'warning',
@@ -48,54 +49,50 @@ export class Engine {
     return data.filter(record => !record.child);
   }
 
-  static transientProps = ['transient', '__ob__', 'undefined'];
-
   /** This will convert given object to a plain json object*/
-  static marshall(instance) {
-    if (typeof instance !== 'undefined' && instance !== null) {
-      if (typeof instance.marshall === 'function') {
-        return instance.marshall();
+  static marshall(object) {
+    if (object) {
+      if (typeof object.marshall === 'function') {
+        return object.marshall();
       }
-      if (typeof instance === 'object') {
-        let transients = this.transientProps;
-        if (Array.isArray(instance['transient'])) {
-          transients = transients.concat(instance['transient']);
+      if (typeof object === 'object') {
+        const marshalled = {};
+        let transients = this.TRANSIENTS;
+        if (Array.isArray(object['transient'])) {
+          transients = transients.concat(object['transient']);
         }
-        for (const key in instance) {
-          if (instance.hasOwnProperty(key) && typeof instance[key] !== 'function' && transients.indexOf(key) < 0) {
-            if (instance[key] && typeof instance[key].marshall === 'function') {
-              instance[key] = instance[key].marshall();
-            } else {
-              instance[key] = this.marshall(instance[key]);
-            }
+        for (const key in object) {
+          if (transients.indexOf(key) < 0) {
+            marshalled[key] = this.marshall(object[key]);
           }
         }
-        return instance;
-      } else if (Array.isArray(instance)) {
-        return instance.map(entry => this.marshall(entry));
-      } else if (instance instanceof Date) {
-        return new Date(instance.getTime());
+        return marshalled;
+      } else if (Array.isArray(object)) {
+        return object.map(entry => this.marshall(entry));
+      } else if (object instanceof Date) {
+        return new Date(object.getTime());
       }
     }
-    return instance;
+    return object;
   }
 
   /** This will populate given pojo to given instance*/
-  static unmarshall(instance, object) {
-    if (typeof object === 'string') {
-      object = JSON.parse(object);
-    }
+  static unmarshall(object, instance = {}) {
     if (typeof instance.unmarshall === 'function') {
       instance.unmarshall(object);
       return instance;
     }
     if (typeof object === 'object') {
+      let transients = this.TRANSIENTS;
+      if (Array.isArray(instance['transient'])) {
+        transients = transients.concat(instance['transient']);
+      }
       for (const key in object) {
-        if (typeof instance[key] !== 'undefined') {
-          if (instance[key] !== null && typeof instance[key].unmarshall === 'function') {
-            instance[key] = instance[key].unmarshall(object[key]);
+        if (typeof instance[key] !== 'undefined' && transients.indexOf(key) < 0) {
+          if (instance[key] && typeof instance[key].unmarshall === 'function') {
+            instance[key] = instance[key].unmarshall(object[key], instance[key]);
           } else {
-            instance[key] = object[key];
+            instance[key] = Engine.unmarshall(object[key], instance[key]);
           }
         }
       }
@@ -104,10 +101,11 @@ export class Engine {
       for (let i = 0; i < object.length; i++) {
         instance[i] = this.unmarshall(instance[i], object[i]);
       }
+      return instance;
     } else if (object instanceof Date) {
       return object.getTime();
     }
-    return instance;
+    return object;
   }
 
   static serialize(object) {
@@ -121,7 +119,9 @@ export class Engine {
   /** Clone given object by stringify and parsing it back*/
   static clone(object, useMarshalling = false, target = {}) {
     if (useMarshalling === true) {
-      return this.unmarshall(target, this.marshall(object));
+      const cloned = Object.assign(target, this.marshall(object));
+      // console.log('cloned ', object, ' as ', cloned);
+      return cloned;
     }
     return JSON.parse(JSON.stringify(object));
   }

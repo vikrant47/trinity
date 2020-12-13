@@ -84,6 +84,7 @@ function makeDataObject() {
     refInFor: true
   };
 }*/
+
 export default {
   name: 'Render',
   props: {
@@ -110,7 +111,8 @@ export default {
   },
   data() {
     return {
-      methods: this.widget.getMethods()
+      flag: true,
+      methods: this.widget.getMethods(),
     };
   },
   watch: {},
@@ -118,31 +120,21 @@ export default {
     this.widget.setRenderComponent(this);
     this.widget.mounted();
   },
-  render(h) {
+  render(createElement) {
     this.widget.setRenderComponent(this);
     // const formModel = Engine.clone(this.formModel);
     this.widget.setEvalContext(this.evalContext);
     this.widget.setFormModel(this.formModel);
     this.widget.beforeRender();
-    const widgetSettings = this.widget.widgetSettings;
-    let labelWidth = widgetSettings.labelWidth ? `${widgetSettings.labelWidth}px` : null;
-    if (widgetSettings.showLabel === false) labelWidth = '0';
     let template = null;
     if (this.wrapper === true) {
-      template = h('el-col', { attrs: { span: widgetSettings.span, vShow: widgetSettings.visible }}, [
-        h('el-form-item', {
-          attrs: {
-            labelWidth,
-            prop: this.widget.fieldName,
-            label: widgetSettings.showLabel ? widgetSettings.label : '',
-            required: widgetSettings.required
-          }
-        }, [
-          this.widget.componentRender(this, h)
+      template = createElement('el-col', this.widget.getWrapperConfig(), [
+        createElement('el-form-item', this.widget.getFormItemConfig(), [
+          this.widget.componentRender(this, createElement)
         ])
       ]);
     } else {
-      template = this.widget.componentRender(this, h);
+      template = this.widget.componentRender(this, createElement);
     }
     this.widget.afterRender();
     return template;

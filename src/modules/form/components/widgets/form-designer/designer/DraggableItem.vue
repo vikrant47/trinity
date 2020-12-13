@@ -47,7 +47,7 @@ const layouts = {
         }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} wrapper='false' widget={widgetInstance}
+          <render key={config.renderKey} wrapper = {false} widget={widgetInstance}
             form-model = {{}}
             field-name = {config.renderKey}
             onInput={event => {

@@ -7,8 +7,9 @@ import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 import _ from 'lodash';
 import { Engine } from '@/modules/engine/core/engine';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
+import { EngineObservable } from '@/modules/engine/core/engine.observable';
 
-export class BaseWidget {
+export class BaseWidget extends EngineObservable {
   static defaultPalletSettings = {
     label: 'Input',
     icon: 'input'
@@ -66,6 +67,11 @@ export class BaseWidget {
   fieldSettings = {};
   widgetSettings = {};
   configSection = {
+    labelSuffix: '',
+    labelWidth: '100',
+    labelPosition: 'right',
+    formModel: 'formModel', // name of the for model key
+    formRules: 'formRules',
     model: {},
     widgets: [],
     rules: {} // will store all error messages
@@ -74,18 +80,27 @@ export class BaseWidget {
   renderComponent; // reference of render component
   componentConfig = {};// final component config
   evalContext = {};// context to store variable for evaluations
+  formItemConfig = {};
+  wrapperConfig = {};
+  engineForm;
+  data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
    * Moving initialization to init
    * */
   constructor() {
+    super();
     // Object.assign(this, settings);
     this.widgetClass = this.constructor.name;
     this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.getFieldSettings());
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.getPalletSettings());
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.getWidgetSettings());
     this.unmarshall({});
+  }
+
+  setEngineForm(engineForm) {
+    this.engineForm = engineForm;
   }
 
   getFieldName() {
@@ -145,7 +160,7 @@ export class BaseWidget {
     if (this.formModel) {
       const value = this.getValue();
       if (typeof value === 'undefined') {
-        console.warn('Unable to update value for field name ', this.fieldName, this);
+        console.warn('Unable to update value for fieldName ', this.fieldName, this);
       }
       if (this.componentConfig.attrs) {
         this.componentConfig.attrs.value = value;
@@ -155,7 +170,7 @@ export class BaseWidget {
 
   setFieldName(fieldName) {
     this.fieldName = fieldName;
-    this.updateValue();
+    // this.updateValue();
   }
 
   setFormModel(formModel) {
@@ -215,9 +230,11 @@ export class BaseWidget {
   getSection() {
     return 'Primary';
   }
-
+  setData(data) {
+    this.data = data;
+  }
   getData() {
-    return {};
+    return this.data;
   }
 
   registerEvents() {
@@ -250,32 +267,65 @@ export class BaseWidget {
     }, []);
   }
 
-  getComponentConfig(component) {
-    const fieldSettings = this.fieldSettings;
+  getWrapperConfig() {
+    Object.assign(this.wrapperConfig, {
+      attrs: {
+        span: this.widgetSettings.span,
+      },
+      style: {
+        display: this.widgetSettings.visible ? 'block' : 'none'
+      }
+    });
+    return this.wrapperConfig;
+  }
+
+  getFormItemConfig() {
+    let labelWidth = this.widgetSettings.labelWidth ? `${this.widgetSettings.labelWidth}px` : null;
+    if (this.widgetSettings.showLabel === false) labelWidth = '0';
+    Object.assign(this.formItemConfig, {
+      attrs: {
+        labelWidth: labelWidth,
+        prop: this.fieldName,
+        label: this.widgetSettings.showLabel ? this.widgetSettings.label : '',
+        required: this.widgetSettings.required
+      }
+    });
+    return this.formItemConfig;
+  }
+
+  getComponentConfig() {
+    const widgetSettings = Engine.clone(this.widgetSettings, true);
+    const fieldSettings = Engine.clone(this.fieldSettings, true);
     fieldSettings.name = this.fieldName;
-    const config = Object.assign({ attrs: fieldSettings, on: {}}, Engine.clone(this.widgetSettings));
+    Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
     fieldSettings.value = _.get(this.formModel, this.fieldName);
-
-    config.on.input = val => {
+    if (typeof fieldSettings.value === 'undefined') {
+      fieldSettings.value = widgetSettings.defaultValue;
+    }
+    this.componentConfig.on.input = val => {
       this.getMethods(); // TODO: remove this - just reference for debugging
-      component.$emit('input', val);
+      this.renderComponent.$emit('input', val);
     };
-    Object.assign(config.on, this.getEvents());
+    Object.assign(this.componentConfig.on, this.getEvents());
     // console.log('setting value for field ', this.fieldName, this.formModel, config);
-    this.componentConfig = config;
     return this.componentConfig;
   }
 
   /** This will trigger the update event to parent components*/
   update() {
+    this.getWrapperConfig(); // updating the configs
+    this.getFormItemConfig();// updating the configs
     this.renderComponent.$emit('widgetUpdate', this);
+    return this;
   }
+
   /** set render component instance*/
   setRenderComponent(renderComponent) {
     this.renderComponent = renderComponent;
   }
+
   setEvalContext(evalContext) {
     this.evalContext = evalContext;
   }
@@ -289,7 +339,7 @@ export class BaseWidget {
 
   handleTriggers() {
     let triggers = this.widgetSettings.triggers;
-    if (triggers) {
+    if (triggers && triggers.length) {
       if (!Array.isArray(triggers)) {
         triggers = [triggers];
       }
@@ -309,18 +359,19 @@ export class BaseWidget {
   }
 
   beforeRender() {
+    this.handleTriggers();
   }
 
   afterRender() {
-    this.handleTriggers();
+
   }
 
   beforeCreate(component) {
     // component.widget.applyConfig(component.config);
   }
 
-  componentRender(component, h) {
-    return h('el-input', this.getComponentConfig(component), this.getChildren(h));
+  componentRender(component, createElement) {
+    return createElement('el-input', this.getComponentConfig(), this.getChildren(createElement));
   }
 
   getMethods() {

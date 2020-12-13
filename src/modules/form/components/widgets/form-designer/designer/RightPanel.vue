@@ -4,6 +4,7 @@ import Parser from '../render/Parser';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 // Make the change Render Key available when the target component changes
+import { Engine } from '@/modules/engine/core/engine';
 
 export default {
   name: 'RightPanel',
@@ -64,14 +65,31 @@ export default {
   mounted() {
 
   },
-  render(h) {
+  methods: {
+    handleTabClick(tab, event) {
+
+    }
+  },
+  render(createElement) {
     const { currentTab } = this;
     // const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     activeWidget.loadConfigForConfigSection();
-    const engineForm = new EngineForm();
-    engineForm.setFormConfig(activeWidget.configSection);
-    engineForm.setRecord(this.formModel);
+    const widgetConfigForm = new EngineForm();
+    widgetConfigForm.setFormConfig(activeWidget.configSection);
+    widgetConfigForm.setRecord(this.formModel);
+    /* const formConfigForm = new EngineForm();
+    formConfigForm.setFormConfig({
+      labelSuffix: '',
+      labelWidth: '100',
+      labelPosition: 'right',
+      widgets: DEFAULT_FORM_CONFIG.map(conf => new FormWidgetService().getWidgetInstance(
+        Object.assign({
+          widgetAlias: 'input'
+        }, conf)))
+    });
+    formConfigForm.setRecord(activeWidget.configSection);*/
+    const evalContext = { activeWidget: Engine.clone(activeWidget) };
     return <div class='right-board'>
       <el-tabs v-model={currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'/>
@@ -79,7 +97,8 @@ export default {
       </el-tabs>
       <div class='field-box'>
         <el-scrollbar class='right-scrollbar'>
-          {h(Parser, { props: { engineForm: engineForm, evalContext: { activeWidget: activeWidget }}})}
+          {createElement(Parser, { props: { engineForm: widgetConfigForm, evalContext: evalContext }})}
+          {/* createElement(Parser, { props: { engineForm: formConfigForm, evalContext: { evalContext: evalContext }}})*/}
         </el-scrollbar>
       </div>
     </div>;
@@ -104,7 +123,7 @@ export default {
 
 .field-box {
   position: relative;
-  height: 68%;
+  height: 80%;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   overflow-x: hidden;

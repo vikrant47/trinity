@@ -9,15 +9,14 @@ export default class SelectWidget extends BaseWidget {
   }
 
   constructor(settings = {}) {
-    settings = Object.assign({
+    super(Object.assign({
       multiple: false,
       collapseTags: false,
       clearable: true,
       filterable: true,
       allowCreate: false,
       defaultFirstOption: false
-    }, settings);
-    super(settings);
+    }, settings));
   }
 
   options(h, key) {

@@ -22,9 +22,6 @@ export class EngineForm extends AsyncEventObservable {
   };
   settings = {
     recordId: 'new',
-    formConfig: {
-      tabs: []
-    },
     showLoader: true,
     loaderDelay: 30
   };
@@ -36,7 +33,9 @@ export class EngineForm extends AsyncEventObservable {
   constructor(settings) {
     super();
     this.settings = Object.assign(this.settings, settings);
-    this.definition.form.config = this.settings.formConfig;
+    if (this.settings.formConfig) {
+      this.definition.form.config = this.settings.formConfig;
+    }
     this.registerEvents();
   }
 
