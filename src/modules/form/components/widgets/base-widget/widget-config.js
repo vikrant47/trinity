@@ -1,5 +1,4 @@
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
-import _ from 'lodash';
 
 export const ITEM_LAYOUT = {
   colFormItem: 'colFormItem',
@@ -8,36 +7,59 @@ export const ITEM_LAYOUT = {
 export const DEFAULT_CONFIG_SECTION = [
   {
     widgetAlias: WIDGETS.select,
-    fieldName: 'widgetAlias',
+    fieldName: 'type',
     fieldSettings: {
-      placeholder: 'Please Select Widget'
+      placeholder: 'Please Select Type'
     },
     widgetSettings: {
-      label: 'Widget',
+      label: 'Type',
       widgetIcon: 'select',
-      defaultValue: 'string',
-      required: true
+      defaultValue: 'text',
+      required: true,
+      triggers: [{
+        action: 'show',
+        condition: '${activeWidget.widgetAlias===\'input\'}'
+      }],
+      visible: false
     },
     slot: {
-      options: Object.keys(WIDGETS).map((widgetName) => {
-        return {
-          label: _.camelCase(WIDGETS[widgetName]),
-          value: widgetName
-        };
-      })
+      options: [{
+        label: 'Single Line Text',
+        value: 'text'
+      }, {
+        label: 'Multiline Text',
+        value: 'textarea'
+      }, {
+        label: 'Password',
+        value: 'password'
+      }]
     }
   }, {
     fieldName: 'fieldName',
+    widgetAlias: WIDGETS.reference,
     widgetSettings: {
       label: 'Name',
+      required: true,
+      targetModel: 'engine_fields',
+      key: 'id',
+      displayField: 'name',
+      where: {
+        model: '${form.model}'
+      }
+    }
+  }, {
+    fieldName: 'widgetSettings.label',
+    widgetAlias: WIDGETS.input,
+    widgetSettings: {
+      label: 'Label',
       required: true
     }
   }, {
     fieldName: 'fieldSettings.title',
-    widgetAlias: WIDGETS.reference,
+    widgetAlias: WIDGETS.input,
     widgetSettings: {
       label: 'Title',
-      required: true
+      required: false
     }
   }, {
     fieldName: 'fieldSettings.placeholder',
@@ -78,25 +100,34 @@ export const DEFAULT_CONFIG_SECTION = [
     }
   },
   {
-    fieldName: 'fieldSettings.span',
+    fieldName: 'widgetSettings.span',
     widgetAlias: WIDGETS.number,
     widgetSettings: {
       label: 'Span',
       min: 0,
-      max: 12
+      max: 100
     }
   },
   {
     fieldName: 'fieldSettings.icon',
+    widgetAlias: WIDGETS.icon,
     widgetSettings: {
       label: 'Icon'
     }
   },
   {
-    label: 'Required',
     widgetAlias: WIDGETS.switch,
-    fieldName: 'fieldSettings.required',
+    fieldName: 'fieldSettings.disabled',
     widgetSettings: {
+      label: 'Disabled',
+      default: false
+    }
+  },
+  {
+    widgetAlias: WIDGETS.switch,
+    fieldName: 'widgetSettings.required',
+    widgetSettings: {
+      label: 'Required',
       default: false
     }
   }, {
@@ -124,7 +155,8 @@ export const DEFAULT_CONFIG_SECTION = [
   {
     fieldName: 'widgetSettings.defaultValue',
     widgetSettings: {
-      label: 'Default'
+      label: 'Default',
+      required: false
     }
   },
   {
@@ -135,3 +167,32 @@ export const DEFAULT_CONFIG_SECTION = [
     }
   }
 ];
+export const DEFAULT_FORM_CONFIG = [{
+  fieldName: 'labelSuffix',
+  widgetSettings: {
+    label: 'Label Suffix',
+    required: true
+  }
+}, {
+  widgetAlias: WIDGETS.number,
+  fieldName: 'labelWidth',
+  widgetSettings: {
+    label: 'Label Width',
+    required: true
+  }
+}, {
+  fieldName: 'labelPosition',
+  widgetSettings: {
+    label: 'Label Position'
+  },
+  widgetAlias: WIDGETS.select,
+  slot: {
+    options: [{
+      label: 'Left', value: 'left'
+    }, {
+      label: 'Right', value: 'right'
+    }, {
+      label: 'Top', value: 'top'
+    }]
+  }
+}];

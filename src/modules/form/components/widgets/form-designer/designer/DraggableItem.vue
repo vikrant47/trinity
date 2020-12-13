@@ -20,7 +20,7 @@ const components = {
         <i class='el-icon-delete'/>
       </span>,
       <span class='drawing-item-config' title='Configurations' onClick={event => {
-        showConfig(index, list);
+        showConfig(currentWidget, list);
         event.stopPropagation();
       }}>
         <i class='el-icon-setting'/>
@@ -31,8 +31,9 @@ const components = {
 const layouts = {
   colFormItem(h, currentWidget, index, list) {
     const widgetInstance = new FormWidgetService().getWidgetInstance(currentWidget);
+    widgetInstance.designMode = true;
     const { activeWidget } = this.$listeners;
-    const config = currentWidget.widgetSettings;
+    const config = widgetInstance.widgetSettings;
     const child = renderChildren.apply(this, arguments);
     let className = this.activeId === config.formId ? 'drawing-item active-from-item' : 'drawing-item';
     if (this.formConf.unFocusedComponentBorder) className += ' unfocus-bordered';
@@ -46,11 +47,11 @@ const layouts = {
         }}>
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
-          <render key={config.renderKey} widget={widgetInstance}
+          <render key={config.renderKey} wrapper = {false} widget={widgetInstance}
             form-model = {{}}
             field-name = {config.renderKey}
             onInput={event => {
-              this.$set(config, 'defaultValue', event);
+              this.$set(widgetInstance.widgetSettings, 'defaultValue', event);
             }}>
             {child}
           </render>

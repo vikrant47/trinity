@@ -10,6 +10,20 @@ export default class FormDesignerWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h(FormDesigner, this.getComponentConfig(component), this.getChildren());
+    if (this.designMode) {
+      return h('div', {
+        domProps: {
+          innerHTML: '<h3>Form Designer</h3>'
+        },
+        class: {
+
+        },
+        style: {
+          width: '500px'
+        }
+      });
+    } else {
+      return h(FormDesigner, this.getComponentConfig(component), this.getChildren());
+    }
   }
 }

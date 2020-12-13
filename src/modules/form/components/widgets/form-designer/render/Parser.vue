@@ -17,7 +17,6 @@ const ruleTrigger = {
   'el-date-picker': 'change',
   'el-rate': 'change'
 };
-
 const layouts = {
   colFormItem(h, widget) {
     /* if (!(widget instanceof BaseWidget)) {
@@ -25,18 +24,19 @@ const layouts = {
     }
     widget.setFormModel(this.formModel);*/
     const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
-    const config = widget.widgetSettings;
+    this.engineForm.addWidgetRef(widgetInstance);
+    widgetInstance.setEngineForm(this.engineForm);
+    widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
     const listeners = buildListeners.call(this, widget);
-
-    let labelWidth = config.labelWidth ? `${config.labelWidth}px` : null;
-    if (config.showLabel === false) labelWidth = '0';
     return (
-      <el-col span={config.span}>
-        <el-form-item label-width={labelWidth} prop={widget.fieldName}
-          label={config.showLabel ? config.label : ''} required={config.required}>
-          <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}/>
-        </el-form-item>
-      </el-col>
+      <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}
+        eval-context={this.evalContext}/>
+      /* <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
+          <el-form-item label-width={labelWidth} prop={widget.fieldName}
+            label={widgetSettings.showLabel ? widgetSettings.label : ''} required={widgetSettings.required}>
+            <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData} eval-context={this.evalContext} />
+          </el-form-item>
+        </el-col>*/
     );
   },
   rowFormItem(h, widget) {
@@ -116,6 +116,11 @@ function setValue(event, config, widget) {
   }
 }
 
+function setWidgetData(event, config, widget) {
+  this.$set(this.widgetData, widget.fieldName, event);
+  // this.$set(this, 'formKey', new Date().getTime());// forcing re-render
+}
+
 function buildListeners(widget) {
   const config = widget.widgetSettings;
   const methods = this.formConf.__methods__ || {};
@@ -127,6 +132,7 @@ function buildListeners(widget) {
   });
   // response render.js Neutral vModel $emit('input', val)
   listeners.input = event => setValue.call(this, event, config, widget);
+  listeners['widget-data'] = event => setWidgetData.call(this, event, config, widget);
 
   return listeners;
 }
@@ -140,10 +146,17 @@ export default {
     engineForm: {
       type: EngineForm,
       required: true
+    },
+    evalContext: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
   data() {
     return {
+      widgetData: {},
       formData: this.engineForm.getRecord(),
       formConf: this.engineForm.getFormConfig()
     };
