@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import { WidgetTypes } from '@/modules/form/components/widgets/base-widget/widget-types';
+import { Engine } from '@/modules/engine/core/engine';
 
 export class FormWidgetService {
   widgetInstances = {};
@@ -114,7 +115,9 @@ export class FormWidgetService {
     if (Widget === null) {
       throw new Error('Invalid json,No matching widgetAlias / widgetClass found');
     }
-    const widget = new Widget().unmarshall(widgetJSON);
+    widgetJSON = Engine.clone(widgetJSON);
+    const widget = Engine.unmarshall(widgetJSON, new Widget());
+    // console.log('unmarshelled ', widgetJSON, ' into ', widget);
     /* if (loadConfigSection === true) {
       widgetJSON.loadConfigForConfigSection();
     }*/

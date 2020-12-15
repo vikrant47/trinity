@@ -113,6 +113,7 @@ export default {
     return {
       flag: true,
       methods: this.widget.getMethods(),
+      render: { key: new Date().getTime() },
     };
   },
   watch: {},

@@ -2,43 +2,15 @@ import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-w
 import { RestQuery } from '@/modules/engine/services/rest.query';
 
 export default class ReferenceWidget extends BaseWidget {
-  fetchSuggestions(queryString, cb) {
-    return cb([
-      { 'value': 'vue', 'link': 'https://github.com/vuejs/vue' },
-      { 'value': 'element', 'link': 'https://github.com/ElemeFE/element' },
-      { 'value': 'cooking', 'link': 'https://github.com/ElemeFE/cooking' },
-      { 'value': 'mint-ui', 'link': 'https://github.com/ElemeFE/mint-ui' },
-      { 'value': 'vuex', 'link': 'https://github.com/vuejs/vuex' },
-      { 'value': 'vue-router', 'link': 'https://github.com/vuejs/vue-router' },
-      { 'value': 'babel', 'link': 'https://github.com/babel/babel' }
-    ]);
-  }
+  loading = false;
 
-  getPalletSettings() {
-    return {
-      label: 'Reference',
-      icon: 'reference'
-    };
-  }
+  palletSettings = {
+    label: 'Reference',
+    icon: 'reference'
+  };
 
   constructor(settings = {}) {
     super(settings);
-  }
-
-  prefix(h, key) {
-    return `<template slot="prefix">${this.slot[key]}</template>`;
-  }
-
-  suffix(h, key) {
-    return `<template slot="suffix">${this.slot[key]}</template>`;
-  }
-
-  prepend(h, key) {
-    return `<template slot="prepend">${this.slot[key]}</template>`;
-  }
-
-  append(h, key) {
-    return `<template slot="append">${this.slot[key]}</template>`;
   }
 
   getEvents() {
@@ -49,19 +21,44 @@ export default class ReferenceWidget extends BaseWidget {
     };
   }
 
-  getFieldSettings() {
+  options(h, key) {
+    const list = [];
+    this.slot.options.forEach(item => {
+      list.push(<el-option label={item.label} value={item.value} disabled={item.disabled}/>);
+    });
+    return list;
+  }
+
+  overrideFieldSettings(fieldSettings) {
     const _this = this;
-    return {
-      async 'fetch-suggestions'(queryString, cb) {
+    return Object.assign(fieldSettings, {
+      async 'remoteMethod'(queryString) {
+        _this.renderComponent.$set(fieldSettings, 'loading', true);
         const data = await new RestQuery(_this.widgetSettings.targetModel).findAll({
+          where: {
+            [_this.widgetSettings.displayField]: {
+              '$regex': queryString
+            }
+          },
           fields: [_this.widgetSettings.key, _this.widgetSettings.displayField]
         });
-        cb(data.map(rec => { return { value: rec[_this.widgetSettings.displayField] }; }));
-      }
-    };
+        _this.renderComponent.$set(_this.slot, 'options', data.map(rec => {
+          return {
+            label: rec[_this.widgetSettings.displayField],
+            value: rec[_this.widgetSettings.key]
+          };
+        }));
+        fieldSettings.loading = false;
+        _this.repaint();
+      },
+      filterable: true,
+      remote: true,
+      reserveKeyword: true,
+      loading: _this.loading
+    });
   }
 
   componentRender(component, h) {
-    return h('el-autocomplete', this.getComponentConfig(component), this.getChildren());
+    return h('el-select', this.getComponentConfig(component), this.getChildren(h));
   }
 }

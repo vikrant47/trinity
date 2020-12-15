@@ -1,23 +1,18 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 
 export default class SelectWidget extends BaseWidget {
-  getPalletSettings() {
-    return {
-      label: 'Select',
-      icon: 'select'
-    };
-  }
-
-  constructor(settings = {}) {
-    super(Object.assign({
-      multiple: false,
-      collapseTags: false,
-      clearable: true,
-      filterable: true,
-      allowCreate: false,
-      defaultFirstOption: false
-    }, settings));
-  }
+  palletSettings = {
+    label: 'Select',
+    icon: 'select'
+  };
+  fieldSettings = {
+    multiple: false,
+    collapseTags: false,
+    clearable: true,
+    filterable: true,
+    allowCreate: false,
+    defaultFirstOption: false
+  };
 
   options(h, key) {
     const list = [];

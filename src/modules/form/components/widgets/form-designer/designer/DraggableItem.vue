@@ -48,9 +48,10 @@ const layouts = {
         <el-form-item label-width={labelWidth}
           label={config.showLabel ? config.label : ''} required={config.required}>
           <render key={config.renderKey} wrapper = {false} widget={widgetInstance}
-            form-model = {{}}
+            form-model = {this.formModel}
             field-name = {config.renderKey}
             onInput={event => {
+              this.$set(this.formModel, widgetInstance.fieldName, event);
               this.$set(widgetInstance.widgetSettings, 'defaultValue', event);
             }}>
             {child}
@@ -149,6 +150,11 @@ export default {
       type: Object,
       required: true
     }
+  },
+  data() {
+    return {
+      formModel: {}
+    };
   },
   render(h) {
     const layout = layouts[this.currentWidget.widgetSettings.layout];
