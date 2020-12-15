@@ -10,7 +10,7 @@ import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
 
 export class BaseWidget extends EngineObservable {
-  static defaultPalletSettings = {
+  static defaultpalletSettings = {
     label: 'Input',
     icon: 'input'
   };
@@ -93,10 +93,9 @@ export class BaseWidget extends EngineObservable {
     super();
     // Object.assign(this, settings);
     this.widgetClass = this.constructor.name;
-    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.getFieldSettings());
-    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.getPalletSettings());
-    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.getWidgetSettings());
-    this.unmarshall({});
+    this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings);
+    this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
+    this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
   }
 
   setEngineForm(engineForm) {
@@ -114,46 +113,16 @@ export class BaseWidget extends EngineObservable {
     return this.events;
   }
 
-  getFieldSettings() {
-    return {};
+  overrideFieldSettings(fieldSettings) {
+    return fieldSettings;
   }
 
-  getPalletSettings() {
-    return {};
+  overridePalletSettings(palletSettings) {
+    return palletSettings;
   }
 
-  getWidgetSettings() {
+  overrideWidgetSettings() {
     return {};
-  }
-
-  /**
-   * */
-  unmarshall(settings = {}) {
-    if (settings.widgetAlias) {
-      this.widgetAlias = settings.widgetAlias;
-    }
-    if (settings.fieldName) {
-      this.fieldName = settings.fieldName;
-    }
-    if (settings.slot) {
-      this.slot = settings.slot;
-    }
-    if (settings.children) {
-      this.children = settings.children;
-    }
-    Object.assign(this.fieldSettings, settings.fieldSettings);
-    Object.assign(this.palletSettings, settings.palletSettings);
-    Object.assign(this.widgetSettings, settings.widgetSettings);
-    if (!this.widgetSettings.label) {
-      this.widgetSettings.label = this.palletSettings.label;
-    }
-    if (settings.formModel) {
-      this.setFormModel(settings.formModel);
-    }
-    if (!this.fieldSettings.placeholder) {
-      this.fieldSettings.placeholder = 'Please Enter ' + (this.widgetSettings.label ? this.widgetSettings.label : 'Value');
-    }
-    return this;
   }
 
   updateValue() {
@@ -230,9 +199,11 @@ export class BaseWidget extends EngineObservable {
   getSection() {
     return 'Primary';
   }
+
   setData(data) {
     this.data = data;
   }
+
   getData() {
     return this.data;
   }
@@ -270,7 +241,7 @@ export class BaseWidget extends EngineObservable {
   getWrapperConfig() {
     Object.assign(this.wrapperConfig, {
       attrs: {
-        span: this.widgetSettings.span,
+        span: this.widgetSettings.span
       },
       style: {
         display: this.widgetSettings.visible ? 'block' : 'none'
@@ -296,6 +267,8 @@ export class BaseWidget extends EngineObservable {
   getComponentConfig() {
     const widgetSettings = Engine.clone(this.widgetSettings, true);
     const fieldSettings = Engine.clone(this.fieldSettings, true);
+    this.overrideFieldSettings(fieldSettings);
+    this.overrideWidgetSettings(widgetSettings);
     fieldSettings.name = this.fieldName;
     Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
@@ -320,7 +293,11 @@ export class BaseWidget extends EngineObservable {
     this.renderComponent.$emit('widgetUpdate', this);
     return this;
   }
-
+  /** Force re-rendering of render component*/
+  repaint() {
+    this.renderComponent.$set(this.renderComponent.render, 'key', new Date().getTime());
+    this.renderComponent.$forceUpdate();
+  }
   /** set render component instance*/
   setRenderComponent(renderComponent) {
     this.renderComponent = renderComponent;

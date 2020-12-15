@@ -55,7 +55,9 @@ export class Engine {
       if (typeof object.marshall === 'function') {
         return object.marshall();
       }
-      if (typeof object === 'object') {
+      if (Array.isArray(object)) {
+        return object.map(entry => this.marshall(entry));
+      } else if (typeof object === 'object') {
         const marshalled = {};
         let transients = this.TRANSIENTS;
         if (Array.isArray(object['transient'])) {
@@ -67,8 +69,6 @@ export class Engine {
           }
         }
         return marshalled;
-      } else if (Array.isArray(object)) {
-        return object.map(entry => this.marshall(entry));
       } else if (object instanceof Date) {
         return new Date(object.getTime());
       }
@@ -78,34 +78,36 @@ export class Engine {
 
   /** This will populate given pojo to given instance*/
   static unmarshall(object, instance = {}) {
-    if (typeof instance.unmarshall === 'function') {
-      instance.unmarshall(object);
-      return instance;
+    // null, undefined, non-object, function
+    if (!object || typeof object !== 'object') {
+      return object;
     }
-    if (typeof object === 'object') {
-      let transients = this.TRANSIENTS;
-      if (Array.isArray(instance['transient'])) {
-        transients = transients.concat(instance['transient']);
+    if (instance) {
+      if (typeof instance.unmarshall === 'function') {
+        instance.unmarshall(object);
+        return instance;
       }
-      for (const key in object) {
-        if (typeof instance[key] !== 'undefined' && transients.indexOf(key) < 0) {
-          if (instance[key] && typeof instance[key].unmarshall === 'function') {
-            instance[key] = instance[key].unmarshall(object[key], instance[key]);
-          } else {
+      if (Array.isArray(object)) {
+        const unmarshalled = [];
+        for (let i = 0; i < object.length; i++) {
+          unmarshalled[i] = this.unmarshall(object[i], instance[i]);
+        }
+        return unmarshalled;
+      } else if (typeof object === 'object') {
+        let transients = this.TRANSIENTS;
+        if (Array.isArray(instance['transient'])) {
+          transients = transients.concat(instance['transient']);
+        }
+        for (const key in object) {
+          if (typeof object[key] !== 'undefined' && transients.indexOf(key) < 0) {
             instance[key] = Engine.unmarshall(object[key], instance[key]);
           }
         }
+        return instance;
       }
-      return instance;
-    } else if (Array.isArray(object)) {
-      for (let i = 0; i < object.length; i++) {
-        instance[i] = this.unmarshall(instance[i], object[i]);
-      }
-      return instance;
-    } else if (object instanceof Date) {
-      return object.getTime();
+      return object;
     }
-    return object;
+    return JSON.parse(JSON.stringify(object));
   }
 
   static serialize(object) {

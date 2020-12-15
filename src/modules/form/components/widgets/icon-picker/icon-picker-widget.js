@@ -2,12 +2,10 @@ import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-w
 import IconsDialog from '@/modules/form/components/widgets/icon-picker/IconsDialog';
 
 export default class IconPickerWidget extends BaseWidget {
-  getPalletSettings() {
-    return {
-      label: 'Icon',
-      icon: 'icon'
-    };
-  }
+  palletSettings = {
+    label: 'Icon',
+    icon: 'icon'
+  };
 
   componentRender(component, h) {
     const iconDialogConf = {
