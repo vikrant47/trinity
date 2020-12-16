@@ -41,7 +41,7 @@ export const DEFAULT_CONFIG_SECTION = [
       label: 'Name',
       required: true,
       targetModel: 'engine_fields',
-      key: 'id',
+      key: 'code',
       displayField: 'name',
       where: {
         model: '${form.model}'

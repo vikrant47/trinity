@@ -10,7 +10,7 @@ import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
 
 export class BaseWidget extends EngineObservable {
-  static defaultpalletSettings = {
+  static defaultPalletSettings = {
     label: 'Input',
     icon: 'input'
   };
@@ -155,13 +155,17 @@ export class BaseWidget extends EngineObservable {
     return _.get(this.formModel, this.fieldName);
   }
 
-  setValue(value) {
-    _.set(this.formModel, this.fieldName, value);
-    this.updateValue();
-    if (this.renderComponent) {
-      // this.component.$emit('input', value); // setting value in form-item by emitting input event
-    } else {
-      console.warn('Unable to emit value. No render component reference found in widget', this);
+  setValue(value, repaint = true) {
+    if (typeof value !== 'undefined' && this.fieldName && this.renderComponent) {
+      if (this.fieldName.indexOf('.') > 0) {
+        const result = TemplateEngine.walk(this.fieldName, this.renderComponent.formModel, -1);
+        this.renderComponent.$set(result.value, result.prop, value);
+      }
+      this.renderComponent.$set(this.renderComponent.formModel, this.fieldName, value);
+      if (repaint) {
+        this.repaint();
+        this.renderComponent.$emit('input', value);
+      }
     }
   }
 
@@ -177,7 +181,8 @@ export class BaseWidget extends EngineObservable {
 
   clone() {
     const marshalledWidget = this.marshall();
-    return new this.constructor().unmarshall(Engine.clone(marshalledWidget));
+    const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
+    return new FormWidgetService().getWidgetInstance(marshalledWidget);
   }
 
   getConfigSectionFields() {
@@ -263,7 +268,19 @@ export class BaseWidget extends EngineObservable {
     });
     return this.formItemConfig;
   }
-
+  unmarshall(source, unmarshall) {
+    if (source.fieldSettings) {
+      if (!source.fieldSettings.placeholder) {
+        source.fieldSettings.placeholder = 'Please Enter ' + (source.widgetSettings.label ? source.widgetSettings.label : 'Value');
+      }
+    }
+    if (source.widgetSettings) {
+      if (!source.widgetSettings.label) {
+        source.widgetSettings.label = this.palletSettings.label;
+      }
+    }
+    return false;
+  }
   getComponentConfig() {
     const widgetSettings = Engine.clone(this.widgetSettings, true);
     const fieldSettings = Engine.clone(this.fieldSettings, true);
@@ -278,8 +295,11 @@ export class BaseWidget extends EngineObservable {
       fieldSettings.value = widgetSettings.defaultValue;
     }
     this.componentConfig.on.input = val => {
-      this.getMethods(); // TODO: remove this - just reference for debugging
-      this.renderComponent.$emit('input', val);
+      // this.getMethods(); // TODO: remove this - just reference for debugging
+      // this.renderComponent.$emit('input', val);
+      if (typeof val !== 'undefined') {
+        this.setValue(val);
+      }
     };
     Object.assign(this.componentConfig.on, this.getEvents());
     // console.log('setting value for field ', this.fieldName, this.formModel, config);
@@ -293,11 +313,13 @@ export class BaseWidget extends EngineObservable {
     this.renderComponent.$emit('widgetUpdate', this);
     return this;
   }
+
   /** Force re-rendering of render component*/
   repaint() {
     this.renderComponent.$set(this.renderComponent.render, 'key', new Date().getTime());
     this.renderComponent.$forceUpdate();
   }
+
   /** set render component instance*/
   setRenderComponent(renderComponent) {
     this.renderComponent = renderComponent;

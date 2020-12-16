@@ -33,7 +33,7 @@ export default class ReferenceWidget extends BaseWidget {
     const _this = this;
     return Object.assign(fieldSettings, {
       async 'remoteMethod'(queryString) {
-        _this.renderComponent.$set(fieldSettings, 'loading', true);
+        fieldSettings.loading = true;
         const data = await new RestQuery(_this.widgetSettings.targetModel).findAll({
           where: {
             [_this.widgetSettings.displayField]: {
@@ -54,7 +54,7 @@ export default class ReferenceWidget extends BaseWidget {
       filterable: true,
       remote: true,
       reserveKeyword: true,
-      loading: _this.loading
+      loading: false
     });
   }
 

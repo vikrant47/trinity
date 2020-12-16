@@ -5,6 +5,7 @@ import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
+import { Engine } from '@/modules/engine/core/engine';
 
 const ruleTrigger = {
   'el-input': 'blur',
@@ -19,6 +20,7 @@ const ruleTrigger = {
 };
 const layouts = {
   colFormItem(h, widget) {
+    const formData = Engine.clone(this.formData); // todo : make it better , we only need value against field name
     /* if (!(widget instanceof BaseWidget)) {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
@@ -29,7 +31,7 @@ const layouts = {
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
     const listeners = buildListeners.call(this, widget);
     return (
-      <render widget={widgetInstance} {...{ on: listeners }} form-model={this.formData}
+      <render widget={widgetInstance} {...{ on: listeners }} form-model={formData}
         eval-context={this.evalContext}/>
       /* <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
           <el-form-item label-width={labelWidth} prop={widget.fieldName}
@@ -40,15 +42,16 @@ const layouts = {
     );
   },
   rowFormItem(h, widget) {
+    const widgetSettings = widget.widgetSettings;
     let child = renderChildren.apply(this, arguments);
-    if (widget.type === 'flex') {
-      child = <el-row type={widget.type} justify={widget.justify} align={widget.align}>
+    if (widgetSettings.type === 'flex') {
+      child = <el-row type={widgetSettings.type} justify={widgetSettings.justify} align={widgetSettings.align}>
         {child}
       </el-row>;
     }
     return (
-      <el-col span={widget.span}>
-        <el-row gutter={widget.gutter}>
+      <el-col span={widgetSettings.span}>
+        <el-row gutter={widgetSettings.gutter}>
           {child}
         </el-row>
       </el-col>
@@ -113,6 +116,7 @@ function setValue(event, config, widget) {
       this.$set(result.value, result.prop, event);
     }
     this.$set(this.formData, widget.fieldName, event);
+    this.$emit('fieldInput', widget);
   }
 }
 
