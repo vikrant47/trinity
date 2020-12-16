@@ -51,9 +51,20 @@ export class Engine {
 
   /** This will convert given object to a plain json object*/
   static marshall(object) {
+    // null, undefined, non-object, function
+    if (!object || typeof object !== 'object') {
+      return object;
+    }
+    // DOM Node
+    if (object.nodeType && 'cloneNode' in object) {
+      return object.cloneNode(true);
+    }
     if (object) {
       if (typeof object.marshall === 'function') {
-        return object.marshall();
+        const marshalled = object.marshall(); // must return an object otherwise return false if cant handled
+        if (marshalled !== false) {
+          return marshalled;
+        }
       }
       if (Array.isArray(object)) {
         return object.map(entry => this.marshall(entry));
@@ -82,10 +93,16 @@ export class Engine {
     if (!object || typeof object !== 'object') {
       return object;
     }
+    // DOM Node
+    if (object.nodeType && 'cloneNode' in object) {
+      return object.cloneNode(true);
+    }
     if (instance) {
       if (typeof instance.unmarshall === 'function') {
-        instance.unmarshall(object);
-        return instance;
+        const unmarshalled = instance.unmarshall(object);
+        if (unmarshalled !== false) { // will be returned true if all handled by instance
+          return instance;
+        }
       }
       if (Array.isArray(object)) {
         const unmarshalled = [];

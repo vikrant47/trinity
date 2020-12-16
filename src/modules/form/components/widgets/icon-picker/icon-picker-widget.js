@@ -8,6 +8,7 @@ export default class IconPickerWidget extends BaseWidget {
   };
 
   componentRender(component, h) {
+    const _this = this;
     const iconDialogConf = {
       attrs: { 'visible': this.getData().visibleIconPopup || false },
       on: {
@@ -16,13 +17,14 @@ export default class IconPickerWidget extends BaseWidget {
           iconDialogConf.attrs.visible = false;
           setTimeout(() => {
             document.querySelector('.icon-dialog .v-modal').style.display = 'none';
-            component.$emit('widget-data', { visibleIconPopup: false });
+            _this.setData({ visibleIconPopup: false });
+            _this.repaint();
           }, 500);
         },
         select(icon) {
-          component.$emit('input', icon);
           iconDialogConf.attrs.visible = false;
-          component.$emit('widget-data', { visibleIconPopup: false });
+          _this.setData({ visibleIconPopup: false });
+          _this.setValue(icon);
         }
       }
     };
@@ -32,7 +34,8 @@ export default class IconPickerWidget extends BaseWidget {
           slot: 'append',
           attrs: { type: 'primary', icon: 'el-icon-thumb' }, on: {
             click() {
-              component.$emit('widget-data', { visibleIconPopup: true }); // emitting data event to store additional data
+              _this.setData({ visibleIconPopup: true }); // emitting data event to store additional data
+              _this.repaint();
             }
           }
         })

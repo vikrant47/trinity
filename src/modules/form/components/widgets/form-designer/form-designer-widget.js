@@ -20,7 +20,7 @@ componentRender(component, h) {
       }
     });
   } else {
-    return h(FormDesigner, this.getComponentConfig(component), this.getChildren());
+    return h(FormDesigner, { }, this.getChildren());
   }
 }
 }

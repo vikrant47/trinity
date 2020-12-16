@@ -4,7 +4,7 @@ import $router from '@/router/routers';
 import { Engine } from '@/modules/engine/core/engine';
 import { ModelService } from '@/modules/engine/services/model.service';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
-
+import * as _ from 'lodash';
 export class EngineForm extends AsyncEventObservable {
   $widgetRefs = {};
   actions = [];
@@ -195,5 +195,19 @@ export class EngineForm extends AsyncEventObservable {
   /** Will return the widget instance*/
   getWidget(fieldName) {
 
+  }
+
+  setFormData(formData) {
+    Object.values(this.$widgetRefs).forEach((widget) => {
+      widget.setValue(_.get(formData, widget.fieldName));
+    });
+  }
+
+  getFormData() {
+    const model = {};
+    Object.values(this.$widgetRefs).forEach((widget) => {
+      _.set(model, widget.fieldName, widget.getValue());
+    });
+    return model;
   }
 }

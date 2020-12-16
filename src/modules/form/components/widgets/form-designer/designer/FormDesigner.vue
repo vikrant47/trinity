@@ -186,7 +186,7 @@ export default {
           list: layoutComponents
         },*/
         {
-          title: 'New component',
+          title: 'Custom',
           list: new FormWidgetService().getWidgetInstancesAsArray()
         }
       ]
