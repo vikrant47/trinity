@@ -15,7 +15,7 @@ export class BaseWidget extends EngineObservable {
     icon: 'input'
   };
   static defaultWidgetSettings = {
-    span: 24,
+    span: 12,
     label: null,
     formId: null,
     layout: ITEM_LAYOUT.colFormItem,
@@ -40,7 +40,8 @@ export class BaseWidget extends EngineObservable {
     ref: null,
     refInFor: true,
     visible: true,
-    triggers: []
+    triggers: [],
+    wrapper: true
   };
   static defaultFieldSettings = {
     disabled: false,
@@ -56,7 +57,7 @@ export class BaseWidget extends EngineObservable {
     multiple: false
   };
   designMode = false;
-  transient = ['configSection', 'evalContext'];
+  transient = ['configSection', 'evalContext', 'transient'];
   fieldName = null;
   slot = {};
   events = {};
@@ -84,6 +85,12 @@ export class BaseWidget extends EngineObservable {
   wrapperConfig = {};
   engineForm;
   data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
+  static debouncedCallbacks = {
+    valueChanged: _.debounce((renderComponent, value) => {
+      renderComponent.$emit('input_update', value);
+    }, 500)
+  };
+
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -164,8 +171,9 @@ export class BaseWidget extends EngineObservable {
       this.renderComponent.$set(this.renderComponent.formModel, this.fieldName, value);
       if (repaint) {
         this.repaint();
-        this.renderComponent.$emit('input', value);
       }
+      this.renderComponent.$emit('input', value);
+      BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
     }
   }
 
@@ -185,13 +193,16 @@ export class BaseWidget extends EngineObservable {
     return new FormWidgetService().getWidgetInstance(marshalledWidget);
   }
 
-  getConfigSectionFields() {
-    return DEFAULT_CONFIG_SECTION;
+  overrideConfigSection(configSectionWidgets) {
+    return configSectionWidgets;
   }
 
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
-      this.configSection.widgets = this.getConfigSectionFields().map(marshalledWidget => {
+      const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
+      this.overrideConfigSection(configSectionWidgets);
+      this.configSection.widgets = Object.keys(configSectionWidgets).map(fieldName => {
+        const marshalledWidget = configSectionWidgets[fieldName];
         marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
         const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
         const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
@@ -268,6 +279,7 @@ export class BaseWidget extends EngineObservable {
     });
     return this.formItemConfig;
   }
+
   unmarshall(source, unmarshall) {
     if (source.fieldSettings) {
       if (!source.fieldSettings.placeholder) {
@@ -281,6 +293,7 @@ export class BaseWidget extends EngineObservable {
     }
     return false;
   }
+
   getComponentConfig() {
     const widgetSettings = Engine.clone(this.widgetSettings, true);
     const fieldSettings = Engine.clone(this.fieldSettings, true);

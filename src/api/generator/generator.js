@@ -1,10 +1,10 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function getAllTable() {
   return request({
     url: 'api/generator/tables/all',
     method: 'get'
-  })
+  });
 }
 
 export function generator(tableName, type) {
@@ -12,7 +12,7 @@ export function generator(tableName, type) {
     url: 'api/generator/' + tableName + '/' + type,
     method: 'post',
     responseType: type === 2 ? 'blob' : ''
-  })
+  });
 }
 
 export function save(data) {
@@ -20,7 +20,7 @@ export function save(data) {
     url: 'api/generator',
     data,
     method: 'put'
-  })
+  });
 }
 
 export function sync(tables) {
@@ -28,6 +28,6 @@ export function sync(tables) {
     url: 'api/generator/sync',
     method: 'post',
     data: tables
-  })
+  });
 }
 

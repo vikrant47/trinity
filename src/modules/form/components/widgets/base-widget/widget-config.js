@@ -4,8 +4,8 @@ export const ITEM_LAYOUT = {
   colFormItem: 'colFormItem',
   rowFormItem: 'rowFormItem'
 };
-export const DEFAULT_CONFIG_SECTION = [
-  {
+export const DEFAULT_CONFIG_SECTION = {
+  type: {
     widgetAlias: WIDGETS.select,
     fieldName: 'type',
     fieldSettings: {
@@ -34,7 +34,8 @@ export const DEFAULT_CONFIG_SECTION = [
         value: 'password'
       }]
     }
-  }, {
+  },
+  fieldName: {
     fieldName: 'fieldName',
     widgetAlias: WIDGETS.reference,
     widgetSettings: {
@@ -47,27 +48,30 @@ export const DEFAULT_CONFIG_SECTION = [
         model: '${form.model}'
       }
     }
-  }, {
+  },
+  'widgetSettings.label': {
     fieldName: 'widgetSettings.label',
     widgetAlias: WIDGETS.input,
     widgetSettings: {
       label: 'Label',
       required: true
     }
-  }, {
+  },
+  'fieldSettings.title': {
     fieldName: 'fieldSettings.title',
     widgetAlias: WIDGETS.input,
     widgetSettings: {
       label: 'Title',
       required: false
     }
-  }, {
+  },
+  'fieldSettings.placeholder': {
     fieldName: 'fieldSettings.placeholder',
     widgetSettings: {
       label: 'Placeholder'
     }
   },
-  {
+  'fieldSettings.size': {
     fieldName: 'fieldSettings.size',
     widgetSettings: {
       label: 'Size'
@@ -82,7 +86,7 @@ export const DEFAULT_CONFIG_SECTION = [
       }]
     }
   },
-  {
+  'widgetSettings.showLabel': {
     fieldName: 'widgetSettings.showLabel',
     widgetAlias: WIDGETS.switch,
     widgetSettings: {
@@ -90,7 +94,7 @@ export const DEFAULT_CONFIG_SECTION = [
       default: true
     }
   },
-  {
+  'widgetSettings.labelWidth': {
     fieldName: 'widgetSettings.labelWidth',
     widgetAlias: WIDGETS.number,
     widgetSettings: {
@@ -99,7 +103,7 @@ export const DEFAULT_CONFIG_SECTION = [
       min: 0
     }
   },
-  {
+  'widgetSettings.span': {
     fieldName: 'widgetSettings.span',
     widgetAlias: WIDGETS.number,
     widgetSettings: {
@@ -108,14 +112,14 @@ export const DEFAULT_CONFIG_SECTION = [
       max: 100
     }
   },
-  {
+  'fieldSettings.icon': {
     fieldName: 'fieldSettings.icon',
     widgetAlias: WIDGETS.icon,
     widgetSettings: {
       label: 'Icon'
     }
   },
-  {
+  'fieldSettings.disabled': {
     widgetAlias: WIDGETS.switch,
     fieldName: 'fieldSettings.disabled',
     widgetSettings: {
@@ -123,14 +127,14 @@ export const DEFAULT_CONFIG_SECTION = [
       default: false
     }
   },
-  {
+  'widgetSettings.required': {
     widgetAlias: WIDGETS.switch,
     fieldName: 'widgetSettings.required',
     widgetSettings: {
       label: 'Required',
       default: false
     }
-  }, {
+  }, 'widgetSettings.layout': {
     fieldName: 'widgetSettings.layout',
     widgetAlias: WIDGETS.select,
     fieldSettings: {
@@ -152,21 +156,21 @@ export const DEFAULT_CONFIG_SECTION = [
       }]
     }
   },
-  {
+  'widgetSettings.defaultValue': {
     fieldName: 'widgetSettings.defaultValue',
     widgetSettings: {
       label: 'Default',
       required: false
     }
   },
-  {
+  'fieldSettings.showWordLimit': {
     fieldName: 'fieldSettings.showWordLimit',
     widgetAlias: WIDGETS.switch,
     widgetSettings: {
       label: 'Show Limit'
     }
   }
-];
+};
 export const DEFAULT_FORM_CONFIG = [{
   fieldName: 'labelSuffix',
   widgetSettings: {

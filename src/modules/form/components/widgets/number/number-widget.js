@@ -7,11 +7,12 @@ export default class NumberWidget extends BaseWidget {
     };
   }
 
-palletSettings = {
-  label: 'number',
-  icon: 'number' }
+  palletSettings = {
+    label: 'number',
+    icon: 'number'
+  };
 
-componentRender(component, h) {
-  return h('el-input-number', this.getComponentConfig(component), this.getChildren());
-}
+  componentRender(component, h) {
+    return h('el-input-number', this.getComponentConfig(component), this.getChildren());
+  }
 }

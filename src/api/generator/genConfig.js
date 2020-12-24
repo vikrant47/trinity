@@ -1,10 +1,10 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function get(tableName) {
   return request({
     url: 'api/genConfig/' + tableName,
     method: 'get'
-  })
+  });
 }
 
 export function update(data) {
@@ -12,5 +12,5 @@ export function update(data) {
     url: 'api/genConfig',
     data,
     method: 'put'
-  })
+  });
 }

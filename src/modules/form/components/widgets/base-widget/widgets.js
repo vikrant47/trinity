@@ -20,5 +20,6 @@ export const WIDGETS = {
   formDesigner: 'formDesigner',
   reference: 'reference',
   icon: 'icon',
+  divider: 'divider'
 };
 

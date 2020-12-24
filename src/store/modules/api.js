@@ -1,5 +1,5 @@
 // 适配 Nginx 反向代理
-const baseUrl = process.env.VUE_APP_BASE_API === '' ? '' : process.env.VUE_APP_BASE_API
+const baseUrl = process.env.VUE_APP_BASE_API === '' ? '' : process.env.VUE_APP_BASE_API;
 const api = {
   state: {
     // Deployment package upload
@@ -23,6 +23,6 @@ const api = {
     // baseUrl，
     baseApi: baseUrl
   }
-}
+};
 
-export default api
+export default api;

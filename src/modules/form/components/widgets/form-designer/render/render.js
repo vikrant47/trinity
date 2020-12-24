@@ -113,7 +113,7 @@ export default {
     return {
       flag: true,
       methods: this.widget.getMethods(),
-      render: { key: new Date().getTime() },
+      render: { key: new Date().getTime() }
     };
   },
   watch: {},
@@ -128,7 +128,7 @@ export default {
     this.widget.setFormModel(this.formModel);
     this.widget.beforeRender();
     let template = null;
-    if (this.wrapper === true) {
+    if (this.wrapper !== false && this.widget.widgetSettings.wrapper !== false) {
       template = createElement('el-col', this.widget.getWrapperConfig(), [
         createElement('el-form-item', this.widget.getFormItemConfig(), [
           this.widget.componentRender(this, createElement)

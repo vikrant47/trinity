@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function add(data) {
   return request({
     url: 'api/deploy',
     method: 'post',
     data
-  })
+  });
 }
 
 export function del(ids) {
@@ -13,7 +13,7 @@ export function del(ids) {
     url: 'api/deploy',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 export function edit(data) {
@@ -21,21 +21,21 @@ export function edit(data) {
     url: 'api/deploy',
     method: 'put',
     data
-  })
+  });
 }
 
 export function getApps() {
   return request({
     url: 'api/app',
     method: 'get'
-  })
+  });
 }
 
 export function getServers() {
   return request({
     url: 'api/serverDeploy',
     method: 'get'
-  })
+  });
 }
 
 /**
@@ -47,7 +47,7 @@ export function startServer(data) {
     url: 'api/deploy/startServer',
     method: 'post',
     data
-  })
+  });
 }
 
 /**
@@ -59,7 +59,7 @@ export function stopServer(data) {
     url: 'api/deploy/stopServer',
     method: 'post',
     data
-  })
+  });
 }
 
 /**
@@ -71,7 +71,7 @@ export function serverStatus(data) {
     url: 'api/deploy/serverStatus',
     method: 'post',
     data
-  })
+  });
 }
 
-export default { add, edit, del, stopServer, serverStatus, startServer, getServers, getApps }
+export default { add, edit, del, stopServer, serverStatus, startServer, getServers, getApps };

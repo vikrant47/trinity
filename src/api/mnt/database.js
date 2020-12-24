@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function add(data) {
   return request({
     url: 'api/database',
     method: 'post',
     data
-  })
+  });
 }
 
 export function del(ids) {
@@ -13,7 +13,7 @@ export function del(ids) {
     url: 'api/database',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 export function edit(data) {
@@ -21,7 +21,7 @@ export function edit(data) {
     url: 'api/database',
     method: 'put',
     data
-  })
+  });
 }
 
 export function testDbConnection(data) {
@@ -29,7 +29,7 @@ export function testDbConnection(data) {
     url: 'api/database/testConnect',
     method: 'post',
     data
-  })
+  });
 }
 
-export default { add, edit, del, testDbConnection }
+export default { add, edit, del, testDbConnection };

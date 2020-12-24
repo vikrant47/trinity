@@ -5,6 +5,7 @@ import { Engine } from '@/modules/engine/core/engine';
 import { ModelService } from '@/modules/engine/services/model.service';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
+
 export class EngineForm extends AsyncEventObservable {
   $widgetRefs = {};
   actions = [];

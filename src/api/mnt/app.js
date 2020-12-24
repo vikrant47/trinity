@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function add(data) {
   return request({
     url: 'api/app',
     method: 'post',
     data
-  })
+  });
 }
 
 export function del(ids) {
@@ -13,7 +13,7 @@ export function del(ids) {
     url: 'api/app',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 export function edit(data) {
@@ -21,7 +21,7 @@ export function edit(data) {
     url: 'api/app',
     method: 'put',
     data
-  })
+  });
 }
 
-export default { add, edit, del }
+export default { add, edit, del };

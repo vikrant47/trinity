@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function del(ids) {
   return request({
     url: 'api/deployHistory',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 /**
@@ -17,5 +17,5 @@ export function reducte(data) {
     url: 'api/deploy/serverReduction',
     method: 'post',
     data
-  })
+  });
 }

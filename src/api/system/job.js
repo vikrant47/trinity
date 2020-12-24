@@ -1,16 +1,16 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function getAllJob() {
   const params = {
     page: 0,
     size: 9999,
     enabled: true
-  }
+  };
   return request({
     url: 'api/job',
     method: 'get',
     params
-  })
+  });
 }
 
 export function add(data) {
@@ -18,7 +18,7 @@ export function add(data) {
     url: 'api/job',
     method: 'post',
     data
-  })
+  });
 }
 
 export function del(ids) {
@@ -26,7 +26,7 @@ export function del(ids) {
     url: 'api/job',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 export function edit(data) {
@@ -34,7 +34,7 @@ export function edit(data) {
     url: 'api/job',
     method: 'put',
     data
-  })
+  });
 }
 
-export default { add, edit, del }
+export default { add, edit, del };

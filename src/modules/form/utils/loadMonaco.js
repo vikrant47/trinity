@@ -1,8 +1,8 @@
-import { loadScriptQueue } from './loadScript'
-import ELEMENT from 'element-ui'
+import { loadScriptQueue } from './loadScript';
+import ELEMENT from 'element-ui';
 
 // monaco-editor单例
-let monacoEidtor
+let monacoEidtor;
 
 /**
  * 动态加载monaco-editor cdn资源
@@ -10,11 +10,11 @@ let monacoEidtor
  */
 export default function loadMonaco(cb) {
   if (monacoEidtor) {
-    cb(monacoEidtor)
-    return
+    cb(monacoEidtor);
+    return;
   }
 
-  const vs = 'https://lib.baomitu.com/monaco-editor/0.19.3/min/vs'
+  const vs = 'https://lib.baomitu.com/monaco-editor/0.19.3/min/vs';
 
   // 使用element ui实现加载提示
   const loading = ELEMENT.Loading.service({
@@ -23,20 +23,20 @@ export default function loadMonaco(cb) {
     text: '编辑器资源初始化中...',
     spinner: 'el-icon-loading',
     background: 'rgba(255, 255, 255, 0.5)'
-  })
+  });
 
-  !window.require && (window.require = {})
-  !window.require.paths && (window.require.paths = {})
-  window.require.paths.vs = vs
+  !window.require && (window.require = {});
+  !window.require.paths && (window.require.paths = {});
+  window.require.paths.vs = vs;
 
   loadScriptQueue([
     `${vs}/loader.js`,
     `${vs}/editor/editor.main.nls.js`,
     `${vs}/editor/editor.main.js`
   ], () => {
-    loading.close()
+    loading.close();
     // eslint-disable-next-line no-undef
-    monacoEidtor = monaco
-    cb(monacoEidtor)
-  })
+    monacoEidtor = monaco;
+    cb(monacoEidtor);
+  });
 }

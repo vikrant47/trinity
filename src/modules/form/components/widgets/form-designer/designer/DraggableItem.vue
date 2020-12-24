@@ -81,8 +81,7 @@ const layouts = {
             event.stopPropagation();
           }}>
           <span class='component-name'>{config.componentName}</span>
-          <draggable list={config.children || []} animation={340}
-            group='componentsGroup' class='drag-wrapper'>
+          <draggable list={config.children || []} animation={340} group='componentsGroup' class='drag-wrapper'>
             {child}
           </draggable>
           {components.itemBtns.apply(this, arguments)}

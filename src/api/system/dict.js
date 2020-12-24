@@ -1,10 +1,10 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function getDicts() {
   return request({
     url: 'api/dict/all',
     method: 'get'
-  })
+  });
 }
 
 export function add(data) {
@@ -12,7 +12,7 @@ export function add(data) {
     url: 'api/dict',
     method: 'post',
     data
-  })
+  });
 }
 
 export function del(ids) {
@@ -20,7 +20,7 @@ export function del(ids) {
     url: 'api/dict/',
     method: 'delete',
     data: ids
-  })
+  });
 }
 
 export function edit(data) {
@@ -28,7 +28,7 @@ export function edit(data) {
     url: 'api/dict',
     method: 'put',
     data
-  })
+  });
 }
 
-export default { add, edit, del }
+export default { add, edit, del };

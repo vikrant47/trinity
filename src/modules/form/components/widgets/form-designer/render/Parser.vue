@@ -116,7 +116,7 @@ function setValue(event, config, widget) {
       this.$set(result.value, result.prop, event);
     }
     this.$set(this.formData, widget.fieldName, event);
-    this.$emit('fieldInput', widget);
+    this.$emit('fieldValueUpdated', widget);
   }
 }
 
@@ -135,7 +135,7 @@ function buildListeners(widget) {
     listeners[key] = event => methods[key].call(this, event);
   });
   // response render.js Neutral vModel $emit('input', val)
-  listeners.input = event => setValue.call(this, event, config, widget);
+  listeners.input_update = event => setValue.call(this, event, config, widget);
   listeners['widget-data'] = event => setWidgetData.call(this, event, config, widget);
 
   return listeners;
