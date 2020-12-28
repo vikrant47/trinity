@@ -54,10 +54,23 @@ export class BaseWidget extends EngineObservable {
     step: 1,
     showStops: false,
     range: false,
-    multiple: false
+    multiple: false,
+    size: 'small'
   };
   designMode = false;
-  transient = ['configSection', 'evalContext', 'transient'];
+  transient = [
+    'configSection',
+    'evalContext',
+    'transient',
+    'eventSeen',
+    'events',
+    'waitPromises',
+    'evalContext',
+    'data',
+    'componentConfig',
+    'fieldSettings..*',
+    'widgetSettings..*'
+  ];
   fieldName = null;
   slot = {};
   events = {};
@@ -103,8 +116,9 @@ export class BaseWidget extends EngineObservable {
     this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings);
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
+    this.init();
   }
-
+  init() {}
   setEngineForm(engineForm) {
     this.engineForm = engineForm;
   }
@@ -382,8 +396,8 @@ export class BaseWidget extends EngineObservable {
     // component.widget.applyConfig(component.config);
   }
 
-  componentRender(component, createElement) {
-    return createElement('el-input', this.getComponentConfig(), this.getChildren(createElement));
+  componentRender(component, h) {
+    return h('el-input', this.getComponentConfig(), this.getChildren(h));
   }
 
   getMethods() {

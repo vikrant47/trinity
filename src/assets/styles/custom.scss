@@ -97,8 +97,8 @@
 }
 
 .form-container .form-parser {
+  padding: 25px 25px 25px 0px;
   background-color: white;
-  padding: 25px;
 }
 /**Form designer*/
 .drawing-board .drag-wrapper{
@@ -108,4 +108,13 @@
   z-index: auto;
   height: 100px;
   box-shadow: none;
+}
+.form-container .form-parser .el-form-item__content>div {
+  width: 100%;
+}
+.form-container .form-parser .el-form-item{
+  padding-left: 20px;
+}
+.el-tab-pane.components-list{
+  display: block !important;
 }

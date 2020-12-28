@@ -22,6 +22,7 @@ import { FormEventHandler } from '@/modules/form/services/form.event.handler';
 import locale from 'element-ui/lib/locale/lang/en';
 import ElementUI from 'element-ui';
 import EnFormToolbar from '@/modules/form/components/engine/toolbar/EnFormToolbar';
+import { FORM_EVENTS, FormEvent } from '@/modules/form/engine-api/form-events';
 
 Vue.use(ElementUI, { locale });
 export default {
@@ -93,6 +94,13 @@ export default {
   async mounted() {
     await this.engineForm.loadDefinition();
     await this.engineForm.refresh();
+    await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.afterRender), {});
+  },
+  beforeDestroy() {
+    this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.beforeDestroy), {});
+  },
+  updated() {
+    this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.beforeRender), {});
   },
   methods: {
     submitForm() {

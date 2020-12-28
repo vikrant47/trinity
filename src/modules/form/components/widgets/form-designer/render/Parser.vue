@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
-import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
+import { FORM_EVENTS, FormEvent, WidgetEvent } from '@/modules/form/engine-api/form-events';
 import { Engine } from '@/modules/engine/core/engine';
 
 const ruleTrigger = {
@@ -29,10 +29,14 @@ const layouts = {
     this.engineForm.addWidgetRef(widgetInstance);
     widgetInstance.setEngineForm(this.engineForm);
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
+    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.init, widgetInstance, widget), {});
     const listeners = buildListeners.call(this, widget);
+    const child = renderChildren.apply(this, arguments);
     return (
-      <render widget={widgetInstance} {...{ on: listeners }} form-model={formData}
-        eval-context={this.evalContext}/>
+      <render widget={widgetInstance} {...{ on: listeners }} wrapper={true} form-model={formData}
+        eval-context={this.evalContext}>
+        {child}
+      </render>
       /* <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
           <el-form-item label-width={labelWidth} prop={widget.fieldName}
             label={widgetSettings.showLabel ? widgetSettings.label : ''} required={widgetSettings.required}>
@@ -114,9 +118,11 @@ function setValue(event, config, widget) {
     if (widget.fieldName.indexOf('.') > 0) {
       const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
       this.$set(result.value, result.prop, event);
+    } else {
+      this.$set(this.formData, widget.fieldName, event);
     }
-    this.$set(this.formData, widget.fieldName, event);
     this.$emit('fieldValueUpdated', widget);
+    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, { value: event }), {});
   }
 }
 
@@ -174,6 +180,7 @@ export default {
     this.$emit('beforeInit');
     this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
+    // await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.init), {});
   },
   methods: {
     initFormData(widgets, formModel) {
@@ -220,7 +227,8 @@ export default {
       this.$refs[this.formConf.formRef].validate(valid => {
         if (!valid) return false;
         // TriggerTheSubmitEvent
-        this.$emit('submit', this[this.formModel]);
+        this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.beforeSubmit, this.formData), {});
+        this.$emit('submit', this.formData);
         return true;
       });
     }

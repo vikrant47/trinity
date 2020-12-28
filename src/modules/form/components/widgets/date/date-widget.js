@@ -5,7 +5,22 @@ export default class DateWidget extends BaseWidget {
     label: 'Date',
     icon: 'date'
   };
-
+  fieldSettings = {
+    type: 'datetime'
+  };
+  overrideConfigSection(configSectionWidgets) {
+    configSectionWidgets['fieldSettings.type'].slot.options = [{
+      label: 'Date', value: 'date'
+    }, {
+      label: 'Date Time', value: 'datetime'
+    }, {
+      label: 'Date Range', value: 'daterange'
+    }, {
+      label: 'Date Time Range', value: 'datetimerange'
+    }, {
+      label: 'Month Range', value: 'monthrange'
+    }];
+  }
   constructor(settings = {}) {
     if (settings.type === 'daterange' || settings.type === 'monthrange') {
       settings = Object.assign({

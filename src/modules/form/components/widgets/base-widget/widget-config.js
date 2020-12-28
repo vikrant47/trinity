@@ -5,9 +5,9 @@ export const ITEM_LAYOUT = {
   rowFormItem: 'rowFormItem'
 };
 export const DEFAULT_CONFIG_SECTION = {
-  type: {
+  'fieldSettings.type': {
     widgetAlias: WIDGETS.select,
-    fieldName: 'type',
+    fieldName: 'fieldSettings.type',
     fieldSettings: {
       placeholder: 'Please Select Type'
     },
@@ -39,7 +39,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'fieldName',
     widgetAlias: WIDGETS.reference,
     widgetSettings: {
-      label: 'Name',
+      label: 'Field',
       required: true,
       targetModel: 'engine_fields',
       key: 'code',

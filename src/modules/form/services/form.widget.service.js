@@ -35,10 +35,6 @@ export class FormWidgetService {
     WidgetTypes[widgetAlias] = type;
   }
 
-  getConfigSection(widgetJSON) {
-    return this.getWidgetInstance(widgetJSON).loadConfigForConfigSection();
-  }
-
   getWidgetByAlias(widgetAlias) {
     return WidgetTypes[widgetAlias];
   }

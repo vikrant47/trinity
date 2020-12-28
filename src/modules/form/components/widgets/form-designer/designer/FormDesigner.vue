@@ -10,35 +10,33 @@
         </div>
       </div>-->
       <el-scrollbar class="left-scrollbar">
-        <div class="components-list">
-          <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
-            <div class="components-title">
-              <svg-icon icon-class="component" />
-              {{ item.title }}
-            </div>
-            <draggable
-              class="components-draggable"
-              :list="item.list"
-              :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
-              :clone="cloneWidget"
-              draggable=".components-item"
-              :sort="false"
-              @end="onEnd"
-            >
-              <div
-                v-for="(element, index) in item.list"
-                :key="index"
-                class="components-item"
-                @click="addWidget(element)"
+        <el-tab-pane class="components-list">
+          <el-tabs value="Fields" stretch="true">
+            <el-tab-pane v-for="(item, listIndex) in leftComponents" :key="listIndex" :label="item.title" :name="item.title">
+              <draggable
+                class="components-draggable"
+                :list="item.list"
+                :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
+                :clone="cloneWidget"
+                draggable=".components-item"
+                :sort="false"
+                @end="onEnd"
               >
-                <div class="components-body">
-                  <svg-icon :icon-class="element.palletSettings.icon" />
-                  {{ element.palletSettings.label }}
+                <div
+                  v-for="(element, index) in item.list"
+                  :key="index"
+                  class="components-item"
+                  @click="addWidget(element)"
+                >
+                  <div class="components-body">
+                    <svg-icon :icon-class="element.palletSettings.icon" />
+                    {{ element.palletSettings.label }}
+                  </div>
                 </div>
-              </div>
-            </draggable>
-          </div>
-        </div>
+              </draggable>
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
       </el-scrollbar>
     </div>
 
@@ -133,6 +131,7 @@ import {
 } from '@/modules/form/utils/db';
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { Engine } from '@/modules/engine/core/engine';
 
 let beautifier;
 let oldActiveId;
@@ -147,8 +146,17 @@ export default {
     RightPanel,
     DraggableItem
   },
+  props: {
+    pallet: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
+  },
   data() {
     return {
+      activePallet: 'Fields',
       configVisible: false,
       logo: '',
       idGlobal,
@@ -169,27 +177,10 @@ export default {
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
         this.$emit('input', { widgets: list }); // emitting event to top form item
-        return saveDrawingList(list);
+        return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
       }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
-      leftComponents: [
-        /* {
-          title: 'Input components',
-          list: inputComponents
-        },
-        {
-          title: 'Selective components',
-          list: selectComponents
-        },
-        {
-          title: 'Layout component',
-          list: layoutComponents
-        },*/
-        {
-          title: 'Custom',
-          list: new FormWidgetService().getWidgetInstancesAsArray()
-        }
-      ]
+      leftComponents: this.pallet
     };
   },
   computed: {},

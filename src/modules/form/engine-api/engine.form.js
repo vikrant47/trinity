@@ -5,9 +5,12 @@ import { Engine } from '@/modules/engine/core/engine';
 import { ModelService } from '@/modules/engine/services/model.service';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
+import { EngineScript } from '@/modules/engine/core/engine.script';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 
 export class EngineForm extends AsyncEventObservable {
   $widgetRefs = {};
+  processors = [];
   actions = [];
   hashCode = 0;
   loading = false;
@@ -83,10 +86,18 @@ export class EngineForm extends AsyncEventObservable {
     if (this.settings.remote === false) {
       return this.settings.actions;
     }
-    const actions = this.definition.form.actions;
+    const actions = this.definition.form.actions.map(action => new EngineScript(action));
     this.actions = Engine.convertToTree(actions, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order
     });
+    return this;
+  }
+
+  populateFormProcessors() {
+    if (this.settings.remote === false) {
+      return this.settings.processors;
+    }
+    this.processors = this.definition.form.processors.map(processor => new EngineScript(processor));
     return this;
   }
 
@@ -94,6 +105,7 @@ export class EngineForm extends AsyncEventObservable {
     Object.assign(this.formConfig, this.populateFormConfig());
     this.updateHash();
     this.populateFormActions();
+    this.populateFormProcessors();
     return this.definition;
   }
 
@@ -143,6 +155,23 @@ export class EngineForm extends AsyncEventObservable {
       this.emit(FORM_EVENTS.form.error, err);
       throw err;
     }
+  }
+
+  /** Return pallet for all the fields in form**/
+  getFieldsAsPallet() {
+    return {
+      title: 'Fields',
+      list: this.definition.fields.map(field => new FormWidgetService().getWidgetInstance({
+        widgetAlias: field.renderer,
+        fieldName: field.name,
+        widgetSettings: {
+          label: field.label
+        },
+        palletSettings: {
+          label: field.label
+        }
+      }))
+    };
   }
 
   /** Returns all of the widgets from definition*/
@@ -210,5 +239,17 @@ export class EngineForm extends AsyncEventObservable {
       _.set(model, widget.fieldName, widget.getValue());
     });
     return model;
+  }
+
+  /**
+   * @param {FormEvent} event
+   * @param {Object} context
+   **/
+  async triggerProcessors(event, context = {}) {
+    for (const processor of this.processors) {
+      if (processor.event === event.getName()) {
+        await processor.execute(event, Object.assign({ engineForm: this }, context));
+      }
+    }
   }
 }

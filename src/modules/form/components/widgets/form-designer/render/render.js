@@ -121,7 +121,7 @@ export default {
     this.widget.setRenderComponent(this);
     this.widget.mounted();
   },
-  render(createElement) {
+  render(h) {
     this.widget.setRenderComponent(this);
     // const formModel = Engine.clone(this.formModel);
     this.widget.setEvalContext(this.evalContext);
@@ -129,13 +129,13 @@ export default {
     this.widget.beforeRender();
     let template = null;
     if (this.wrapper !== false && this.widget.widgetSettings.wrapper !== false) {
-      template = createElement('el-col', this.widget.getWrapperConfig(), [
-        createElement('el-form-item', this.widget.getFormItemConfig(), [
-          this.widget.componentRender(this, createElement)
+      template = h('el-col', this.widget.getWrapperConfig(), [
+        h('el-form-item', this.widget.getFormItemConfig(), [
+          this.widget.componentRender(this, h)
         ])
       ]);
     } else {
-      template = this.widget.componentRender(this, createElement);
+      template = this.widget.componentRender(this, h);
     }
     this.widget.afterRender();
     return template;
