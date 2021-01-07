@@ -1,17 +1,20 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import FormDesigner from '@/modules/form/components/widgets/form-designer/designer/FormDesigner';
+import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
 
 export default class FormDesignerWidget extends BaseWidget {
   init() {
     // this.transient.push({ widgetSettings: ['pallet'] });
+    Object.assign(this.widgetSettings, {
+      span: 24,
+      pallet: [],
+      layout: ITEM_LAYOUT.colFormItem
+    });
   }
 
   palletSettings = {
     label: 'Form Designer',
     icon: 'form'
-  };
-  widgetSettings = {
-    pallet: []
   };
 
   addPallet(pallet) {
@@ -20,11 +23,11 @@ export default class FormDesignerWidget extends BaseWidget {
   }
 
   overrideWidgetSettings(widgetSettings) {
-    const FormWidgetService = require('@/modules/form/services/form.widget.service').FormWidgetService;
+    /* const FormWidgetService = require('@/modules/form/services/form.widget.service').FormWidgetService;
     widgetSettings.pallet.push({
       title: 'Custom',
       list: new FormWidgetService().getWidgetInstancesAsArray()
-    });
+    });*/
   }
 
   getPallet(widgetSettings) {
@@ -54,6 +57,11 @@ export default class FormDesignerWidget extends BaseWidget {
       });
     } else {
       return h(FormDesigner, {
+        on: {
+          input: (value) => {
+            this.setValue(value, false);
+          }
+        },
         props: {
           pallet: this.getPallet(config)
         }

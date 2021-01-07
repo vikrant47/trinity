@@ -7,6 +7,8 @@ import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
 import { EngineScript } from '@/modules/engine/core/engine.script';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { EngineAction } from '@/modules/engine/core/engine.action';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export class EngineForm extends AsyncEventObservable {
   $widgetRefs = {};
@@ -73,9 +75,10 @@ export class EngineForm extends AsyncEventObservable {
   }
 
   populateFormConfig() {
-    const tabs = this.definition.form.config.tabs || [];
+    return { widgets: this.definition.form.config.widgets };
+    /* const tabs = this.definition.form.config.tabs || [];
     const widgets = tabs.reduce((result, tab) => result.concat(tab.widgets), []);
-    return { widgets };
+    return { widgets };*/
   }
 
   updateHash() {
@@ -84,9 +87,9 @@ export class EngineForm extends AsyncEventObservable {
 
   populateFormActions() {
     if (this.settings.remote === false) {
-      return this.settings.actions;
+      this.actions = this.settings.actions;
     }
-    const actions = this.definition.form.actions.map(action => new EngineScript(action));
+    const actions = this.definition.form.actions.map(action => new EngineAction(action));
     this.actions = Engine.convertToTree(actions, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order
     });
@@ -108,7 +111,17 @@ export class EngineForm extends AsyncEventObservable {
     this.populateFormProcessors();
     return this.definition;
   }
-
+  getFields() {
+    return this.definition.fields;
+  }
+  getIncludeStatement(fields) {
+    return fields.filter(field => field.type === WIDGETS.reference).map((field) => {
+      return {
+        reference: field.name,
+        fields: [field.referenced_field_name, field.display_field_name],
+      };
+    });
+  }
   async refresh() {
     try {
       await this.emit(FORM_EVENTS.model.beforeFetch);
@@ -118,8 +131,10 @@ export class EngineForm extends AsyncEventObservable {
       }
       this.enableLoading();
       // request record
-      const record = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId);
-      this.setRecord(record);
+      const response = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId, {
+        include: this.getIncludeStatement(this.getFields()),
+      });
+      this.setRecord(response.contents);
       // time Show table in milliseconds
       setTimeout(async() => {
         this.disableLoading();
@@ -140,16 +155,16 @@ export class EngineForm extends AsyncEventObservable {
       }
       this.enableLoading();
       // request data
-      const definition = await new ModelService(this.settings.modelAlias).requestDefinition({
+      const response = await new ModelService(this.settings.modelAlias).requestDefinition({
         formId: this.settings.formId
       });
-      this.definition = definition;
+      this.definition = response.contents;
       this.sanitizeDefinition();
       // time Show table in milliseconds
       setTimeout(() => {
         this.disableLoading();
       }, this.settings.loaderDelay);
-      this.emit(FORM_EVENTS.definition.fetch, definition);
+      this.emit(FORM_EVENTS.definition.fetch, this.definition);
     } catch (err) {
       this.disableLoading();
       this.emit(FORM_EVENTS.form.error, err);
@@ -161,11 +176,16 @@ export class EngineForm extends AsyncEventObservable {
   getFieldsAsPallet() {
     return {
       title: 'Fields',
+      updatable: true,
       list: this.definition.fields.map(field => new FormWidgetService().getWidgetInstance({
+        id: field.id,
         widgetAlias: field.renderer,
         fieldName: field.name,
+        immutable_configs: ['fieldName', 'referenced_model_alias', 'display_field_name', 'disabled'],
         widgetSettings: {
-          label: field.label
+          label: field.label,
+          referenced_model_alias: field.referenced_model_alias,
+          display_field_name: field.display_field_name
         },
         palletSettings: {
           label: field.label
@@ -196,17 +216,29 @@ export class EngineForm extends AsyncEventObservable {
 
   }
 
+  getFormattedRecord() {
+    const updatableFields = this.definition.fields
+      .filter(field => !field.readonly).map(field => field.name);
+    const formatted = {};
+    for (const i in this.getFormData()) {
+      if (updatableFields.indexOf(i) >= 0) {
+        formatted[i] = this.record[i];
+      }
+    }
+    return formatted;
+  }
+
   /** Weather currently opened form is new */
   isNew() {
     return this.settings.recordId === 'new';
   }
 
   create() {
-    return new RestQuery(this.settings.modelAlias).create(this.record);
+    return new RestQuery(this.settings.modelAlias).create(this.getFormattedRecord());
   }
 
   update() {
-    return new RestQuery(this.settings.modelAlias).update(this.record, { where: { id: this.record.id }});
+    return new RestQuery(this.settings.modelAlias).update(this.getFormattedRecord(), { where: { id: this.record.id }});
   }
 
   /** This will save the form record using api*/

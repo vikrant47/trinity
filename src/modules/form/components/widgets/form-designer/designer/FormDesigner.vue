@@ -11,8 +11,8 @@
       </div>-->
       <el-scrollbar class="left-scrollbar">
         <el-tab-pane class="components-list">
-          <el-tabs value="Fields" stretch="true">
-            <el-tab-pane v-for="(item, listIndex) in leftComponents" :key="listIndex" :label="item.title" :name="item.title">
+          <el-tabs value="Fields" :stretch="true">
+            <el-tab-pane v-for="(item, listIndex) in getFilteredPallet()" :key="listIndex" :label="item.title" :name="item.title">
               <draggable
                 class="components-draggable"
                 :list="item.list"
@@ -25,6 +25,7 @@
                 <div
                   v-for="(element, index) in item.list"
                   :key="index"
+                  :v-if="!element.palletSettings.hidden"
                   class="components-item"
                   @click="addWidget(element)"
                 >
@@ -76,7 +77,7 @@
                 :active-id="activeId"
                 :form-conf="formConf"
                 @activeWidget="activeDraggableItem"
-                @copyWidget="drawingItemCopy"
+                @copyWidget="addWidget"
                 @deleteWidget="drawingItemDelete"
                 @showConfig="showConfig"
               />
@@ -180,10 +181,14 @@ export default {
         return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
       }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
-      leftComponents: this.pallet
+      leftComponents: this.pallet,
     };
   },
-  computed: {},
+  computed: {
+    filteredPallet() {
+      return this.getFilteredPallet();
+    }
+  },
   watch: {
     // eslint-disable-next-line func-names
     'activeWidget.widgetSettings.label': function(val, oldVal) {
@@ -206,6 +211,7 @@ export default {
       handler(val) {
         this.saveDrawingListDebounce(val);
         if (val.length === 0) this.idGlobal = 100;
+        this.updateAllSelectedItems({ palletSettings: { hidden: true }});
       },
       deep: true
     },
@@ -214,7 +220,13 @@ export default {
         this.saveIdGlobalDebounce(val);
       },
       immediate: true
-    }
+    },
+    leftComponents: {
+      handler(val) {
+        this.filteredPallet = this.getFilteredPallet();
+      },
+      deep: true
+    },
   },
   mounted() {
     if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
@@ -244,7 +256,17 @@ export default {
       this.$message.error('Code copy failed');
     });
   },
+  created() {
+    this.updateAllSelectedItems({ palletSettings: { hidden: true }});
+  },
   methods: {
+    getFilteredPallet() {
+      return this.leftComponents.map((palletItem) => {
+        return Object.assign({}, palletItem, {
+          list: palletItem.list.filter(item => !item.palletSettings.hidden),
+        });
+      });
+    },
     onConfigClose(done) {
       done();
     },
@@ -307,11 +329,30 @@ export default {
         this.activeId = this.idGlobal;
       }
     },
-    addWidget(item) {
+    updatedSelectedPalletItem(selectedItem, props) {
+      for (const pallet of this.leftComponents) {
+        if (pallet.updatable === true) {
+          for (const item of pallet.list) {
+            if (selectedItem.id === item.id) {
+              Object.assign(item.palletSettings, props.palletSettings);
+            }
+          }
+        }
+      }
+    },
+    updateAllSelectedItems(prop) {
+      const selectedItems = this.drawingList;
+      for (const selectedItem of selectedItems) {
+        this.updatedSelectedPalletItem(selectedItem, prop);
+      }
+    },
+    addWidget(item, list) {
+      list = list || this.drawingList;
       const clone = deepClone(item);
       this.fetchData(clone);
-      this.drawingList.push(clone);
+      list.push(clone);
       this.activeFormItem(clone);
+      this.updatedSelectedPalletItem(item, { palletSettings: { hidden: true }});
     },
     cloneWidget(original) {
       const clone = deepClone(original);// deepClone(origin);
@@ -346,7 +387,7 @@ export default {
       document.getElementById('copyNode').click();
     },
     empty() {
-      this.$confirm('确定要清空所有组件吗？', '提示', { type: 'warning' }).then(
+      this.$confirm('Are you sure you want to clear all components?', 'Prompt', { type: 'warning' }).then(
         () => {
           this.drawingList = [];
           this.idGlobal = 100;
@@ -359,12 +400,14 @@ export default {
       this.activeFormItem(clone);
     },
     drawingItemDelete(index, list) {
+      const item = list[index];
       list.splice(index, 1);
       this.$nextTick(() => {
         const len = this.drawingList.length;
         if (len) {
           this.activeFormItem(this.drawingList[len - 1]);
         }
+        this.updatedSelectedPalletItem(item, { palletSettings: { hidden: false }});
       });
     },
     generateCode() {

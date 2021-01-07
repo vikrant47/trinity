@@ -12,9 +12,11 @@ import { EngineObservable } from '@/modules/engine/core/engine.observable';
 export class BaseWidget extends EngineObservable {
   static defaultPalletSettings = {
     label: 'Input',
-    icon: 'input'
+    icon: 'input',
+    hidden: false,
   };
   static defaultWidgetSettings = {
+    referenced_field_name: 'id',
     span: 12,
     label: null,
     formId: null,
@@ -103,7 +105,7 @@ export class BaseWidget extends EngineObservable {
       renderComponent.$emit('input_update', value);
     }, 500)
   };
-
+  immutable_configs = [];
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -215,13 +217,15 @@ export class BaseWidget extends EngineObservable {
     if (this.configSection.widgets.length === 0) {
       const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
       this.overrideConfigSection(configSectionWidgets);
-      this.configSection.widgets = Object.keys(configSectionWidgets).map(fieldName => {
-        const marshalledWidget = configSectionWidgets[fieldName];
-        marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
-        const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
-        const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
-        return widget;
-      });
+      this.configSection.widgets = Object.keys(configSectionWidgets)
+        .filter(key => this.immutable_configs.indexOf(key) < 0)
+        .map(fieldName => {
+          const marshalledWidget = configSectionWidgets[fieldName];
+          marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
+          const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
+          const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
+          return widget;
+        });
     }
     return this.configSection;
   }
@@ -314,13 +318,13 @@ export class BaseWidget extends EngineObservable {
     this.overrideFieldSettings(fieldSettings);
     this.overrideWidgetSettings(widgetSettings);
     fieldSettings.name = this.fieldName;
-    Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
     fieldSettings.value = _.get(this.formModel, this.fieldName);
     if (typeof fieldSettings.value === 'undefined') {
       fieldSettings.value = widgetSettings.defaultValue;
     }
+    Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     this.componentConfig.on.input = val => {
       // this.getMethods(); // TODO: remove this - just reference for debugging
       // this.renderComponent.$emit('input', val);

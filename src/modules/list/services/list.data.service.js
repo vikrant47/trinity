@@ -9,6 +9,7 @@ import { Pagination } from '@/modules/list/models/pagination';
 import * as _ from 'lodash';
 import { SearchDataService } from '@/modules/list/services/search.data.service';
 import { Engine } from '@/modules/engine/core/engine';
+import { EngineAction } from '@/modules/engine/core/engine.action';
 
 export const COLUMN_FORMATTERS = {
   'guid': { widget: Guid, width: 250, sortable: false },
@@ -95,7 +96,7 @@ export class ListDataService extends EngineObservable {
     if (this.settings.remote === false) {
       return this.settings.actions;
     }
-    const listActions = this.definition.list.actions;
+    const listActions = this.definition.list.actions.map(action => new EngineAction(action));
     this.actions = Engine.convertToTree(listActions, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order
     });
@@ -167,15 +168,15 @@ export class ListDataService extends EngineObservable {
     this.enableLoading();
     try {
       // request rows
-      const result = await new RestQuery(this.settings.modelAlias).paginate({
+      const response = await new RestQuery(this.settings.modelAlias).paginate({
         // attributes: this.getColumnNames(),
         page: this.pagination.page,
         limit: this.pagination.limit,
         where: this.getQuery(),
         order: [{ attribute: this.order.attribute, direction: this.order.direction }]
       });
-      this.pagination.total = result.total;
-      this.rows = result.data;
+      this.pagination.total = response.contents.total;
+      this.rows = response.contents.data;
       // time Show table in milliseconds
       setTimeout(() => {
         this.disableLoading();
@@ -215,9 +216,10 @@ export class ListDataService extends EngineObservable {
       }
       this.enableLoading();
       // request data
-      this.definition = await new ModelService(this.settings.modelAlias).requestDefinition({
+      const response = await new ModelService(this.settings.modelAlias).requestDefinition({
         list: this.settings.list === 'default' ? 'default' : atob(this.settings.list)
       });
+      this.definition = response.contents;
       this.sanitizeDefinition();
       // time Show table in milliseconds
       setTimeout(() => {

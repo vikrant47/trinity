@@ -34,18 +34,18 @@ export default class ReferenceWidget extends BaseWidget {
     return Object.assign(fieldSettings, {
       async 'remoteMethod'(queryString) {
         fieldSettings.loading = true;
-        const data = await new RestQuery(_this.widgetSettings.targetModel).findAll({
+        const response = await new RestQuery(_this.widgetSettings.referenced_model_alias).findAll({
           where: {
-            [_this.widgetSettings.displayField]: {
+            [_this.widgetSettings.display_field_name]: {
               '$regex': queryString
             }
           },
-          fields: [_this.widgetSettings.key, _this.widgetSettings.displayField]
+          fields: [_this.widgetSettings.referenced_field_name, _this.widgetSettings.display_field_name]
         });
-        _this.renderComponent.$set(_this.slot, 'options', data.map(rec => {
+        _this.renderComponent.$set(_this.slot, 'options', response.contents.map(rec => {
           return {
-            label: rec[_this.widgetSettings.displayField],
-            value: rec[_this.widgetSettings.key]
+            label: rec[_this.widgetSettings.display_field_name],
+            value: rec[_this.widgetSettings.referenced_field_name]
           };
         }));
         fieldSettings.loading = false;

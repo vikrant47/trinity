@@ -101,6 +101,11 @@
   background-color: white;
 }
 /**Form designer*/
+.left-board .el-scrollbar__wrap{
+background-color: #fafbfe;
+border: 1px solid #e5e2e2;
+}
+
 .drawing-board .drag-wrapper{
   width: 100%;
 }

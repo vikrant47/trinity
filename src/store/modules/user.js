@@ -31,9 +31,10 @@ const user = {
       const rememberMe = userInfo.rememberMe;
       return new Promise((resolve, reject) => {
         login(userInfo.username, userInfo.password, userInfo.code, userInfo.uuid).then(res => {
-          setToken(res.token, rememberMe);
-          commit('SET_TOKEN', res.token);
-          setUserInfo(res, commit);
+          const contents = res.contents;
+          setToken(contents.token, rememberMe);
+          commit('SET_TOKEN', contents.token);
+          setUserInfo(contents, commit);
           // Used when loading the menu for the first time, See specifically src Under the directory permission.js
           commit('SET_LOAD_MENUS', true);
           resolve(res);

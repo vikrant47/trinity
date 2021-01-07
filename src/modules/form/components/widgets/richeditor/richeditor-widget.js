@@ -41,7 +41,12 @@ export default class RicheditorWidget extends BaseWidget {
 
   componentRender(component, h) {
     const config = this.getComponentConfig(component);
-    config.props = { height: this.heights[config.attrs.size] || this.heights.small };
-    return h(Markdown, config, this.getChildren());
+    const options = {
+      props: {
+        height: this.heights[config.attrs.size] || this.heights.small,
+        value: config.attrs.value,
+      }
+    };
+    return h(Markdown, options, this.getChildren());
   }
 }

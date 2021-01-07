@@ -1,7 +1,7 @@
 <template>
   <editor
     ref="toastuiEditor"
-    :initial-value="editorText"
+    :initial-value="editorHtml"
     :options="editorOptions"
     :height="height"
     :initial-edit-type="editorType"
@@ -50,7 +50,19 @@ export default {
       editorOptions: this.options
     };
   },
-  computed: {},
+  computed: {
+    editorHtml: function() {
+      return this.value;
+    },
+  },
+  watch: {
+    'value': {
+      handler(value) {
+        this.$refs.toastuiEditor.invoke('setHtml', value);
+      },
+      deep: true
+    },
+  },
   methods: {
     onEditorChange() {
       this.$emit('change', this.$refs.toastuiEditor.invoke('getHtml'));

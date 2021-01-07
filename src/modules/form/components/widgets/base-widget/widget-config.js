@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG_SECTION = {
       placeholder: 'Please Select Type'
     },
     widgetSettings: {
+      span: 24,
       label: 'Type',
       widgetIcon: 'select',
       defaultValue: 'text',
@@ -38,12 +39,16 @@ export const DEFAULT_CONFIG_SECTION = {
   fieldName: {
     fieldName: 'fieldName',
     widgetAlias: WIDGETS.reference,
+    /* fieldSettings: {
+      disabled: '${widget.system===true}',
+    },*/
     widgetSettings: {
+      span: 24,
       label: 'Field',
       required: true,
       targetModel: 'engine_fields',
-      key: 'code',
-      displayField: 'name',
+      key: 'name',
+      displayField: 'label',
       where: {
         model: '${form.model}'
       }
@@ -53,6 +58,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'widgetSettings.label',
     widgetAlias: WIDGETS.input,
     widgetSettings: {
+      span: 24,
       label: 'Label',
       required: true
     }
@@ -61,6 +67,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'fieldSettings.title',
     widgetAlias: WIDGETS.input,
     widgetSettings: {
+      span: 24,
       label: 'Title',
       required: false
     }
@@ -68,12 +75,14 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.placeholder': {
     fieldName: 'fieldSettings.placeholder',
     widgetSettings: {
+      span: 24,
       label: 'Placeholder'
     }
   },
   'fieldSettings.size': {
     fieldName: 'fieldSettings.size',
     widgetSettings: {
+      span: 24,
       label: 'Size'
     },
     widgetAlias: WIDGETS.select,
@@ -90,6 +99,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'widgetSettings.showLabel',
     widgetAlias: WIDGETS.switch,
     widgetSettings: {
+      span: 24,
       label: 'Show Label',
       default: true
     }
@@ -98,6 +108,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'widgetSettings.labelWidth',
     widgetAlias: WIDGETS.number,
     widgetSettings: {
+      span: 24,
       defaultValue: '0',
       label: 'Label Width',
       min: 0
@@ -107,6 +118,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'widgetSettings.span',
     widgetAlias: WIDGETS.number,
     widgetSettings: {
+      span: 24,
       label: 'Span',
       min: 0,
       max: 100
@@ -116,6 +128,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'fieldSettings.icon',
     widgetAlias: WIDGETS.icon,
     widgetSettings: {
+      span: 24,
       label: 'Icon'
     }
   },
@@ -123,6 +136,7 @@ export const DEFAULT_CONFIG_SECTION = {
     widgetAlias: WIDGETS.switch,
     fieldName: 'fieldSettings.disabled',
     widgetSettings: {
+      span: 24,
       label: 'Disabled',
       default: false
     }
@@ -131,6 +145,7 @@ export const DEFAULT_CONFIG_SECTION = {
     widgetAlias: WIDGETS.switch,
     fieldName: 'widgetSettings.required',
     widgetSettings: {
+      span: 24,
       label: 'Required',
       default: false
     }
@@ -138,10 +153,12 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'widgetSettings.layout',
     widgetAlias: WIDGETS.select,
     fieldSettings: {
+      span: 24,
       required: true,
       placeholder: 'Please Select Widget'
     },
     widgetSettings: {
+      span: 24,
       label: 'Layout',
       widgetIcon: 'select',
       defaultValue: ITEM_LAYOUT.colFormItem
@@ -159,6 +176,7 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.defaultValue': {
     fieldName: 'widgetSettings.defaultValue',
     widgetSettings: {
+      span: 24,
       label: 'Default',
       required: false
     }
@@ -167,6 +185,7 @@ export const DEFAULT_CONFIG_SECTION = {
     fieldName: 'fieldSettings.showWordLimit',
     widgetAlias: WIDGETS.switch,
     widgetSettings: {
+      span: 24,
       label: 'Show Limit'
     }
   }

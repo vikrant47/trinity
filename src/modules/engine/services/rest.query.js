@@ -1,6 +1,6 @@
 import { MongoParser } from '@/modules/engine/services/mongo.parser';
 import { TenantService } from '@/modules/engine/services/tenant.service';
-
+import * as _ from 'lodash';
 export class RestQuery {
   static mongoParser = new MongoParser();
 
@@ -66,12 +66,6 @@ export class RestQuery {
     this.modelAlias = modelAlias;
   }
 
-  paginate(query) {
-    return this.execute({
-      data: { query: query, queryMethod: 'paginate' }
-    });
-  }
-
   findOne(query) {
     return this.execute({
       params: {
@@ -81,11 +75,11 @@ export class RestQuery {
     });
   }
 
-  findById(id) {
+  findById(id, options = {}) {
     return this.execute({
       method: 'get',
       params: {
-        query: { where: { id: id }}, queryMethod: 'findById'
+        query: { where: { id: id }, include: options.include }, queryMethod: 'findOne'
       }
     });
   }
@@ -100,7 +94,7 @@ export class RestQuery {
 
   create(data) {
     return this.execute({
-      method: 'get',
+      method: 'post',
       data: {
         queryMethod: 'create',
         data: data
@@ -110,7 +104,7 @@ export class RestQuery {
 
   update(data, query, ajaxOptions) {
     return this.execute({
-      method: 'get',
+      method: 'put',
       data: {
         queryMethod: 'update',
         query: query,
@@ -121,7 +115,7 @@ export class RestQuery {
 
   delete(query, ajaxOptions) {
     return this.execute({
-      method: 'get',
+      method: 'delete',
       data: {
         queryMethod: 'delete',
         data: { query: query }
@@ -140,7 +134,7 @@ export class RestQuery {
     data.modelAlias = this.modelAlias.replaceAll('.', '\\');
     return TenantService.request(Object.assign({
       url: '/api/engine/models/' + this.modelAlias + '/query',
-      queryMethod: 'get'
+      queryMethod: options.method
     }, options));
   }
 }
