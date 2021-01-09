@@ -8,6 +8,7 @@ export default class ReferenceWidget extends BaseWidget {
     label: 'Reference',
     icon: 'reference'
   };
+  slot = { options: [] };
 
   constructor(settings = {}) {
     super(settings);
@@ -59,6 +60,13 @@ export default class ReferenceWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
+    const refModel = this.formModel['ref_' + this.fieldName];
+    if (refModel) {
+      this.slot.options.push({
+        label: refModel[this.widgetSettings.display_field_name],
+        value: refModel[this.widgetSettings.referenced_field_name || 'id']
+      });
+    }
     return h('el-select', this.getComponentConfig(component), this.getChildren(h));
   }
 }
