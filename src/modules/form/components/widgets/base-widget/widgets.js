@@ -18,6 +18,7 @@ export const WIDGETS = {
   rate: 'rate',
   colorPicker: 'colorPicker',
   formDesigner: 'formDesigner',
+  listDesigner: 'listDesigner',
   reference: 'reference',
   icon: 'icon',
   divider: 'divider'

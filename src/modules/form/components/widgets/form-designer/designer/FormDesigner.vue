@@ -12,7 +12,12 @@
       <el-scrollbar class="left-scrollbar">
         <el-tab-pane class="components-list">
           <el-tabs value="Fields" :stretch="true">
-            <el-tab-pane v-for="(item, listIndex) in getFilteredPallet()" :key="listIndex" :label="item.title" :name="item.title">
+            <el-tab-pane
+              v-for="(item, listIndex) in getFilteredPallet()"
+              :key="listIndex"
+              :label="item.title"
+              :name="item.title"
+            >
               <draggable
                 class="components-draggable"
                 :list="item.list"
@@ -128,7 +133,7 @@ import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
 import DraggableItem from '@/modules/form/components/widgets/form-designer/designer/DraggableItem';
 import {
-  getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
+  getIdGlobal, saveIdGlobal
 } from '@/modules/form/utils/db';
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
@@ -137,8 +142,9 @@ import { Engine } from '@/modules/engine/core/engine';
 let beautifier;
 let oldActiveId;
 let tempactiveWidget;
-const drawingListInDB = getDrawingList();
-const formConfInDB = getFormConf();
+let hash = null;
+// const drawingListInDB = [];// getDrawingList();
+// const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
 export default {
   name: 'FormDesigner',
@@ -148,6 +154,12 @@ export default {
     DraggableItem
   },
   props: {
+    value: {
+      type: Object,
+      default() {
+        return { widgets: [] };
+      }
+    },
     pallet: {
       type: Array,
       default() {
@@ -161,12 +173,12 @@ export default {
       configVisible: false,
       logo: '',
       idGlobal,
-      formConf,
+      formConf: Engine.clone(formConf),
       inputComponents,
       selectComponents,
       layoutComponents,
       labelWidth: 100,
-      drawingList: drawingDefalut,
+      drawingList: Engine.clone(this.value && this.value.widgets || []),
       drawingData: {},
       activeId: drawingDefalut[0].formId,
       drawerVisible: false,
@@ -177,11 +189,16 @@ export default {
       showFileName: false,
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
-        this.$emit('input', { widgets: list }); // emitting event to top form item
-        return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
+        const newHash = JSON.stringify(list);
+        if (hash !== newHash) {
+          this.$emit('input', { widgets: list }); // emitting event to top form item
+          hash = newHash;
+        }
+
+        // return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
       }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
-      leftComponents: this.pallet,
+      leftComponents: this.pallet
     };
   },
   computed: {
@@ -210,8 +227,11 @@ export default {
     drawingList: {
       handler(val) {
         this.saveDrawingListDebounce(val);
-        if (val.length === 0) this.idGlobal = 100;
-        this.updateAllSelectedItems({ palletSettings: { hidden: true }});
+        if (val.length === 0) {
+          this.idGlobal = 100;
+        } else {
+          this.updateAllSelectedItems({ palletSettings: { hidden: true }});
+        }
       },
       deep: true
     },
@@ -221,26 +241,27 @@ export default {
       },
       immediate: true
     },
-    leftComponents: {
+    pallet: {
       handler(val) {
-        this.filteredPallet = this.getFilteredPallet();
-      },
-      deep: true
+        this.drawingList = [];
+      }
     },
+    value: {
+      handler(val) {
+        if (val.widgets && val.widgets.length > 0) {
+          this.drawingList = val.widgets;
+        }
+      }
+    }
   },
   mounted() {
-    if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
-      this.drawingList = drawingListInDB;
-    } else {
-      this.drawingList = drawingDefalut;
-    }
-    this.activeFormItem(this.drawingList[0]);
-    if (formConfInDB) {
-      this.formConf = formConfInDB;
+    if (this.drawingList.length > 0) {
+      this.activeFormItem(this.drawingList[0]);
     }
     loadBeautifier(btf => {
       beautifier = btf;
     });
+    hash = JSON.stringify(this.drawingList);
     const clipboard = new ClipboardJS('#copyNode', {
       text: trigger => {
         const codeStr = this.generateCode();
@@ -261,9 +282,9 @@ export default {
   },
   methods: {
     getFilteredPallet() {
-      return this.leftComponents.map((palletItem) => {
+      return this.pallet.map((palletItem) => {
         return Object.assign({}, palletItem, {
-          list: palletItem.list.filter(item => !item.palletSettings.hidden),
+          list: palletItem.list.filter(item => !item.palletSettings.hidden)
         });
       });
     },
@@ -330,7 +351,7 @@ export default {
       }
     },
     updatedSelectedPalletItem(selectedItem, props) {
-      for (const pallet of this.leftComponents) {
+      for (const pallet of this.pallet) {
         if (pallet.updatable === true) {
           for (const item of pallet.list) {
             if (selectedItem.id === item.id) {
@@ -470,7 +491,7 @@ export default {
     refreshJson(data) {
       this.drawingList = deepClone(data.widgets);
       delete data.widgets;
-      this.formConf = data;
+      this.formConf = data.formConf || Engine.clone(formConf);
     }
   }
 };

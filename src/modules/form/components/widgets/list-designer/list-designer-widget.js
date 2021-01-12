@@ -1,8 +1,8 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-import FormDesigner from '@/modules/form/components/widgets/form-designer/designer/FormDesigner';
 import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
-
-export default class FormDesignerWidget extends BaseWidget {
+import ListDesigner from '@/modules/form/components/widgets/list-designer/ListDesigner';
+import { Engine } from '@/modules/engine/core/engine';
+export default class ListDesignerWidget extends BaseWidget {
   init() {
     // this.transient.push({ widgetSettings: ['pallet'] });
     Object.assign(this.widgetSettings, {
@@ -18,7 +18,7 @@ export default class FormDesignerWidget extends BaseWidget {
   };
 
   clearPallets() {
-    this.widgetSettings.pallet = [];
+    this.widgetSettings.pallet.length = 0;
     return this;
   }
 
@@ -36,16 +36,7 @@ export default class FormDesignerWidget extends BaseWidget {
   }
 
   getPallet(widgetSettings) {
-    const FormWidgetService = require('@/modules/form/services/form.widget.service').FormWidgetService;
-    return widgetSettings.pallet.map((entry) => {
-      entry.list = entry.list.map((widget) => {
-        if (!(widget instanceof BaseWidget)) {
-          widget = new FormWidgetService().getWidgetInstance(widget);
-        }
-        return widget;
-      });
-      return entry;
-    });
+    return widgetSettings.pallet;
   }
 
   componentRender(component, h) {
@@ -53,7 +44,7 @@ export default class FormDesignerWidget extends BaseWidget {
     if (this.designMode) {
       return h('div', {
         domProps: {
-          innerHTML: '<h3>Form Designer</h3>'
+          innerHTML: '<h3>List Designer</h3>'
         },
         class: {},
         style: {
@@ -61,14 +52,23 @@ export default class FormDesignerWidget extends BaseWidget {
         }
       });
     } else {
-      return h(FormDesigner, {
+      const value = { widgets: [] };
+      if (config.attrs.value && config.attrs.value.widgets) {
+        const widgets = [];
+        const fields = this.getForm().getFieldsByKey('id');
+        for (const widget of config.attrs.value.widgets) {
+          widgets.push(Engine.clone(fields[widget.id]));
+        }
+        value.widgets = widgets;
+      }
+      return h(ListDesigner, {
         on: {
           input: (value) => {
             this.setValue(value, false);
           }
         },
         props: {
-          value: config.attrs.value,
+          value: value,
           pallet: this.getPallet(config)
         }
       }, this.getChildren());

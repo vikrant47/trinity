@@ -103,7 +103,7 @@ export default {
     };
   }, watch: {
     'listService.definition.list.columns'() {
-      this.tableColumns = this.listService.definition.list.columns;
+      this.tableColumns = this.listService.definition.list.fields;
     }
   },
   created() {

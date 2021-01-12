@@ -126,9 +126,9 @@ export class RestQuery {
   execute(options) {
     const data = options.data || {};
     const params = options.params || {};
-    if (options.method.toLowerCase() === 'get') {
+    if (options.method.toLowerCase() === 'get' && params.query) {
       params.query = RestQuery.toQueryBuilderRules(params.query);
-    } else {
+    } else if (data.query) {
       data.query = RestQuery.toQueryBuilderRules(data.query);
     }
     data.modelAlias = this.modelAlias.replaceAll('.', '\\');

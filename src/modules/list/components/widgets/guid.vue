@@ -1,22 +1,22 @@
 <template>
   <div class="cell-wrapper">
-    <span v-if="!href">{{ row[column.field] }}</span>
+    <span v-if="!href">{{ value }}</span>
     <el-link
       v-if="href"
       @click="$emit('click',row,column)"
     >
-      <span>{{ row[column.field] }}</span>
+      <span>{{ value }}</span>
     </el-link>
   </div>
 </template>
 
 <script>
-import TextWidget from '@/modules/list/components/widgets/text';
+import BaseWidget from '@/modules/list/components/widgets/base-widget';
 
 export default {
   name: 'Guid',
   with: '30',
-  extends: TextWidget
+  extends: BaseWidget
 };
 </script>
 

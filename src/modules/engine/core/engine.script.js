@@ -12,7 +12,7 @@ export class EngineScript {
   static compile(script) {
     return new Function(`
     "use strict";
-    return ${script}
+    return ${script.trim()}
     `)();
   }
 

@@ -1,11 +1,11 @@
-export const FORM_EVENTS = {
-  form: {
-    error: 'form.error',
-    init: 'form.init',
-    beforeRender: 'form.beforeRender',
-    afterRender: 'form.afterRender',
-    beforeDestroy: 'form.beforeDestroy',
-    beforeSubmit: 'form.beforeSubmit'
+export const LIST_EVENTS = {
+  list: {
+    error: 'list.error',
+    init: 'list.init',
+    beforeRender: 'list.beforeRender',
+    afterRender: 'list.afterRender',
+    beforeDestroy: 'list.beforeDestroy',
+    beforeSubmit: 'list.beforeSubmit'
   },
   definition: {
     beforeFetch: 'beforeFetch',
@@ -32,17 +32,17 @@ export const FORM_EVENTS = {
   }
 };
 
-export class FormEvent {
+export class ListEvent {
   name;
-  form;
+  list;
 
-  constructor(name, form) {
+  constructor(name, list) {
     this.name = name;
-    this.form = form;
+    this.list = list;
   }
 
-  getForm() {
-    return this.form;
+  getList() {
+    return this.list;
   }
 
   getName() {
@@ -50,14 +50,14 @@ export class FormEvent {
   }
 }
 
-export class WidgetEvent extends FormEvent {
+export class ListWidgetEvent extends ListEvent {
   name;
   widget;
 
-  constructor(name, widget, form) {
-    super(name, form);
+  constructor(name, widget, list) {
+    super(name, list);
     this.name = name;
-    this.form = form;
+    this.list = list;
     this.widget = widget;
   }
 

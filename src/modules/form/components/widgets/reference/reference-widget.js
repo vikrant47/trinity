@@ -10,8 +10,14 @@ export default class ReferenceWidget extends BaseWidget {
   };
   slot = { options: [] };
 
+  valueInitialized = false;
+
   constructor(settings = {}) {
     super(settings);
+  }
+
+  init() {
+    super.init();
   }
 
   getEvents() {
@@ -60,12 +66,18 @@ export default class ReferenceWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    const refModel = this.formModel['ref_' + this.fieldName];
-    if (refModel) {
-      this.slot.options.push({
-        label: refModel[this.widgetSettings.display_field_name],
-        value: refModel[this.widgetSettings.referenced_field_name || 'id']
-      });
+    if (!this.valueInitialized) {
+      const refModel = this.formModel['ref_' + this.fieldName];
+      if (refModel) {
+        const value = refModel[this.widgetSettings.referenced_field_name || 'id'];
+        if (this.slot.options.findIndex(option => option.value === value) < 0) {
+          this.slot.options.push({
+            label: refModel[this.widgetSettings.display_field_name],
+            value: value
+          });
+        }
+        this.valueInitialized = true;
+      }
     }
     return h('el-select', this.getComponentConfig(component), this.getChildren(h));
   }

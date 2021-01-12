@@ -1,15 +1,15 @@
 <template>
   <div class="cell-wrapper">
     <i class="el-icon-time" />
-    <span style="margin-left: 10px">{{ row[column.field] }}</span>
+    <span style="margin-left: 10px">{{ value }}</span>
   </div>
 </template>
 <script>
-import TextWidget from './text';
+import BaseWidget from '@/modules/list/components/widgets/base-widget';
 
 export default {
   name: 'DateTime',
-  extends: TextWidget
+  extends: BaseWidget
 };
 </script>
 

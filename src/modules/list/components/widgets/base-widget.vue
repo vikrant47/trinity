@@ -1,12 +1,12 @@
 <template>
   <div class="cell-wrapper">
-    {{ row[column.field] }}
+    {{ value }}
   </div>
 </template>
 <script>
 
 export default {
-  name: 'TextWidget',
+  name: 'BaseWidget',
   props: {
     href: {
       type: Boolean,
@@ -20,6 +20,11 @@ export default {
       type: Object,
       required: true
     }
+  },
+  data() {
+    return {
+      value: this.row[this.column.name]
+    };
   }
 };
 </script>

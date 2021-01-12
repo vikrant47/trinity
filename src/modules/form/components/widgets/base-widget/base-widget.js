@@ -13,7 +13,7 @@ export class BaseWidget extends EngineObservable {
   static defaultPalletSettings = {
     label: 'Input',
     icon: 'input',
-    hidden: false,
+    hidden: false
   };
   static defaultWidgetSettings = {
     referenced_field_name: 'id',
@@ -105,7 +105,8 @@ export class BaseWidget extends EngineObservable {
       renderComponent.$emit('input_update', value);
     }, 500)
   };
-  immutable_configs = [];
+  immutable_configs = ['formModel'];
+
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -118,10 +119,14 @@ export class BaseWidget extends EngineObservable {
     this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings);
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
-    this.init();
   }
-  init() {}
-  setEngineForm(engineForm) {
+
+  init() {
+  }
+  getForm() {
+    return this.engineForm;
+  }
+  setForm(engineForm) {
     this.engineForm = engineForm;
   }
 

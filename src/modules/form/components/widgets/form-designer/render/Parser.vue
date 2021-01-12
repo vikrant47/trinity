@@ -25,12 +25,10 @@ const layouts = {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
     widget.setFormModel(this.formModel);*/
-    const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
-    this.engineForm.addWidgetRef(widgetInstance);
-    widgetInstance.setEngineForm(this.engineForm);
+    const widgetInstance = getWidgetInstance.call(this, widget);
+    // widgetInstance.reset(widget);
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
-    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.init, widgetInstance, widget), {});
-    const listeners = buildListeners.call(this, widget);
+    const listeners = buildListeners.call(this, widgetInstance);
     const child = renderChildren.apply(this, arguments);
     return (
       <render widget={widgetInstance} {...{ on: listeners }} wrapper={true} form-model={formData}
@@ -112,8 +110,29 @@ function renderChildren(h, widget) {
   return renderFormItem.call(this, h, config.children);
 }
 
+function getWidgetInstance(widgetJson) {
+  const fieldName = widgetJson.fieldName;
+  if (!this.$options.widgets[fieldName]) {
+    const field = this.engineForm.getFieldByName(fieldName);
+    // assigning default values
+    Object.assign(widgetJson.widgetSettings, {
+      display_field_name: field.display_field_name,
+      referenced_field_name: field.referenced_field_name,
+      referenced_model_alias: field.referenced_model_alias,
+    });
+    const widgetInstance = new FormWidgetService().getWidgetInstance(widgetJson);
+    this.engineForm.addWidgetRef(widgetInstance);
+    widgetInstance.setForm(this.engineForm);
+    widgetInstance.init();
+    this.$options.widgets[fieldName] = widgetInstance;
+    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.init, widgetInstance, widgetJson), {});
+  }
+  return this.$options.widgets[fieldName];
+}
+
 function setValue(event, config, widget) {
   if (typeof event !== 'undefined') {
+    const previousValue = _.get(this.formData, widget.fieldName);
     this.$set(config, 'defaultValue', event);
     if (widget.fieldName.indexOf('.') > 0) {
       const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
@@ -121,8 +140,14 @@ function setValue(event, config, widget) {
     } else {
       this.$set(this.formData, widget.fieldName, event);
     }
-    this.$emit('fieldValueUpdated', widget);
-    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, { value: event }), {});
+    if (previousValue !== event) {
+      this.$emit('fieldValueUpdated', widget);
+      this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, {
+        previous: previousValue,
+        current: event,
+        value: event
+      }), {});
+    }
   }
 }
 
@@ -181,6 +206,10 @@ export default {
     this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
     // await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.init), {});
+  },
+  created() {
+    // access the custom option using $options
+    this.$options.widgets = {};
   },
   methods: {
     initFormData(widgets, formModel) {

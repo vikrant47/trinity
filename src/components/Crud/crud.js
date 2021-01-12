@@ -1,9 +1,9 @@
-import { initData, download } from '@/api/data';
+import { download } from '@/api/data';
 import { parseTime, downloadFile } from '@/utils/index';
 import Vue from 'vue';
 import { ModelService } from '@/modules/engine/services/model.service';
 import { RestQuery } from '@/modules/engine/services/rest.query';
-import { ListService } from '@/modules/list/services/list.service';
+import { EngineList } from '@/modules/list/engine-api/engine.list';
 
 /**
  * CRUD configuration
@@ -149,7 +149,7 @@ function CRUD(options) {
         new ModelService(crud.modelAlias).requestDefinition({
           list: crud.list
         }).then(definition => {
-          crud.definition = new ListService(definition).sanitizeDefinition();
+          crud.definition = new EngineList(definition).sanitizeDefinition();
           // time Show table in milliseconds
           setTimeout(() => {
             crud.loading = false;
