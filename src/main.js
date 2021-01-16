@@ -31,7 +31,7 @@ import './router/index'; // permission control
 import 'echarts-gl';
 
 // custom css
-import './assets/styles/custom.css';
+import './assets/styles/custom.scss';
 
 Vue.use(VueHighlightJS);
 Vue.use(mavonEditor);

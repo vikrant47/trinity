@@ -1,10 +1,10 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function get() {
   return request({
     url: 'api/email',
     method: 'get'
-  })
+  });
 }
 
 export function update(data) {
@@ -12,7 +12,7 @@ export function update(data) {
     url: 'api/email',
     data,
     method: 'put'
-  })
+  });
 }
 
 export function send(data) {
@@ -20,5 +20,5 @@ export function send(data) {
     url: 'api/email',
     data,
     method: 'post'
-  })
+  });
 }

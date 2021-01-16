@@ -18,7 +18,6 @@
         v-loading="listService.loading"
         resizable
         border
-        height="460"
         stripe
         :data="listService.rows"
         highlight-current-row
@@ -26,11 +25,11 @@
         @current-change="listEventHandler.handleCurrentChange($event)"
         @sort-change="listEventHandler.sortHandler($event)"
       >
-        <el-table-column type="selection" width="30" />
+        <el-table-column fixed type="selection" width="40" />
         <el-table-column
-          v-for="column in listService.definition.list.columns.filter(col=>col.visible)"
-          :key="column.field"
-          :prop="column.field"
+          v-for="column in listFields.filter(field=>field.visible)"
+          :key="column.name"
+          :prop="column.name"
           :label="column.label"
           :sortable="column.config.sortable && 'custom'"
           :width="column.config.width"
@@ -47,8 +46,8 @@
               v-if="column.config.widget"
               :row="row"
               :column="column"
-              :href="column.field==='id'"
-              @click="$emit('cellClick',$event,row,column)"
+              :href="column.name==='id'"
+              @click="cellClick($event,row,column)"
             />
           </template>
         </el-table-column>
@@ -66,12 +65,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import EnListToolbar from '@/modules/list/components/toolbar/EnListToolbar';
 import EnPagination from '@/modules/list/components/pagination/EnPagination';
-import { ListDataService } from '@/modules/list/services/list.data.service';
+import { EngineList } from '@/modules/list/engine-api/engine.list';
 import { ListEventHandler } from '@/modules/list/services/list.event.handler';
 import { Pagination } from '@/modules/list/models/pagination';
+import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
 
 export default {
   name: 'EnList',
@@ -86,7 +85,7 @@ export default {
       type: String,
       required: true
     },
-    columns: {
+    fields: {
       type: Array,
       default: () => {
         return [];
@@ -123,33 +122,37 @@ export default {
   },
   data() {
     return {
-      paginationModel: null,
-      listService: null
+      listFields: [],
+      paginationModel: new Pagination(this.pagination),
+      listService: new EngineList({
+        pagination: this.paginationModel,
+        remote: this.remote,
+        showLoader: this.showLoader,
+        loaderDelay: this.loaderDelay,
+        modelAlias: this.modelAlias,
+        list: this.list,
+        fields: this.fields,
+        rows: this.rows || [],
+        actions: this.actions || []
+      })
     };
   },
   beforeCreate() {
     this.listEventHandler = new ListEventHandler(this);
   },
   created() {
-    const paginationModel = new Pagination(this.pagination);
-    const listService = new ListDataService({
-      pagination: paginationModel,
-      remote: this.remote,
-      showLoader: this.showLoader,
-      loaderDelay: this.loaderDelay,
-      modelAlias: this.modelAlias,
-      list: this.list,
-      columns: this.columns,
-      rows: this.rows || [],
-      actions: this.actions || []
+    this.listService.loadDefinition().then(() => {
+      this.listFields = this.listService.getWidgets();
+      this.listService.refresh();
     });
-    listService.loadDefinition().then(() => {
-      listService.refresh();
-    });
-    Vue.set(this, 'listService', listService);
-    Vue.set(this, 'paginationModel', paginationModel);
   },
   methods: {
+    async cellClick($event, row, column) {
+      const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.listService);
+      Object.assign(listEvent, { rowData: row, columnData: column });
+      await this.listService.triggerProcessors(listEvent, {});
+      this.$emit('cellClick', $event, row, column);
+    },
     copy() {
       for (const key in this.currentRow) {
         this.form[key] = this.currentRow[key];

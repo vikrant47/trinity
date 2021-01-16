@@ -1,118 +1,67 @@
 <template>
   <div class="action-wrapper">
-    <el-dropdown v-if="children.length > 0">
+    <el-dropdown v-if="action.children.length > 0">
       <el-button
-        :id="id"
-        :type="type"
-        :children="children"
-        :name="name"
-        :icon="icon"
-        :label="label"
-        :shape="shape"
-        :plain="plain"
-        :loading="spinner"
-        :size="size"
+        :id="action.id"
+        :type="action.type"
+        :children="action.children"
+        :name="action.name"
+        :icon="action.icon"
+        :label="action.label"
+        :shape="action.shape"
+        :plain="action.plain"
+        :loading="action.loading"
+        :size="action.size"
         @click="process($event)"
-      >{{ label }}
+      >{{ action.label }}
       </el-button>
       <el-dropdown-menu
-        v-for="child of children"
+        v-for="child of action.children"
         :key="child.id"
         slot="dropdown"
       >
         <en-action
-          :id="child.id"
-          shape="square"
-          :type="child.type"
-          :children="child.children"
-          :name="child.name"
-          :icon="child.icon"
-          :label="child.label"
-          :plain="child.plain"
-          :processor="child.processor"
+          :action="child"
           :context="context"
-          :loading="child.loading"
-          :size="child.size"
-        >{{ label }}
+        >{{ child.label }}
         </en-action>
       </el-dropdown-menu>
     </el-dropdown>
     <el-button
-      v-if="children.length===0"
-      :id="id"
-      :type="type"
-      :children="children"
-      :name="name"
-      :icon="icon"
-      :label="label"
-      :shape="shape"
-      :loading="spinner"
-      :size="size"
+      v-if="action.children.length===0"
+      :id="action.id"
+      :type="action.type"
+      :children="action.children"
+      :name="action.name"
+      :icon="action.icon"
+      :label="action.label"
+      :shape="action.shape"
+      :loading="action.loading"
+      :size="action.size"
       @click="process($event)"
-    >{{ label }}
+    >{{ action.label }}
     </el-button>
   </div>
 </template>
 
 <script>
 
-import { EventProcessor } from '@/modules/engine/core/event.processor';
+import { EngineAction } from '@/modules/engine/core/engine.action';
 
 export default {
   name: 'EnAction',
   props: {
-    id: {
-      type: String,
-      require: true,
-      default: null
-    },
-    label: {
-      type: String,
-      require: true,
-      default: null
-    },
-    name: {
-      type: String,
-      require: true,
-      default: null
-    },
-    shape: {
-      type: String,
-      default: 'plain'
-    },
-    size: {
-      type: String,
-      default: 'small'
-    },
-    icon: {
-      type: String,
-      default: 'el-icon-check'
-    },
-    type: {
-      type: String,
-      default: 'default'
-    },
-    plain: {
-      type: Boolean,
-      default: true
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    hasParent: {
-      type: Boolean,
-      default: false
-    },
-    children: {
-      type: Array,
+    action: {
+      type: EngineAction,
       default() {
-        return [];
+        return new EngineAction();
       }
     },
-    processor: {
-      type: String,
-      default: '()=>{}'
+    event: {
+      type: Object,
+      default: () => {
+        return {};
+      }
     },
     context: {
       type: Object,
@@ -122,27 +71,19 @@ export default {
     }
   },
   data() {
-    return {
-      spinner: false
-    };
+    return {};
   },
   created() {
-    if (this.type.indexOf('plain') > -1) {
-      this.type = this.type.replaceAll('plain', '');
-      this.plain = true;
-    }
-    this.spinner = this.loading;
   },
   methods: {
     async process($event) {
-      this.spinner = true;
+      this.loading = true;
       try {
-        const processor = new EventProcessor({ handler: this.processor });
-        await processor.process($event, this.context);
+        await this.action.execute(this.event, this.context);
       } catch (e) {
         console.error('Error while processing action handler ', e, { context: this.context });
       } finally {
-        this.spinner = false;
+        this.loading = false;
       }
     }
   }

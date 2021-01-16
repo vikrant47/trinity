@@ -10,35 +10,39 @@
         </div>
       </div>-->
       <el-scrollbar class="left-scrollbar">
-        <div class="components-list">
-          <div v-for="(item, listIndex) in leftComponents" :key="listIndex">
-            <div class="components-title">
-              <svg-icon icon-class="component" />
-              {{ item.title }}
-            </div>
-            <draggable
-              class="components-draggable"
-              :list="item.list"
-              :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
-              :clone="cloneWidget"
-              draggable=".components-item"
-              :sort="false"
-              @end="onEnd"
+        <el-tab-pane class="components-list">
+          <el-tabs value="Fields" :stretch="true">
+            <el-tab-pane
+              v-for="(item, listIndex) in getFilteredPallet()"
+              :key="listIndex"
+              :label="item.title"
+              :name="item.title"
             >
-              <div
-                v-for="(element, index) in item.list"
-                :key="index"
-                class="components-item"
-                @click="addWidget(element)"
+              <draggable
+                class="components-draggable"
+                :list="item.list"
+                :group="{ name: 'componentsGroup', pull: 'clone', put: false }"
+                :clone="cloneWidget"
+                draggable=".components-item"
+                :sort="false"
+                @end="onEnd"
               >
-                <div class="components-body">
-                  <svg-icon :icon-class="element.palletSettings.icon" />
-                  {{ element.palletSettings.label }}
+                <div
+                  v-for="(element, index) in item.list"
+                  :key="index"
+                  :v-if="!element.palletSettings.hidden"
+                  class="components-item"
+                  @click="addWidget(element)"
+                >
+                  <div class="components-body">
+                    <svg-icon :icon-class="element.palletSettings.icon" />
+                    {{ element.palletSettings.label }}
+                  </div>
                 </div>
-              </div>
-            </draggable>
-          </div>
-        </div>
+              </draggable>
+            </el-tab-pane>
+          </el-tabs>
+        </el-tab-pane>
       </el-scrollbar>
     </div>
 
@@ -78,7 +82,7 @@
                 :active-id="activeId"
                 :form-conf="formConf"
                 @activeWidget="activeDraggableItem"
-                @copyWidget="drawingItemCopy"
+                @copyWidget="addWidget"
                 @deleteWidget="drawingItemDelete"
                 @showConfig="showConfig"
               />
@@ -129,16 +133,18 @@ import { makeUpCss } from '@/modules/form/components/generator/css';
 import drawingDefalut from '@/modules/form/components/generator/drawingDefalut';
 import DraggableItem from '@/modules/form/components/widgets/form-designer/designer/DraggableItem';
 import {
-  getDrawingList, saveDrawingList, getIdGlobal, saveIdGlobal, getFormConf
+  getIdGlobal, saveIdGlobal
 } from '@/modules/form/utils/db';
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { Engine } from '@/modules/engine/core/engine';
 
 let beautifier;
 let oldActiveId;
 let tempactiveWidget;
-const drawingListInDB = getDrawingList();
-const formConfInDB = getFormConf();
+let hash = null;
+// const drawingListInDB = [];// getDrawingList();
+// const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
 export default {
   name: 'FormDesigner',
@@ -147,17 +153,32 @@ export default {
     RightPanel,
     DraggableItem
   },
+  props: {
+    value: {
+      type: Object,
+      default() {
+        return { widgets: [] };
+      }
+    },
+    pallet: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
+  },
   data() {
     return {
+      activePallet: 'Fields',
       configVisible: false,
       logo: '',
       idGlobal,
-      formConf,
+      formConf: Engine.clone(formConf),
       inputComponents,
       selectComponents,
       layoutComponents,
       labelWidth: 100,
-      drawingList: drawingDefalut,
+      drawingList: Engine.clone(this.value && this.value.widgets || []),
       drawingData: {},
       activeId: drawingDefalut[0].formId,
       drawerVisible: false,
@@ -168,31 +189,23 @@ export default {
       showFileName: false,
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
-        this.$emit('input', { widgets: list }); // emitting event to top form item
-        return saveDrawingList(list);
+        const newHash = JSON.stringify(list);
+        if (hash !== newHash) {
+          this.$emit('input', { widgets: list }); // emitting event to top form item
+          hash = newHash;
+        }
+
+        // return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
       }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
-      leftComponents: [
-        /* {
-          title: 'Input components',
-          list: inputComponents
-        },
-        {
-          title: 'Selective components',
-          list: selectComponents
-        },
-        {
-          title: 'Layout component',
-          list: layoutComponents
-        },*/
-        {
-          title: 'Custom',
-          list: new FormWidgetService().getWidgetInstancesAsArray()
-        }
-      ]
+      leftComponents: this.pallet
     };
   },
-  computed: {},
+  computed: {
+    filteredPallet() {
+      return this.getFilteredPallet();
+    }
+  },
   watch: {
     // eslint-disable-next-line func-names
     'activeWidget.widgetSettings.label': function(val, oldVal) {
@@ -214,7 +227,11 @@ export default {
     drawingList: {
       handler(val) {
         this.saveDrawingListDebounce(val);
-        if (val.length === 0) this.idGlobal = 100;
+        if (val.length === 0) {
+          this.idGlobal = 100;
+        } else {
+          this.updateAllSelectedItems({ palletSettings: { hidden: true }});
+        }
       },
       deep: true
     },
@@ -223,21 +240,28 @@ export default {
         this.saveIdGlobalDebounce(val);
       },
       immediate: true
+    },
+    pallet: {
+      handler(val) {
+        // this.drawingList = [];
+      }
+    },
+    value: {
+      handler(val) {
+        if (val.widgets && val.widgets.length > 0) {
+          this.drawingList = val.widgets;
+        }
+      }
     }
   },
   mounted() {
-    if (Array.isArray(drawingListInDB) && drawingListInDB.length > 0) {
-      this.drawingList = drawingListInDB;
-    } else {
-      this.drawingList = drawingDefalut;
-    }
-    this.activeFormItem(this.drawingList[0]);
-    if (formConfInDB) {
-      this.formConf = formConfInDB;
+    if (this.drawingList.length > 0) {
+      this.activeFormItem(this.drawingList[0]);
     }
     loadBeautifier(btf => {
       beautifier = btf;
     });
+    hash = JSON.stringify(this.drawingList);
     const clipboard = new ClipboardJS('#copyNode', {
       text: trigger => {
         const codeStr = this.generateCode();
@@ -253,7 +277,17 @@ export default {
       this.$message.error('Code copy failed');
     });
   },
+  created() {
+    this.updateAllSelectedItems({ palletSettings: { hidden: true }});
+  },
   methods: {
+    getFilteredPallet() {
+      return this.pallet.map((palletItem) => {
+        return Object.assign({}, palletItem, {
+          list: palletItem.list.filter(item => !item.palletSettings.hidden)
+        });
+      });
+    },
     onConfigClose(done) {
       done();
     },
@@ -316,11 +350,30 @@ export default {
         this.activeId = this.idGlobal;
       }
     },
-    addWidget(item) {
+    updatedSelectedPalletItem(selectedItem, props) {
+      for (const pallet of this.pallet) {
+        if (pallet.updatable === true) {
+          for (const item of pallet.list) {
+            if (selectedItem.id === item.id) {
+              Object.assign(item.palletSettings, props.palletSettings);
+            }
+          }
+        }
+      }
+    },
+    updateAllSelectedItems(prop) {
+      const selectedItems = this.drawingList;
+      for (const selectedItem of selectedItems) {
+        this.updatedSelectedPalletItem(selectedItem, prop);
+      }
+    },
+    addWidget(item, list) {
+      list = list || this.drawingList;
       const clone = deepClone(item);
       this.fetchData(clone);
-      this.drawingList.push(clone);
+      list.push(clone);
       this.activeFormItem(clone);
+      this.updatedSelectedPalletItem(item, { palletSettings: { hidden: true }});
     },
     cloneWidget(original) {
       const clone = deepClone(original);// deepClone(origin);
@@ -355,7 +408,7 @@ export default {
       document.getElementById('copyNode').click();
     },
     empty() {
-      this.$confirm('确定要清空所有组件吗？', '提示', { type: 'warning' }).then(
+      this.$confirm('Are you sure you want to clear all components?', 'Prompt', { type: 'warning' }).then(
         () => {
           this.drawingList = [];
           this.idGlobal = 100;
@@ -368,12 +421,14 @@ export default {
       this.activeFormItem(clone);
     },
     drawingItemDelete(index, list) {
+      const item = list[index];
       list.splice(index, 1);
       this.$nextTick(() => {
         const len = this.drawingList.length;
         if (len) {
           this.activeFormItem(this.drawingList[len - 1]);
         }
+        this.updatedSelectedPalletItem(item, { palletSettings: { hidden: false }});
       });
     },
     generateCode() {
@@ -436,7 +491,7 @@ export default {
     refreshJson(data) {
       this.drawingList = deepClone(data.widgets);
       delete data.widgets;
-      this.formConf = data;
+      this.formConf = data.formConf || Engine.clone(formConf);
     }
   }
 };

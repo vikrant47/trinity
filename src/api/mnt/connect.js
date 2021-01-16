@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 export function testDbConnect(data) {
   return request({
     url: 'api/database/testConnect',
     method: 'post',
     data
-  })
+  });
 }
 
 export function testServerConnect(data) {
@@ -13,5 +13,5 @@ export function testServerConnect(data) {
     url: 'api/serverDeploy/testConnect',
     method: 'post',
     data
-  })
+  });
 }

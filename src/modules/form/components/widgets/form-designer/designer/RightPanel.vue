@@ -5,6 +5,7 @@ import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 // Make the change Render Key available when the target component changes
 import { Engine } from '@/modules/engine/core/engine';
+import { debounce } from '@/utils';
 
 export default {
   name: 'RightPanel',
@@ -47,7 +48,7 @@ export default {
   watch: {
     'formModel': {
       handler(model) {
-        setTimeout(() => { // intended delay
+        debounce(() => { // intended delay
           for (const key in model) {
             this.$set(this.activeWidget, key, model[key]);
           }

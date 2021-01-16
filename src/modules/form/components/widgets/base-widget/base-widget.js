@@ -12,10 +12,12 @@ import { EngineObservable } from '@/modules/engine/core/engine.observable';
 export class BaseWidget extends EngineObservable {
   static defaultPalletSettings = {
     label: 'Input',
-    icon: 'input'
+    icon: 'input',
+    hidden: false
   };
   static defaultWidgetSettings = {
-    span: 24,
+    referenced_field_name: 'id',
+    span: 12,
     label: null,
     formId: null,
     layout: ITEM_LAYOUT.colFormItem,
@@ -40,7 +42,8 @@ export class BaseWidget extends EngineObservable {
     ref: null,
     refInFor: true,
     visible: true,
-    triggers: []
+    triggers: [],
+    wrapper: true
   };
   static defaultFieldSettings = {
     disabled: false,
@@ -53,10 +56,23 @@ export class BaseWidget extends EngineObservable {
     step: 1,
     showStops: false,
     range: false,
-    multiple: false
+    multiple: false,
+    size: 'small'
   };
   designMode = false;
-  transient = ['configSection', 'evalContext'];
+  transient = [
+    'configSection',
+    'evalContext',
+    'transient',
+    'eventSeen',
+    'events',
+    'waitPromises',
+    'evalContext',
+    'data',
+    'componentConfig',
+    'fieldSettings..*',
+    'widgetSettings..*'
+  ];
   fieldName = null;
   slot = {};
   events = {};
@@ -84,6 +100,13 @@ export class BaseWidget extends EngineObservable {
   wrapperConfig = {};
   engineForm;
   data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
+  static debouncedCallbacks = {
+    valueChanged: _.debounce((renderComponent, value) => {
+      renderComponent.$emit('input_update', value);
+    }, 500)
+  };
+  immutable_configs = ['formModel'];
+
   /**
    * @property model: WidgetModel
    * Constructor always called before child field initialization
@@ -98,7 +121,12 @@ export class BaseWidget extends EngineObservable {
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
   }
 
-  setEngineForm(engineForm) {
+  init() {
+  }
+  getForm() {
+    return this.engineForm;
+  }
+  setForm(engineForm) {
     this.engineForm = engineForm;
   }
 
@@ -164,9 +192,11 @@ export class BaseWidget extends EngineObservable {
       this.renderComponent.$set(this.renderComponent.formModel, this.fieldName, value);
       if (repaint) {
         this.repaint();
-        this.renderComponent.$emit('input', value);
       }
+      this.renderComponent.$emit('input', value);
+      BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
     }
+    return this;
   }
 
   marshall() {
@@ -185,18 +215,23 @@ export class BaseWidget extends EngineObservable {
     return new FormWidgetService().getWidgetInstance(marshalledWidget);
   }
 
-  getConfigSectionFields() {
-    return DEFAULT_CONFIG_SECTION;
+  overrideConfigSection(configSectionWidgets) {
+    return configSectionWidgets;
   }
 
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
-      this.configSection.widgets = this.getConfigSectionFields().map(marshalledWidget => {
-        marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
-        const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
-        const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
-        return widget;
-      });
+      const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
+      this.overrideConfigSection(configSectionWidgets);
+      this.configSection.widgets = Object.keys(configSectionWidgets)
+        .filter(key => this.immutable_configs.indexOf(key) < 0)
+        .map(fieldName => {
+          const marshalledWidget = configSectionWidgets[fieldName];
+          marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
+          const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
+          const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
+          return widget;
+        });
     }
     return this.configSection;
   }
@@ -268,6 +303,7 @@ export class BaseWidget extends EngineObservable {
     });
     return this.formItemConfig;
   }
+
   unmarshall(source, unmarshall) {
     if (source.fieldSettings) {
       if (!source.fieldSettings.placeholder) {
@@ -281,19 +317,20 @@ export class BaseWidget extends EngineObservable {
     }
     return false;
   }
+
   getComponentConfig() {
     const widgetSettings = Engine.clone(this.widgetSettings, true);
     const fieldSettings = Engine.clone(this.fieldSettings, true);
     this.overrideFieldSettings(fieldSettings);
     this.overrideWidgetSettings(widgetSettings);
     fieldSettings.name = this.fieldName;
-    Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
     fieldSettings.value = _.get(this.formModel, this.fieldName);
     if (typeof fieldSettings.value === 'undefined') {
       fieldSettings.value = widgetSettings.defaultValue;
     }
+    Object.assign(this.componentConfig, { attrs: fieldSettings, on: {}}, widgetSettings);
     this.componentConfig.on.input = val => {
       // this.getMethods(); // TODO: remove this - just reference for debugging
       // this.renderComponent.$emit('input', val);
@@ -369,8 +406,8 @@ export class BaseWidget extends EngineObservable {
     // component.widget.applyConfig(component.config);
   }
 
-  componentRender(component, createElement) {
-    return createElement('el-input', this.getComponentConfig(), this.getChildren(createElement));
+  componentRender(component, h) {
+    return h('el-input', this.getComponentConfig(), this.getChildren(h));
   }
 
   getMethods() {

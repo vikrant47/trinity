@@ -1,4 +1,4 @@
-import JSEncrypt from 'jsencrypt/bin/jsencrypt'
+/* import JSEncrypt from 'jsencrypt/bin/jsencrypt';*/
 
 // Key pair generation http://web.chacuo.net/netrsakeypair
 /*
@@ -19,7 +19,7 @@ export function encrypt(txt) {
   /* const encryptor = new JSEncrypt()
   encryptor.setPublicKey(publicKey) // Set public key
   return encryptor.encrypt(txt) // Encrypt the data that needs to be encrypted */
-  return txt
+  return txt;
 }
 
 // 解密
@@ -27,6 +27,6 @@ export function decrypt(txt) {
   /* const encryptor = new JSEncrypt()
   encryptor.setPrivateKey(privateKey)
   return encryptor.decrypt(txt) */
-  return txt
+  return txt;
 }
 

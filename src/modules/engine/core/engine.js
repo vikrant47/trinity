@@ -28,6 +28,8 @@ export class Engine {
    * This will convert given data to tree which parent child relationship
    * e.g. [{id:1,name:parent,parent_id:null},{name:child,parent_id:1}]  will be converted into
    * [{id:1,name:parent,parent_id:null,children:[{name:child,parent_id:1}]}]
+   * @param {Object} data
+   * @param {Object} options
    */
   static convertToTree(data = [], options = {}) {
     const settings = Object.assign({}, this.DEFAULT_SETTINGS.dataToTree, options);
@@ -49,8 +51,41 @@ export class Engine {
     return data.filter(record => !record.child);
   }
 
-  /** This will convert given object to a plain json object*/
-  static marshall(object) {
+  /**
+   * @param {Object} object
+   * @param {Object} options
+   * @return {{current:Array,children:Object}}
+   * */
+  static parseTransients(object, options = {}) {
+    let transients = this.TRANSIENTS;
+    if (Array.isArray(object['transient'])) {
+      transients = transients.concat(object['transient']);
+    }
+    if (Array.isArray(options['transient'])) {
+      transients = transients.concat(options['transient']);
+    }
+    const current = [];
+    const children = {};
+    for (const transient of transients) {
+      if (typeof transient === 'string') {
+        current.push(transient);
+      } else {
+        Object.assign(children, transient);
+      }
+    }
+    return { current, children };
+  }
+
+  static isTransientProp(parsedTransients, field) {
+    return parsedTransients.current.filter(current => field.match(current)).length > 0;
+  }
+
+  /**
+   * This will convert given object to a plain json object
+   * @param {Object} object
+   * @param {Object} options
+   */
+  static marshall(object, options = {}) {
     // null, undefined, non-object, function
     if (!object || typeof object !== 'object') {
       return object;
@@ -70,13 +105,10 @@ export class Engine {
         return object.map(entry => this.marshall(entry));
       } else if (typeof object === 'object') {
         const marshalled = {};
-        let transients = this.TRANSIENTS;
-        if (Array.isArray(object['transient'])) {
-          transients = transients.concat(object['transient']);
-        }
+        const parsedTransients = this.parseTransients(object, options);
         for (const key in object) {
-          if (transients.indexOf(key) < 0) {
-            marshalled[key] = this.marshall(object[key]);
+          if (typeof object[key] !== undefined && !this.isTransientProp(parsedTransients, key)) {
+            marshalled[key] = this.marshall(object[key], { transients: parsedTransients.children[key] });
           }
         }
         return marshalled;
@@ -88,7 +120,7 @@ export class Engine {
   }
 
   /** This will populate given pojo to given instance*/
-  static unmarshall(object, instance = {}) {
+  static unmarshall(object, instance = {}, options = {}) {
     // null, undefined, non-object, function
     if (!object || typeof object !== 'object') {
       return object;
@@ -111,13 +143,10 @@ export class Engine {
         }
         return unmarshalled;
       } else if (typeof object === 'object') {
-        let transients = this.TRANSIENTS;
-        if (Array.isArray(instance['transient'])) {
-          transients = transients.concat(instance['transient']);
-        }
+        const parsedTransients = this.parseTransients(instance, options);
         for (const key in object) {
-          if (typeof object[key] !== 'undefined' && transients.indexOf(key) < 0) {
-            instance[key] = Engine.unmarshall(object[key], instance[key]);
+          if (typeof object[key] !== 'undefined' && !this.isTransientProp(parsedTransients, key)) {
+            instance[key] = Engine.unmarshall(object[key], instance[key], parsedTransients.children[key]);
           }
         }
         return instance;
@@ -143,5 +172,16 @@ export class Engine {
       return cloned;
     }
     return JSON.parse(JSON.stringify(object));
+  }
+
+  /** This will convert given object to a query param*/
+  static toUrlParam(object = {}) {
+    const str = [];
+    for (const p in object) {
+      if (object.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(object[p]));
+      }
+    }
+    return str.join('&');
   }
 }

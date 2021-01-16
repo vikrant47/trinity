@@ -4,16 +4,8 @@
       <div class="action-form-wrapper" style="display: flex;">
         <EnAction
           v-for="action in actions"
-          :id="action.id"
           :key="action.id"
-          :type="action.type"
-          :children="action.children"
-          :name="action.name"
-          :icon="action.icon"
-          :label="action.label"
-          :shape="action.shape"
-          :has-parent="action.child===true"
-          :processor="action.processor"
+          :action="action"
           :context="{
             formComponent: $parent,
             engineForm: engineForm,

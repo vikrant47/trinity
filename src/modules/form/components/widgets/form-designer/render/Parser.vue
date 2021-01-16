@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
-import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
+import { FORM_EVENTS, FormEvent, WidgetEvent } from '@/modules/form/engine-api/form-events';
 import { Engine } from '@/modules/engine/core/engine';
 
 const ruleTrigger = {
@@ -25,14 +25,16 @@ const layouts = {
       widget = new FormWidgetService().getWidgetInstance(widget);
     }
     widget.setFormModel(this.formModel);*/
-    const widgetInstance = new FormWidgetService().getWidgetInstance(widget);
-    this.engineForm.addWidgetRef(widgetInstance);
-    widgetInstance.setEngineForm(this.engineForm);
+    const widgetInstance = getWidgetInstance.call(this, widget);
+    // widgetInstance.reset(widget);
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
-    const listeners = buildListeners.call(this, widget);
+    const listeners = buildListeners.call(this, widgetInstance);
+    const child = renderChildren.apply(this, arguments);
     return (
-      <render widget={widgetInstance} {...{ on: listeners }} form-model={formData}
-        eval-context={this.evalContext}/>
+      <render widget={widgetInstance} {...{ on: listeners }} wrapper={true} form-model={formData}
+        eval-context={this.evalContext}>
+        {child}
+      </render>
       /* <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
           <el-form-item label-width={labelWidth} prop={widget.fieldName}
             label={widgetSettings.showLabel ? widgetSettings.label : ''} required={widgetSettings.required}>
@@ -108,15 +110,38 @@ function renderChildren(h, widget) {
   return renderFormItem.call(this, h, config.children);
 }
 
+function getWidgetInstance(widgetJson) {
+  const fieldName = widgetJson.fieldName;
+  if (!this.$options.widgets[fieldName]) {
+    this.engineForm.fillFieldConfig(fieldName, widgetJson);
+    const widgetInstance = new FormWidgetService().getWidgetInstance(widgetJson);
+    this.engineForm.addWidgetRef(widgetInstance);
+    widgetInstance.setForm(this.engineForm);
+    widgetInstance.init();
+    this.$options.widgets[fieldName] = widgetInstance;
+    this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.init, widgetInstance, widgetJson), {});
+  }
+  return this.$options.widgets[fieldName];
+}
+
 function setValue(event, config, widget) {
   if (typeof event !== 'undefined') {
+    const previousValue = _.get(this.formData, widget.fieldName);
     this.$set(config, 'defaultValue', event);
     if (widget.fieldName.indexOf('.') > 0) {
       const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
       this.$set(result.value, result.prop, event);
+    } else {
+      this.$set(this.formData, widget.fieldName, event);
     }
-    this.$set(this.formData, widget.fieldName, event);
-    this.$emit('fieldInput', widget);
+    if (previousValue !== event) {
+      this.$emit('fieldValueUpdated', widget);
+      this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, {
+        previous: previousValue,
+        current: event,
+        value: event
+      }), {});
+    }
   }
 }
 
@@ -135,7 +160,7 @@ function buildListeners(widget) {
     listeners[key] = event => methods[key].call(this, event);
   });
   // response render.js Neutral vModel $emit('input', val)
-  listeners.input = event => setValue.call(this, event, config, widget);
+  listeners.input_update = event => setValue.call(this, event, config, widget);
   listeners['widget-data'] = event => setWidgetData.call(this, event, config, widget);
 
   return listeners;
@@ -174,6 +199,11 @@ export default {
     this.$emit('beforeInit');
     this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
+    // await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.init), {});
+  },
+  created() {
+    // access the custom option using $options
+    this.$options.widgets = {};
   },
   methods: {
     initFormData(widgets, formModel) {
@@ -220,7 +250,8 @@ export default {
       this.$refs[this.formConf.formRef].validate(valid => {
         if (!valid) return false;
         // TriggerTheSubmitEvent
-        this.$emit('submit', this[this.formModel]);
+        this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.beforeSubmit, this.formData), {});
+        this.$emit('submit', this.formData);
         return true;
       });
     }

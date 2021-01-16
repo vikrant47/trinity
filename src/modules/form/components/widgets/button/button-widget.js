@@ -6,7 +6,7 @@ export default class ButtonWidget extends BaseWidget {
   palletSettings = {
     label: 'Button',
     icon: 'button'
-  }
+  };
 
   getChildren(h) {
     return 'Button';

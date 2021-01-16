@@ -49,11 +49,15 @@
   color: #00a0e9;
   text-decoration: none;
 }
-
-.list-container .el-table--small th, .el-table--small td {
-  padding: 3px 0;
+.list-container .el-table--small th {
+  padding: 10px 0;
 }
-
+.el-table--small td {
+  padding: 5px 0;
+}
+.list-container .el-table--scrollable-x .el-table__body-wrapper{
+  min-height: 427px;
+}
 .list-container .el-table {
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
@@ -97,6 +101,29 @@
 }
 
 .form-container .form-parser {
+  padding: 25px 25px 25px 0px;
   background-color: white;
-  padding: 25px;
+}
+/**Form designer*/
+.left-board .el-scrollbar__wrap{
+background-color: #fafbfe;
+border: 1px solid #e5e2e2;
+}
+
+.drawing-board .drag-wrapper{
+  width: 100%;
+}
+.form-container .form-parser .v-note-wrapper{
+  z-index: auto;
+  height: 100px;
+  box-shadow: none;
+}
+.form-container .form-parser .el-form-item__content>div {
+  width: 100%;
+}
+.form-container .form-parser .el-form-item{
+  padding-left: 20px;
+}
+.el-tab-pane.components-list{
+  display: block !important;
 }

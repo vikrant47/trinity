@@ -3,7 +3,7 @@ import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 export const WidgetTypes = {
   [WIDGETS.input]: require('../input/input-widget').default,
   [WIDGETS.number]: require('../number/number-widget').default,
-  [WIDGETS.richeditor]: require('../input/input-widget').default,
+  [WIDGETS.richeditor]: require('../richeditor/richeditor-widget').default,
   [WIDGETS.select]: require('../select/select-widget').default,
   [WIDGETS.cascader]: require('../cascader/cascader-widget').default,
   [WIDGETS.radioGroup]: require('../radio-group/radio-group-widget').default,
@@ -17,6 +17,8 @@ export const WidgetTypes = {
   [WIDGETS.rate]: require('../rate/rate-widget').default,
   [WIDGETS.colorPicker]: require('../color-picker/color-picker-widget').default,
   [WIDGETS.formDesigner]: require('../form-designer/form-designer-widget').default,
+  [WIDGETS.listDesigner]: require('../list-designer/list-designer-widget').default,
   [WIDGETS.reference]: require('../reference/reference-widget').default,
-  [WIDGETS.icon]: require('../icon-picker/icon-picker-widget').default
+  [WIDGETS.icon]: require('../icon-picker/icon-picker-widget').default,
+  [WIDGETS.divider]: require('../divider/divider-widget').default
 };

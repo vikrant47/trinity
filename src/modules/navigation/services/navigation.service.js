@@ -3,7 +3,8 @@ import ListView from '@/modules/list/views/index';
 import * as DashboardView from '@/modules/dashboard/views/index';
 import request from '@/utils/request';
 import { TenantService } from '@/modules/engine/services/tenant.service';
-import el from 'element-ui/src/locale/lang/el';
+import $router from '@/router/routers';
+import { Engine } from '@/modules/engine/core/engine';
 
 export const NavComponentMapping = {
   folder: Layout,
@@ -48,6 +49,7 @@ export class NavigationService {
 
   naviagtions = [];
   flatNavs = [];
+  navPromise;
 
   getMenusTree(pid) {
     return request({
@@ -57,19 +59,22 @@ export class NavigationService {
   }
 
   getNavigations() {
-    return new Promise((resolve, reject) => {
-      if (this.naviagtions.length === 0) {
-        TenantService.instance.request({
-          url: '/api/engine/navigations',
-          method: 'get'
-        }).then(navs => {
-          this.naviagtions = this.navDataToRoute(navs);
+    if (!this.navPromise) {
+      this.navPromise = new Promise((resolve, reject) => {
+        if (this.naviagtions.length === 0) {
+          TenantService.instance.request({
+            url: '/api/engine/navigations',
+            method: 'get'
+          }).then(navs => {
+            this.naviagtions = this.navDataToRoute(navs.contents);
+            resolve(this.naviagtions);
+          }).catch(err => reject(err));
+        } else {
           resolve(this.naviagtions);
-        }).catch(err => reject(err));
-      } else {
-        resolve(this.naviagtions);
-      }
-    });
+        }
+      });
+    }
+    return this.navPromise;
   }
 
   getFlatNavigations() {
@@ -170,5 +175,17 @@ export class NavigationService {
       }
       return route;
     });
+  }
+  /** Navigate to given url*/
+  navigate(url) {
+    return $router.push(url);
+  }
+
+  navigateToForm(modelAlias, formId = 'default', recordId = 'new', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '?' + Engine.toUrlParam(params));
+  }
+
+  navigateToList(modelAlias, listId = 'default', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + listId + '?' + Engine.toUrlParam(params));
   }
 }
