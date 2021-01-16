@@ -113,13 +113,7 @@ function renderChildren(h, widget) {
 function getWidgetInstance(widgetJson) {
   const fieldName = widgetJson.fieldName;
   if (!this.$options.widgets[fieldName]) {
-    const field = this.engineForm.getFieldByName(fieldName);
-    // assigning default values
-    Object.assign(widgetJson.widgetSettings, {
-      display_field_name: field.display_field_name,
-      referenced_field_name: field.referenced_field_name,
-      referenced_model_alias: field.referenced_model_alias,
-    });
+    this.engineForm.fillFieldConfig(fieldName, widgetJson);
     const widgetInstance = new FormWidgetService().getWidgetInstance(widgetJson);
     this.engineForm.addWidgetRef(widgetInstance);
     widgetInstance.setForm(this.engineForm);

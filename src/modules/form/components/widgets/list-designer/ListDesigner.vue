@@ -155,7 +155,7 @@ export default {
     },
     pallet: {
       handler(val) {
-        this.drawingList = [];
+        // this.drawingList = [];
       }
     },
     value: {
@@ -206,7 +206,7 @@ export default {
     activeFormItem(currentItem) {
       //  new FormWidgetService().createIdAndKey(currentItem);
       this.activeWidget = currentItem;
-      this.activeId = currentItem.widgetSettings.formId;
+      // this.activeId = currentItem.widgetSettings.formId;
     },
     onEnd(obj) {
       if (obj.from !== obj.to) {

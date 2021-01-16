@@ -3,6 +3,8 @@ import ListView from '@/modules/list/views/index';
 import * as DashboardView from '@/modules/dashboard/views/index';
 import request from '@/utils/request';
 import { TenantService } from '@/modules/engine/services/tenant.service';
+import $router from '@/router/routers';
+import { Engine } from '@/modules/engine/core/engine';
 
 export const NavComponentMapping = {
   folder: Layout,
@@ -173,5 +175,17 @@ export class NavigationService {
       }
       return route;
     });
+  }
+  /** Navigate to given url*/
+  navigate(url) {
+    return $router.push(url);
+  }
+
+  navigateToForm(modelAlias, formId = 'default', recordId = 'new', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '?' + Engine.toUrlParam(params));
+  }
+
+  navigateToList(modelAlias, listId = 'default', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + listId + '?' + Engine.toUrlParam(params));
   }
 }

@@ -25,6 +25,11 @@ export default {
     return {
       value: this.row[this.column.name]
     };
+  },
+  methods: {
+    click() {
+      this.$emit('click', this.row, this.column);
+    }
   }
 };
 </script>

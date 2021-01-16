@@ -6,9 +6,10 @@
           v-for="action in actions"
           :key="action.id"
           :action="action"
+          :event="actionEvent"
           :context="{
             listComponent: $parent,
-            listService: listService,
+            engineList: listService,
           }"
         />
       </div>
@@ -67,6 +68,7 @@
 import Vue from 'vue';
 import { Engine } from '@/modules/engine/core/engine';
 import EnAction from '@/modules/engine/components/EnAction';
+import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
 
 export default {
   name: 'EnListToolbar',
@@ -99,11 +101,12 @@ export default {
       // Ignore the next table column change
       ignoreNextTableColumnsChange: false,
       tableColumns: [],
-      search: ''
+      search: '',
+      actionEvent: new ListEvent(LIST_EVENTS.action.click, this.$parent.listService)
     };
   }, watch: {
     'listService.definition.list.columns'() {
-      this.tableColumns = this.listService.definition.list.fields;
+      this.tableColumns = this.listService.definition.fields;
     }
   },
   created() {

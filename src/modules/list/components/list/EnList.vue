@@ -18,7 +18,6 @@
         v-loading="listService.loading"
         resizable
         border
-        height="460"
         stripe
         :data="listService.rows"
         highlight-current-row
@@ -26,7 +25,7 @@
         @current-change="listEventHandler.handleCurrentChange($event)"
         @sort-change="listEventHandler.sortHandler($event)"
       >
-        <el-table-column type="selection" width="30" />
+        <el-table-column fixed type="selection" width="40" />
         <el-table-column
           v-for="column in listFields.filter(field=>field.visible)"
           :key="column.name"
@@ -66,7 +65,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import EnListToolbar from '@/modules/list/components/toolbar/EnListToolbar';
 import EnPagination from '@/modules/list/components/pagination/EnPagination';
 import { EngineList } from '@/modules/list/engine-api/engine.list';
@@ -125,36 +123,34 @@ export default {
   data() {
     return {
       listFields: [],
-      paginationModel: null,
-      listService: null
+      paginationModel: new Pagination(this.pagination),
+      listService: new EngineList({
+        pagination: this.paginationModel,
+        remote: this.remote,
+        showLoader: this.showLoader,
+        loaderDelay: this.loaderDelay,
+        modelAlias: this.modelAlias,
+        list: this.list,
+        fields: this.fields,
+        rows: this.rows || [],
+        actions: this.actions || []
+      })
     };
   },
   beforeCreate() {
     this.listEventHandler = new ListEventHandler(this);
   },
   created() {
-    const paginationModel = new Pagination(this.pagination);
-    const listService = new EngineList({
-      pagination: paginationModel,
-      remote: this.remote,
-      showLoader: this.showLoader,
-      loaderDelay: this.loaderDelay,
-      modelAlias: this.modelAlias,
-      list: this.list,
-      fields: this.fields,
-      rows: this.rows || [],
-      actions: this.actions || []
-    });
-    listService.loadDefinition().then(() => {
+    this.listService.loadDefinition().then(() => {
       this.listFields = this.listService.getWidgets();
-      listService.refresh();
+      this.listService.refresh();
     });
-    Vue.set(this, 'listService', listService);
-    Vue.set(this, 'paginationModel', paginationModel);
   },
   methods: {
     async cellClick($event, row, column) {
-      await this.listService.triggerProcessors(new ListEvent(LIST_EVENTS.list.cellClick, this.listService), {});
+      const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.listService);
+      Object.assign(listEvent, { rowData: row, columnData: column });
+      await this.listService.triggerProcessors(listEvent, {});
       this.$emit('cellClick', $event, row, column);
     },
     copy() {

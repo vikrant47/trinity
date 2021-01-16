@@ -7,6 +7,9 @@ import { ModelService } from '@/modules/engine/services/model.service';
 import { RestQuery } from '@/modules/engine/services/rest.query';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { EngineList } from '@/modules/list/engine-api/engine.list';
+import { NavigationService } from '@/modules/navigation/services/navigation.service';
+import { NotificationService } from '@/modules/engine/services/notification.service';
 
 export default {
   services: {
@@ -17,7 +20,10 @@ export default {
     ModelService,
     RestQuery,
     EngineForm,
+    EngineList,
     FormWidgetService,
+    navigation: NavigationService.getInstance(),
+    notification: NotificationService.getInstance(),
   },
   libraries: { _ }
 };

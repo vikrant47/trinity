@@ -49,11 +49,15 @@
   color: #00a0e9;
   text-decoration: none;
 }
-
-.list-container .el-table--small th, .el-table--small td {
-  padding: 3px 0;
+.list-container .el-table--small th {
+  padding: 10px 0;
 }
-
+.el-table--small td {
+  padding: 5px 0;
+}
+.list-container .el-table--scrollable-x .el-table__body-wrapper{
+  min-height: 427px;
+}
 .list-container .el-table {
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);

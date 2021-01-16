@@ -9,7 +9,7 @@ import { EngineDefinitionService } from '@/modules/engine/core/engine.definition
 
 export class EngineForm extends EngineDefinitionService {
   record = {};
-  definition = { form: { config: { tabs: {}}}};
+  definition = { form: { config: { tabs: {}}}, fields: [] };
   formConfig = {
     widgets: [],
     labelSuffix: '',
@@ -25,13 +25,14 @@ export class EngineForm extends EngineDefinitionService {
   };
   original = {};
 
-  static navigate(modelAlias, formId, context = 'create', recordId = 'new') {
+  static navigate(modelAlias, formId = 'default', recordId = 'new', context = 'create') {
     $router.replace('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '?context = ' + context);
   }
 
   constructor(settings) {
     super();
     this.settings = Object.assign(this.settings, settings);
+    this.modelAlias = this.settings.modelAlias;
     if (this.settings.formConfig) {
       this.definition.form.config = this.settings.formConfig;
     }
@@ -167,6 +168,7 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   setFormConfig(formConfig = {}) {
+    this.definition.form.config = formConfig;
     this.formConfig = formConfig;
   }
 

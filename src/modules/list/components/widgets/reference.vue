@@ -1,10 +1,16 @@
 <template>
   <div class="cell-wrapper">
-    {{ value }}
+    <el-link
+      @click="click($event)"
+    >
+      <span>{{ value }}</span>
+      <i class="el-icon-link" />
+    </el-link>
   </div>
 </template>
 <script>
 import BaseWidget from '@/modules/list/components/widgets/base-widget';
+
 export default {
   name: 'ReferenceWidget',
   extends: BaseWidget,

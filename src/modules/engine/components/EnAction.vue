@@ -10,7 +10,7 @@
         :label="action.label"
         :shape="action.shape"
         :plain="action.plain"
-        :loading="action.spinner"
+        :loading="action.loading"
         :size="action.size"
         @click="process($event)"
       >{{ action.label }}
@@ -36,7 +36,7 @@
       :icon="action.icon"
       :label="action.label"
       :shape="action.shape"
-      :loading="action.spinner"
+      :loading="action.loading"
       :size="action.size"
       @click="process($event)"
     >{{ action.label }}
@@ -57,6 +57,12 @@ export default {
         return new EngineAction();
       }
     },
+    event: {
+      type: Object,
+      default: () => {
+        return {};
+      }
+    },
     context: {
       type: Object,
       default: () => {
@@ -65,22 +71,19 @@ export default {
     }
   },
   data() {
-    return {
-      spinner: false
-    };
+    return {};
   },
   created() {
-    this.spinner = this.action.loading;
   },
   methods: {
     async process($event) {
-      this.spinner = true;
+      this.loading = true;
       try {
-        await this.action.execute($event, this.context);
+        await this.action.execute(this.event, this.context);
       } catch (e) {
         console.error('Error while processing action handler ', e, { context: this.context });
       } finally {
-        this.spinner = false;
+        this.loading = false;
       }
     }
   }

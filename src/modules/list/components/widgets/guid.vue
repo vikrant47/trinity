@@ -1,9 +1,9 @@
 <template>
   <div class="cell-wrapper">
-    <span v-if="!href">{{ value }}</span>
+    <span v-if="column.name!=='id'">{{ value }}</span>
     <el-link
-      v-if="href"
-      @click="$emit('click',row,column)"
+      v-if="column.name==='id'"
+      @click="click($event)"
     >
       <span>{{ value }}</span>
     </el-link>
@@ -16,7 +16,7 @@ import BaseWidget from '@/modules/list/components/widgets/base-widget';
 export default {
   name: 'Guid',
   with: '30',
-  extends: BaseWidget
+  extends: BaseWidget,
 };
 </script>
 

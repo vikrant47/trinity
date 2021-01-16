@@ -173,4 +173,15 @@ export class Engine {
     }
     return JSON.parse(JSON.stringify(object));
   }
+
+  /** This will convert given object to a query param*/
+  static toUrlParam(object = {}) {
+    const str = [];
+    for (const p in object) {
+      if (object.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(object[p]));
+      }
+    }
+    return str.join('&');
+  }
 }

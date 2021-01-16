@@ -1,7 +1,6 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
 import ListDesigner from '@/modules/form/components/widgets/list-designer/ListDesigner';
-import { Engine } from '@/modules/engine/core/engine';
 export default class ListDesignerWidget extends BaseWidget {
   init() {
     // this.transient.push({ widgetSettings: ['pallet'] });
@@ -52,15 +51,15 @@ export default class ListDesignerWidget extends BaseWidget {
         }
       });
     } else {
-      const value = { widgets: [] };
-      if (config.attrs.value && config.attrs.value.widgets) {
+      const value = this.getValue() || { widgets: [] };
+      /* if (config.attrs.value && config.attrs.value.widgets) {
         const widgets = [];
         const fields = this.getForm().getFieldsByKey('id');
         for (const widget of config.attrs.value.widgets) {
           widgets.push(Engine.clone(fields[widget.id]));
         }
         value.widgets = widgets;
-      }
+      }*/
       return h(ListDesigner, {
         on: {
           input: (value) => {

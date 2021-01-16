@@ -41,10 +41,20 @@ export class EngineList extends EngineDefinitionService {
   constructor(settings) {
     super();
     this.settings = Object.assign(this.settings, settings);
+    this.modelAlias = this.settings.modelAlias;
     this.rows = this.settings.rows;
     this.definition.list.config = { widgets: this.settings.columns };
     this.pagination = this.settings.pagination || new Pagination();
     this.registerEvents();
+  }
+
+  getSelectedFieldIds() {
+    return this.definition.list.config.widgets.map(widget => widget.id);
+  }
+
+  getSelectedFields() {
+    const fieldIds = this.getSelectedFieldIds();
+    return this.getFields().filter(field => fieldIds.indexOf(field.id) >= 0);
   }
 
   registerEvents() {
@@ -125,16 +135,18 @@ export class EngineList extends EngineDefinitionService {
     }
     this.enableLoading();
     try {
+      const selectedFields = this.getSelectedFields();
+      const selectedFieldNames = selectedFields.map(field => field.name);
       // request rows
       const response = await new RestQuery(this.settings.modelAlias).paginate({
-        fields: this.getFieldNames(),
+        fields: selectedFieldNames,
         page: this.pagination.page,
         limit: this.pagination.limit,
         where: this.getQuery(),
-        include: this.getIncludeStatement(),
+        include: this.getIncludeStatement(selectedFieldNames),
         order: [{
           field: this.order.attribute,
-          direction: this.order.direction,
+          direction: this.order.direction
         }]
       });
       this.pagination.total = response.contents.total;

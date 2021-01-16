@@ -1,4 +1,7 @@
 export const LIST_EVENTS = {
+  action: {
+    click: 'action.click',
+  },
   list: {
     error: 'list.error',
     init: 'list.init',
@@ -11,8 +14,8 @@ export const LIST_EVENTS = {
     beforeFetch: 'beforeFetch',
     fetch: 'fetch'
   },
-  widget: {
-    init: 'widget.init',
+  cell: {
+    click: 'cell.click',
     updateValue: 'widget.updateValue',
     beforeUpdateWidgetConfig: 'widget.updateWidgetConfigs',
     updateWidgetConfig: 'widget.updateWidgetConfigs',

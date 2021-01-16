@@ -196,6 +196,7 @@ export class BaseWidget extends EngineObservable {
       this.renderComponent.$emit('input', value);
       BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
     }
+    return this;
   }
 
   marshall() {

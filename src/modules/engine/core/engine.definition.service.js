@@ -11,6 +11,11 @@ export class EngineDefinitionService extends EngineObservable {
   actions = [];
   definition = { fields: [] };
   $widgetRefs = {};
+  modelAlias = null;
+
+  getModelAlias() {
+    return this.modelAlias;
+  }
 
   /** Add widget instance ref in engine form*/
   addWidgetRef(widget) {
@@ -45,21 +50,41 @@ export class EngineDefinitionService extends EngineObservable {
   getFields() {
     return this.definition.fields;
   }
+
   getFieldNames() {
     return this.getFields().map(field => field.name);
   }
+
   getFieldsByKey(key) {
     return _.keyBy(this.getFields(), key);
   }
 
   getFieldsByType(type) {
-    return this.definition.fields.filter(field => field.type === WIDGETS.reference);
+    return this.getFields().filter(field => field.type === WIDGETS.reference);
   }
 
   getFieldByName(name) {
-    return this.fields.find(field => field.name === name);
+    return this.getFields().find(field => field.name === name);
   }
 
+  fillFieldConfig(fieldName, widgetConfig) {
+    const field = this.getFieldByName(fieldName);
+    if (field) {
+      switch (field.type) {
+        case 'reference':
+          // assigning default values
+          Object.assign(widgetConfig.widgetSettings, {
+            display_field_name: field.display_field_name,
+            referenced_field_name: field.referenced_field_name,
+            referenced_model_alias: field.referenced_model_alias,
+          });
+          break;
+        case 'enum':
+          widgetConfig.slot.options = field.choices;
+          break;
+      }
+    }
+  }
   /** Will return the widget instance*/
   getWidgetRef(fieldName) {
     return this.$widgetRefs[fieldName];
@@ -70,14 +95,19 @@ export class EngineDefinitionService extends EngineObservable {
     return widget[method].apply(widget, args);
   }
 
-  getIncludeStatement() {
-    return this.getFieldsByType(WIDGETS.reference).map((field) => {
+  getIncludeStatement(includedFields = []) {
+    let referencedFields = this.getFieldsByType(WIDGETS.reference);
+    if (includedFields.length > 0) {
+      referencedFields = referencedFields.filter(field => includedFields.indexOf(field.name) >= 0);
+    }
+    return referencedFields.map((field) => {
       return {
         reference: field.name,
         fields: [field.referenced_field_name, field.display_field_name]
       };
     });
   }
+
   buildAction(actions) {
     let actionInstances = actions.map(action => new EngineAction(action));
     actionInstances = Engine.convertToTree(actionInstances, {
@@ -89,14 +119,15 @@ export class EngineDefinitionService extends EngineObservable {
   buildProcessors(processors) {
     return processors.map(processor => new EngineScript(processor));
   }
+
   /**
-   * @param {FormEvent} event
+   * @param {FormEvent|ListEvent} event
    * @param {Object} context
    **/
   async triggerProcessors(event, context = {}) {
     for (const processor of this.processors) {
       if (processor.events && processor.events.indexOf(event.getName()) >= 0) {
-        await processor.execute(event, Object.assign({ engineForm: this }, context));
+        await processor.execute(event, context);
       }
     }
   }
