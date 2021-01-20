@@ -29,7 +29,7 @@ export default {
   },
   data() {
     return {
-      currentTab: 'field',
+      currentTab: 'advance',
       currentNode: null,
       dialogVisible: false,
       iconsVisible: false,
@@ -72,13 +72,15 @@ export default {
     }
   },
   render(createElement) {
-    const { currentTab } = this;
     // const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     const activeWidget = new FormWidgetService().getWidgetInstance(this.activeWidget);
     activeWidget.loadConfigForConfigSection();
     const widgetConfigForm = new EngineForm();
-    widgetConfigForm.setFormConfig(activeWidget.configSection);
+    widgetConfigForm.setFormConfig(activeWidget.loadBasicConfigSection());
     widgetConfigForm.setRecord(this.formModel);
+    const advanceConfigForm = new EngineForm();
+    advanceConfigForm.setFormConfig(activeWidget.loadAdvanceConfigSection());
+    advanceConfigForm.setRecord(this.formModel);
     /* const formConfigForm = new EngineForm();
     formConfigForm.setFormConfig({
       labelSuffix: '',
@@ -92,25 +94,35 @@ export default {
     formConfigForm.setRecord(activeWidget.configSection);*/
     const evalContext = { activeWidget: Engine.clone(activeWidget) };
     return <div class='right-board'>
-      <el-tabs v-model={currentTab} class='center-tabs'>
-        <el-tab-pane label='Component properties' name='field'/>
-        <el-tab-pane label='Form attributes' name='form'/>
+      <el-tabs v-model={this.currentTab} class='center-tabs'>
+        <el-tab-pane label='Component properties' name='field'>
+          <div className='field-box'>
+            <el-scrollbar className='right-scrollbar'>
+              {createElement(Parser, { props: { engineForm: widgetConfigForm, evalContext: evalContext }})}
+            </el-scrollbar>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label='Advance' name='advance'>
+          <div className='field-box'>
+            <el-scrollbar className='right-scrollbar'>
+              {createElement(Parser, { props: { engineForm: advanceConfigForm, evalContext: evalContext }})}
+            </el-scrollbar>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label='Form attributes' name='form'>
+          <div className='field-box'>
+            <el-scrollbar className='right-scrollbar'>
+              {/* createElement(Parser, { props: { engineForm: formConfigForm, evalContext: { evalContext: evalContext }}})*/}
+            </el-scrollbar>
+          </div>
+        </el-tab-pane>
       </el-tabs>
-      <div class='field-box'>
-        <el-scrollbar class='right-scrollbar'>
-          {createElement(Parser, { props: { engineForm: widgetConfigForm, evalContext: evalContext }})}
-          {/* createElement(Parser, { props: { engineForm: formConfigForm, evalContext: { evalContext: evalContext }}})*/}
-        </el-scrollbar>
-      </div>
     </div>;
   }
 };
 </script>
 
 <style lang='scss' scoped>
-.el-tab {
-  margin-bottom: 10px;
-}
 
 .right-board {
   height: 100%;
@@ -120,86 +132,17 @@ export default {
   right: 0;
   top: 0;
   padding-top: 3px;*/
-}
-
-.field-box {
-  position: relative;
-  height: 80%;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-.el-scrollbar {
-  height: 100%;
-}
-
-.select-item {
-  display: flex;
-  border: 1px dashed #fff;
-  box-sizing: border-box;
-
-  & .close-btn {
-    cursor: pointer;
-    color: #f56c6c;
+  .el-tab {
+    margin-bottom: 10px;
   }
 
-  & .el-input + .el-input {
-    margin-left: 4px;
+  .el-form-item__content {
+    display: flex;
+  }
+
+  .el-form-item--small {
+    display: flex;
   }
 }
 
-.select-item + .select-item {
-  margin-top: 4px;
-}
-
-.select-item.sortable-chosen {
-  border: 1px dashed #409eff;
-}
-
-.select-line-icon {
-  line-height: 32px;
-  font-size: 22px;
-  padding: 0 4px;
-  color: #777;
-}
-
-.option-drag {
-  cursor: move;
-}
-
-.time-range {
-  .el-date-editor {
-    width: 227px;
-  }
-
-  ::v-deep .el-icon-time {
-    display: none;
-  }
-}
-
-.document-link {
-  position: absolute;
-  display: block;
-  width: 26px;
-  height: 26px;
-  top: 0;
-  left: 0;
-  cursor: pointer;
-  background: #409eff;
-  z-index: 1;
-  border-radius: 0 0 6px 0;
-  text-align: center;
-  line-height: 26px;
-  color: #fff;
-  font-size: 18px;
-}
-
-.node-label {
-  font-size: 14px;
-}
-
-.node-icon {
-  color: #bebfc3;
-}
 </style>

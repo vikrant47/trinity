@@ -14,10 +14,10 @@ import BaseWidget from '@/modules/list/components/widgets/base-widget';
 export default {
   name: 'ReferenceWidget',
   extends: BaseWidget,
-  data() {
-    return {
-      value: this.row['ref_' + this.column.name] ? this.row['ref_' + this.column.name][this.column.display_field_name] : this.row[this.column.name]
-    };
+  computed: {
+    value() {
+      return this.row['ref_' + this.column.name] ? this.row['ref_' + this.column.name][this.column.display_field_name] : this.row[this.column.name];
+    }
   }
 };
 </script>

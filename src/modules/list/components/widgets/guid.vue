@@ -3,6 +3,7 @@
     <span v-if="column.name!=='id'">{{ value }}</span>
     <el-link
       v-if="column.name==='id'"
+      icon="el-icon-edit"
       @click="click($event)"
     >
       <span>{{ value }}</span>

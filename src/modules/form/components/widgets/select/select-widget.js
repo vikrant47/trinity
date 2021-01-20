@@ -5,20 +5,29 @@ export default class SelectWidget extends BaseWidget {
     label: 'Select',
     icon: 'select'
   };
-  fieldSettings = {
-    multiple: false,
-    collapseTags: false,
-    clearable: true,
-    filterable: true,
-    allowCreate: false,
-    defaultFirstOption: false
-  };
-
+  overrideFieldSettings(fieldSettings) {
+    return Object.assign({
+      multiple: false,
+      collapseTags: false,
+      clearable: true,
+      filterable: true,
+      allowCreate: false,
+      defaultFirstOption: false
+    }, fieldSettings);
+  }
+  slot = {
+    options: []
+  }
   options(h, key) {
     const list = [];
-    this.slot.options.forEach(item => {
-      list.push(<el-option label={item.label} value={item.value} disabled={item.disabled}/>);
-    });
+    if (this.slot.options) {
+      if (typeof this.slot.options === 'string') {
+        this.slot.options = JSON.parse(this.slot.options);
+      }
+      this.slot.options.forEach(item => {
+        list.push(<el-option label={item.label} value={item.value} disabled={item.disabled}/>);
+      });
+    }
     return list;
   }
 

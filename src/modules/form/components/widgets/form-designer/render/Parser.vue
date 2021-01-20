@@ -32,7 +32,7 @@ const layouts = {
     const child = renderChildren.apply(this, arguments);
     return (
       <render widget={widgetInstance} {...{ on: listeners }} wrapper={true} form-model={formData}
-        eval-context={this.evalContext}>
+        eval-context={this.context}>
         {child}
       </render>
       /* <el-col span={widgetSettings.span} v-show={widgetSettings.visible}>
@@ -187,7 +187,8 @@ export default {
     return {
       widgetData: {},
       formData: this.engineForm.getRecord(),
-      formConf: this.engineForm.getFormConfig()
+      formConf: this.engineForm.getFormConfig(),
+      context: Object.assign({ form: this.engineForm }, this.evalContext),
     };
   },
   async mounted() {

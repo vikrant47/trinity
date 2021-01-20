@@ -7,12 +7,6 @@ export default class RicheditorWidget extends BaseWidget {
     label: 'Rich Editor',
     icon: 'edit'
   };
-  fieldSettings = {
-    language: 'en',
-    subfield: false,
-    defaultOpen: 'preview',
-    editable: true
-  };
 
   overrideConfigSection(configSectionWidgets) {
     configSectionWidgets['fieldSettings.size'].slot.options = [{
@@ -25,9 +19,16 @@ export default class RicheditorWidget extends BaseWidget {
   }
 
   overrideFieldSettings(fieldSettings) {
+    Object.assign(fieldSettings, {
+      language: 'en',
+      subfield: false,
+      defaultOpen: 'preview',
+      editable: true
+    });
     if (!fieldSettings.value) {
       fieldSettings.value = '';
     }
+    return fieldSettings;
   }
 
   getEvents() {
@@ -42,6 +43,7 @@ export default class RicheditorWidget extends BaseWidget {
   componentRender(component, h) {
     const config = this.getComponentConfig(component);
     const options = {
+      on: this.getEvents(),
       props: {
         height: this.heights[config.attrs.size] || this.heights.small,
         value: config.attrs.value,
