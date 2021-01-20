@@ -16,9 +16,11 @@
       <el-table
         ref="table"
         v-loading="listService.loading"
+        element-loading-background="listService.loadingBackground"
         resizable
         border
         stripe
+        height="height"
         :data="listService.rows"
         highlight-current-row
         @selection-change="listEventHandler.selectionChangeHandler"
@@ -33,6 +35,7 @@
           :label="column.label"
           :sortable="column.config.sortable && 'custom'"
           :width="column.config.width"
+          :min-width="column.config.minWidth"
         >
           <template slot="header" slot-scope="scope">
             <div class="header-label">
@@ -71,12 +74,16 @@ import { EngineList } from '@/modules/list/engine-api/engine.list';
 import { ListEventHandler } from '@/modules/list/services/list.event.handler';
 import { Pagination } from '@/modules/list/models/pagination';
 import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
-
+import Vue from 'vue';
 export default {
   name: 'EnList',
   components: { EnListToolbar, EnPagination },
   mixins: [],
   props: {
+    height: {
+      type: Number,
+      default: 460
+    },
     rows: {
       type: Array,
       default: null
@@ -124,27 +131,31 @@ export default {
     return {
       listFields: [],
       paginationModel: new Pagination(this.pagination),
-      listService: new EngineList({
-        pagination: this.paginationModel,
-        remote: this.remote,
-        showLoader: this.showLoader,
-        loaderDelay: this.loaderDelay,
-        modelAlias: this.modelAlias,
-        list: this.list,
-        fields: this.fields,
-        rows: this.rows || [],
-        actions: this.actions || []
-      })
+      listService: null,
     };
   },
   beforeCreate() {
     this.listEventHandler = new ListEventHandler(this);
   },
   created() {
-    this.listService.loadDefinition().then(() => {
-      this.listFields = this.listService.getWidgets();
-      this.listService.refresh();
+    const engineList = new EngineList({
+      pagination: this.paginationModel,
+      remote: this.remote,
+      showLoader: this.showLoader,
+      loaderDelay: this.loaderDelay,
+      modelAlias: this.modelAlias,
+      list: this.list,
+      fields: this.fields,
+      rows: this.rows || [],
+      actions: this.actions || []
     });
+    engineList.loadDefinition().then(() => {
+      this.listFields = this.listService.getWidgets();
+      this.listService.refresh().then(() => {
+        // Vue.set(this, 'listService', engineList);
+      });
+    });
+    Vue.set(this, 'listService', engineList);
   },
   methods: {
     async cellClick($event, row, column) {

@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { Engine } from '@/modules/engine/core/engine';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
+import { EngineScript } from '@/modules/engine/core/engine.script';
 
 export class BaseWidget extends EngineObservable {
   static defaultPalletSettings = {
@@ -218,7 +219,14 @@ export class BaseWidget extends EngineObservable {
   overrideConfigSection(configSectionWidgets) {
     return configSectionWidgets;
   }
-
+  loadBasicConfigSection() {
+    this.loadConfigForConfigSection();
+    return { widgets: this.configSection.widgets.filter((widget) => !widget.widgetSettings.advance) };
+  }
+  loadAdvanceConfigSection() {
+    this.loadConfigForConfigSection();
+    return { widgets: this.configSection.widgets.filter((widget) => widget.widgetSettings.advance) };
+  }
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
       const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
@@ -319,10 +327,10 @@ export class BaseWidget extends EngineObservable {
   }
 
   getComponentConfig() {
-    const widgetSettings = Engine.clone(this.widgetSettings, true);
-    const fieldSettings = Engine.clone(this.fieldSettings, true);
-    this.overrideFieldSettings(fieldSettings);
-    this.overrideWidgetSettings(widgetSettings);
+    let widgetSettings = Engine.clone(this.widgetSettings, true);
+    let fieldSettings = Engine.clone(this.fieldSettings, true);
+    fieldSettings = this.overrideFieldSettings(fieldSettings) || fieldSettings;
+    widgetSettings = this.overrideWidgetSettings(widgetSettings) || widgetSettings;
     fieldSettings.name = this.fieldName;
     // this.fieldSettings['value'] = this.formModel[this.fieldName];
     // this.fieldSettings['v-model'] = this.fieldName;
@@ -338,7 +346,7 @@ export class BaseWidget extends EngineObservable {
         this.setValue(val);
       }
     };
-    Object.assign(this.componentConfig.on, this.getEvents());
+    Object.assign(this.componentConfig.on, this.getEvents(this.componentConfig));
     // console.log('setting value for field ', this.fieldName, this.formModel, config);
     return this.componentConfig;
   }
@@ -367,25 +375,26 @@ export class BaseWidget extends EngineObservable {
   }
 
   buildContext() {
-    return Object.assign({}, this.evalContext, {
-      form: this.formModel,
+    return EngineScript.buildContext(Object.assign({}, this.evalContext, {
       widget: this
-    });
+    }), this);
   }
 
   handleTriggers() {
-    let triggers = this.widgetSettings.triggers;
-    if (triggers && triggers.length) {
-      if (!Array.isArray(triggers)) {
-        triggers = [triggers];
-      }
-      for (const trigger of triggers) {
-        if (trigger.action === 'show' || trigger.action === 'hide') {
-          const result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
-          this.widgetSettings.visible = trigger.action === 'show' ? result : !result;
+    if (!this.designMode) {
+      let triggers = this.widgetSettings.triggers;
+      if (triggers && triggers.length) {
+        if (!Array.isArray(triggers)) {
+          triggers = [triggers];
         }
+        for (const trigger of triggers) {
+          if (trigger.action === 'show' || trigger.action === 'hide') {
+            const result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
+            this.widgetSettings.visible = trigger.action === 'show' ? result : !result;
+          }
+        }
+        this.update();
       }
-      this.update();
     }
   }
 

@@ -1,12 +1,16 @@
 <template>
   <div class="cell-wrapper">
+    <i
+      :class="value===true?'el-icon-check':'el-icon-close'"
+      style="margin-left: 10px"
+    />
     {{ value }}
   </div>
 </template>
 <script>
 
 export default {
-  name: 'BaseWidget',
+  name: 'BooleanWidget',
   props: {
     href: {
       type: Boolean,
@@ -35,5 +39,13 @@ export default {
 </script>
 
 <style scoped>
-
+  i{
+    font-weight: bold;
+  }
+  i.el-icon-close{
+    color: red;
+  }
+  i.el-icon-check{
+    color: green;
+  }
 </style>

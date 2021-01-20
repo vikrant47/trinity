@@ -20,5 +20,7 @@ export const WidgetTypes = {
   [WIDGETS.listDesigner]: require('../list-designer/list-designer-widget').default,
   [WIDGETS.reference]: require('../reference/reference-widget').default,
   [WIDGETS.icon]: require('../icon-picker/icon-picker-widget').default,
-  [WIDGETS.divider]: require('../divider/divider-widget').default
+  [WIDGETS.divider]: require('../divider/divider-widget').default,
+  [WIDGETS.repeator]: require('../repeater/repeater-widget').default,
+  [WIDGETS.codeEditor]: require('../code-editor/code-editor-widget').default
 };

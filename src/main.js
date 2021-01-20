@@ -33,6 +33,9 @@ import 'echarts-gl';
 // custom css
 import './assets/styles/custom.scss';
 
+// filters
+import './modules/engine/filters/index';
+
 Vue.use(VueHighlightJS);
 Vue.use(mavonEditor);
 Vue.use(permission);

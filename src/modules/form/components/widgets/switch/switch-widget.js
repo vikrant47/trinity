@@ -7,6 +7,6 @@ export default class SwitchWidget extends BaseWidget {
   };
 
   componentRender(component, h) {
-    return h('el-switch', this.getComponentConfig(component), this.getChildren(component));
+    return h('el-checkbox', this.getComponentConfig(component), this.getChildren());
   }
 }

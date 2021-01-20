@@ -55,7 +55,11 @@ export class EngineForm extends EngineDefinitionService {
   registerEvents() {
 
   }
-
+  getSelectedFields() {
+    return this.definition.form.config.widgets.filter((widget) => {
+      return widget.fieldName;
+    }).map((widget) => widget.fieldName);
+  }
   populateFormConfig() {
     return { widgets: this.definition.form.config.widgets };
     /* const tabs = this.definition.form.config.tabs || [];
@@ -89,6 +93,29 @@ export class EngineForm extends EngineDefinitionService {
     return this.definition;
   }
 
+  fillFieldConfig(fieldName, widgetConfig) {
+    const field = this.getFieldByName(fieldName);
+    if (field) {
+      Object.assign(widgetConfig.fieldSettings, {
+        readOnly: field.readonly || field.immutable,
+        disabled: field.readonly || field.immutable,
+      });
+      switch (field.type) {
+        case 'reference':
+          // assigning default values
+          Object.assign(widgetConfig.widgetSettings, {
+            display_field_name: field.display_field_name,
+            referenced_field_name: field.referenced_field_name,
+            referenced_model_alias: field.referenced_model_alias
+          });
+          break;
+        case 'enum':
+          widgetConfig.slot.options = field.choices;
+          break;
+      }
+    }
+  }
+
   async refresh() {
     try {
       await this.emit(FORM_EVENTS.model.beforeFetch);
@@ -99,7 +126,8 @@ export class EngineForm extends EngineDefinitionService {
       this.enableLoading();
       // request record
       const response = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId, {
-        include: this.getIncludeStatement()
+        fields: this.getSelectedFields(),
+        include: this.getIncludeStatement(this.getSelectedFields())
       });
       this.setRecord(response.contents);
       // time Show table in milliseconds
@@ -236,7 +264,17 @@ export class EngineForm extends EngineDefinitionService {
     });
     return model;
   }
+  invoke(fieldName, method, args) {
+    const widget = this.getWidgetRef(fieldName);
+    return widget[method].apply(widget, args);
+  }
+  getValue(fieldName) {
+    return this.invoke(fieldName, 'getValue');
+  }
 
+  setValue(fieldName, value) {
+    return this.invoke(fieldName, 'setValue', [value]);
+  }
   /**
    * @param {FormEvent} event
    * @param {Object} context

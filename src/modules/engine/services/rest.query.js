@@ -79,7 +79,7 @@ export class RestQuery {
     return this.execute({
       method: 'get',
       params: {
-        query: { where: { id: id }, include: options.include }, queryMethod: 'findOne'
+        query: Object.assign({}, options, { where: { id: id }}), queryMethod: 'findOne'
       }
     });
   }

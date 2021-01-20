@@ -149,6 +149,16 @@ export const DEFAULT_CONFIG_SECTION = {
       label: 'Required',
       default: false
     }
+  },
+  'widgetSettings.triggers': {
+    fieldName: 'widgetSettings.triggers',
+    widgetAlias: WIDGETS.codeEditor,
+    widgetSettings: {
+      advance: true,
+      label: 'Triggers',
+      language: 'javascript',
+      parse: true,
+    }
   }, 'widgetSettings.layout': {
     fieldName: 'widgetSettings.layout',
     widgetAlias: WIDGETS.select,

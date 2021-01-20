@@ -21,6 +21,8 @@ export const WIDGETS = {
   listDesigner: 'listDesigner',
   reference: 'reference',
   icon: 'icon',
-  divider: 'divider'
+  divider: 'divider',
+  repeator: 'repeator',
+  codeEditor: 'codeEditor',
 };
 

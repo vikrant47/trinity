@@ -12,6 +12,8 @@ export class EngineDefinitionService extends EngineObservable {
   definition = { fields: [] };
   $widgetRefs = {};
   modelAlias = null;
+  loading = true;
+  loadingBackground = 'rgb(255 255 255 / 55%)';
 
   getModelAlias() {
     return this.modelAlias;
@@ -67,24 +69,6 @@ export class EngineDefinitionService extends EngineObservable {
     return this.getFields().find(field => field.name === name);
   }
 
-  fillFieldConfig(fieldName, widgetConfig) {
-    const field = this.getFieldByName(fieldName);
-    if (field) {
-      switch (field.type) {
-        case 'reference':
-          // assigning default values
-          Object.assign(widgetConfig.widgetSettings, {
-            display_field_name: field.display_field_name,
-            referenced_field_name: field.referenced_field_name,
-            referenced_model_alias: field.referenced_model_alias,
-          });
-          break;
-        case 'enum':
-          widgetConfig.slot.options = field.choices;
-          break;
-      }
-    }
-  }
   /** Will return the widget instance*/
   getWidgetRef(fieldName) {
     return this.$widgetRefs[fieldName];
