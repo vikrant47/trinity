@@ -97,8 +97,8 @@ export class EngineForm extends EngineDefinitionService {
     const field = this.getFieldByName(fieldName);
     if (field) {
       Object.assign(widgetConfig.fieldSettings, {
-        readOnly: field.readonly || field.immutable,
-        disabled: field.readonly || field.immutable,
+        readOnly: field.readonly,
+        disabled: field.readonly,
       });
       switch (field.type) {
         case 'reference':
