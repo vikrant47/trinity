@@ -6,6 +6,9 @@
           v-for="action in actions"
           :key="action.id"
           :action="action"
+          :event="{
+            form: engineForm,
+          }"
           :context="{
             formComponent: $parent,
             engineForm: engineForm,

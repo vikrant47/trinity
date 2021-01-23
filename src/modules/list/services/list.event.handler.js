@@ -5,8 +5,9 @@ export class ListEventHandler {
     this.vm = vm;
   }
 
-  selectionChangeHandler() {
-
+  selectionChangeHandler(e) {
+    const engineList = this.vm.engineList;
+    engineList.selectionChange(e);
   }
 
   handleCurrentChange() {
@@ -14,8 +15,8 @@ export class ListEventHandler {
   }
 
   sortHandler(e) {
-    const listService = this.vm.listService;
-    listService.order = { direction: e.order === 'ascending' ? 'ASC' : 'DESC', attribute: e.prop };
-    return listService.refresh();
+    const engineList = this.vm.engineList;
+    engineList.order = { direction: e.order === 'ascending' ? 'ASC' : 'DESC', attribute: e.prop };
+    return engineList.refresh();
   }
 }

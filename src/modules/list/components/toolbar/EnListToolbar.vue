@@ -9,7 +9,7 @@
           :event="actionEvent"
           :context="{
             listComponent: $parent,
-            engineList: listService,
+            engineList: engineList,
           }"
         />
       </div>
@@ -69,11 +69,16 @@ import Vue from 'vue';
 import { Engine } from '@/modules/engine/core/engine';
 import EnAction from '@/modules/engine/components/EnAction';
 import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
+import { EngineList } from '@/modules/list/engine-api/engine.list';
 
 export default {
   name: 'EnListToolbar',
   components: { EnAction },
   props: {
+    engineList: {
+      type: EngineList,
+      required: true,
+    },
     searchValue: {
       type: String,
       default: ''
@@ -93,7 +98,6 @@ export default {
   },
   data() {
     return {
-      listService: null,
       listEventHandler: null,
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
@@ -102,17 +106,15 @@ export default {
       ignoreNextTableColumnsChange: false,
       tableColumns: [],
       search: '',
-      actionEvent: new ListEvent(LIST_EVENTS.action.click, this.$parent.listService)
+      actionEvent: new ListEvent(LIST_EVENTS.action.click, this.engineList)
     };
   }, watch: {
-    'listService.definition.list.columns'() {
-      this.tableColumns = this.listService.definition.fields;
+    'engineList.definition.list.columns'() {
+      this.tableColumns = this.engineList.definition.fields;
     }
   },
   created() {
-    const listService = this.$parent.listService;
     const listEventHandler = this.$parent.listEventHandler;
-    Vue.set(this, 'listService', listService);
     Vue.set(this, 'listEventHandler', listEventHandler);
     this.search = this.searchValue;
     // this.$parent.crud.updateProp('searchToggle', true);

@@ -49,7 +49,7 @@
               :gutter="24"
             >
               <el-col class="field-item" :span="22">
-                {{ element.name }}
+                {{ element.label }}
               </el-col>
               <el-col class="delete-item" :span="2">
                 <span class="drawing-item-delete" title="Delete" @click="drawingItemDelete(index,drawingList)">
