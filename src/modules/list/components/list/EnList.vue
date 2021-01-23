@@ -4,26 +4,27 @@
     <div class="head-container">
       <en-list-toolbar
         v-if="toolbar"
-        :search-value="listService.quickSearchValue"
-        :actions="listService.actions"
-        @on-search="listService.search($event)"
+        :engine-list="engineList"
+        :search-value="engineList.quickSearchValue"
+        :actions="engineList.actions"
+        @on-search="engineList.search($event)"
       />
       <slot name="toolbar" />
     </div>
-    <!-- <pre>{{ listService.definition.list.columns|json }}</pre>-->
+    <!-- <pre>{{ engineList.definition.list.columns|json }}</pre>-->
     <!--Table rendering-->
     <div class="table-wrapper">
       <el-table
         ref="table"
-        v-loading="listService.loading"
-        element-loading-background="listService.loadingBackground"
+        v-loading="engineList.loading"
+        element-loading-background="engineList.loadingBackground"
         resizable
         border
         stripe
         height="height"
-        :data="listService.rows"
+        :data="engineList.rows"
         highlight-current-row
-        @selection-change="listEventHandler.selectionChangeHandler"
+        @selection-change="listEventHandler.selectionChangeHandler($event)"
         @current-change="listEventHandler.handleCurrentChange($event)"
         @sort-change="listEventHandler.sortHandler($event)"
       >
@@ -61,7 +62,7 @@
     </div>
     <!--Paging component-->
     <div class="list-footer">
-      <EnPagination :pagination-model="paginationModel" @refresh-click="listService.refresh()" />
+      <EnPagination :pagination-model="paginationModel" @refresh-click="engineList.refresh()" />
     </div>
     <slot name="footer" />
   </div>
@@ -131,7 +132,7 @@ export default {
     return {
       listFields: [],
       paginationModel: new Pagination(this.pagination),
-      listService: null,
+      engineList: null,
     };
   },
   beforeCreate() {
@@ -150,18 +151,18 @@ export default {
       actions: this.actions || []
     });
     engineList.loadDefinition().then(() => {
-      this.listFields = this.listService.getWidgets();
-      this.listService.refresh().then(() => {
-        // Vue.set(this, 'listService', engineList);
+      this.listFields = this.engineList.getWidgets();
+      this.engineList.refresh().then(() => {
+        // Vue.set(this, 'engineList', engineList);
       });
     });
-    Vue.set(this, 'listService', engineList);
+    Vue.set(this, 'engineList', engineList);
   },
   methods: {
     async cellClick($event, row, column) {
-      const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.listService);
+      const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.engineList);
       Object.assign(listEvent, { rowData: row, columnData: column });
-      await this.listService.triggerProcessors(listEvent, {});
+      await this.engineList.triggerProcessors(listEvent, {});
       this.$emit('cellClick', $event, row, column);
     },
     copy() {

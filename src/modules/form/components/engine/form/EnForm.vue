@@ -93,7 +93,11 @@ export default {
   },
   async mounted() {
     await this.engineForm.loadDefinition();
-    await this.engineForm.refresh();
+    if (!this.engineForm.isNew()) {
+      await this.engineForm.refresh();
+    } else {
+      this.engineForm.setRecord({});
+    }
     await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.afterRender), {});
   },
   beforeDestroy() {

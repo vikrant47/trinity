@@ -18,7 +18,7 @@ export class EngineList extends EngineDefinitionService {
   rows = [];
   order = {
     attribute: 'updated_at',
-    direction: 'ASC'
+    direction: 'DESC'
   };
   pagination = {
     // page number
@@ -37,6 +37,7 @@ export class EngineList extends EngineDefinitionService {
   };
   condition = {};
   quickSearchValue = null;
+  selection = [];
 
   constructor(settings) {
     super();
@@ -84,9 +85,9 @@ export class EngineList extends EngineDefinitionService {
             searchableColumns = searchableColumns + 1;
             if (!quickSearch.supportedTypes || quickSearch.supportedTypes.indexOf(column.type) > -1) {
               if (quickSearch.op) {
-                conditions.push({ [column.field]: { [quickSearch.op]: quickSearch.value }});
+                conditions.push({ [column.name]: { [quickSearch.op]: quickSearch.value }});
               } else {
-                conditions.push({ [column.field]: quickSearch.value });
+                conditions.push({ [column.name]: quickSearch.value });
               }
             }
           }
@@ -223,5 +224,13 @@ export class EngineList extends EngineDefinitionService {
   triggerProcessors(event, context = {}) {
     event.list = this;
     return super.triggerProcessors(event, context);
+  }
+
+  selectionChange(selection) {
+    this.selection = selection;
+  }
+
+  getSelected() {
+    return this.selection;
   }
 }

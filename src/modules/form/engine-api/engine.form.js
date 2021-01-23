@@ -92,7 +92,9 @@ export class EngineForm extends EngineDefinitionService {
     this.populateProcessors();
     return this.definition;
   }
-
+  getFormDefinition() {
+    return this.definition.form;
+  }
   fillFieldConfig(fieldName, widgetConfig) {
     const field = this.getFieldByName(fieldName);
     if (field) {
@@ -115,7 +117,17 @@ export class EngineForm extends EngineDefinitionService {
       }
     }
   }
-
+  async loadData() {
+    // request record
+    await this.emit(FORM_EVENTS.model.beforeUpdate);
+    const response = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId, {
+      fields: this.getSelectedFields(),
+      include: this.getIncludeStatement(this.getSelectedFields())
+    });
+    this.setRecord(response.contents);
+    await this.emit(FORM_EVENTS.model.update);
+    return this.record;
+  }
   async refresh() {
     try {
       await this.emit(FORM_EVENTS.model.beforeFetch);
@@ -124,12 +136,7 @@ export class EngineForm extends EngineDefinitionService {
         return this.record;
       }
       this.enableLoading();
-      // request record
-      const response = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId, {
-        fields: this.getSelectedFields(),
-        include: this.getIncludeStatement(this.getSelectedFields())
-      });
-      this.setRecord(response.contents);
+      await this.loadData();
       // time Show table in milliseconds
       setTimeout(async() => {
         this.disableLoading();
@@ -217,9 +224,10 @@ export class EngineForm extends EngineDefinitionService {
     const updatableFields = this.definition.fields
       .filter(field => !field.readonly).map(field => field.name);
     const formatted = {};
-    for (const i in this.getFormData()) {
+    const formData = this.getFormData();
+    for (const i in formData) {
       if (updatableFields.indexOf(i) >= 0) {
-        formatted[i] = this.record[i];
+        formatted[i] = formData[i];
       }
     }
     return formatted;

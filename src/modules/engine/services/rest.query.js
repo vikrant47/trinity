@@ -118,7 +118,7 @@ export class RestQuery {
       method: 'delete',
       data: {
         queryMethod: 'delete',
-        data: { query: query }
+        query: query
       }
     });
   }
