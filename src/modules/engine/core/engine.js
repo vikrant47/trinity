@@ -133,6 +133,9 @@ export class Engine {
       if (typeof instance.unmarshall === 'function') {
         const unmarshalled = instance.unmarshall(object);
         if (unmarshalled !== false) { // will be returned true if all handled by instance
+          if (typeof instance.afterUnmarshall === 'function') {
+            instance.afterUnmarshall();
+          }
           return instance;
         }
       }
@@ -148,6 +151,9 @@ export class Engine {
           if (typeof object[key] !== 'undefined' && !this.isTransientProp(parsedTransients, key)) {
             instance[key] = Engine.unmarshall(object[key], instance[key], parsedTransients.children[key]);
           }
+        }
+        if (typeof instance.afterUnmarshall === 'function') {
+          instance.afterUnmarshall();
         }
         return instance;
       }

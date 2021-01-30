@@ -55,8 +55,18 @@ export class EngineForm extends EngineDefinitionService {
   registerEvents() {
 
   }
+  static getAllWidgets(widgetConfig = []) {
+    let widgets = [];
+    for (const widget of widgetConfig) {
+      widgets.push(widget);
+      if (widget.widgetSettings.containsChild === true) {
+        widgets = widgets.concat(this.getAllWidgets(widget.widgetSettings.children));
+      }
+    }
+    return widgets;
+  }
   getSelectedFields() {
-    return this.definition.form.config.widgets.filter((widget) => {
+    return EngineForm.getAllWidgets(this.definition.form.config.widgets).filter((widget) => {
       return widget.fieldName;
     }).map((widget) => widget.fieldName);
   }
@@ -226,7 +236,7 @@ export class EngineForm extends EngineDefinitionService {
     const formatted = {};
     const formData = this.getFormData();
     for (const i in formData) {
-      if (updatableFields.indexOf(i) >= 0) {
+      if (updatableFields.indexOf(i) >= 0 || i.startsWith('_')) { // any field starts with underscore(_) can be pushed
         formatted[i] = formData[i];
       }
     }

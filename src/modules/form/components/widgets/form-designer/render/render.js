@@ -128,7 +128,7 @@ export default {
     this.widget.setFormModel(this.formModel);
     this.widget.beforeRender();
     let template = null;
-    if (this.wrapper !== false && this.widget.widgetSettings.wrapper !== false) {
+    if (this.widget.designMode !== true) {
       template = h('el-col', this.widget.getWrapperConfig(), [
         h('el-form-item', this.widget.getFormItemConfig(), [
           this.widget.componentRender(this, h)

@@ -5,7 +5,6 @@ import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 // Make the change Render Key available when the target component changes
 import { Engine } from '@/modules/engine/core/engine';
-import { debounce } from '@/utils';
 
 export default {
   name: 'RightPanel',
@@ -46,7 +45,7 @@ export default {
     }
   },
   watch: {
-    'formModel': {
+    /* 'formModel': {
       handler(model) {
         debounce(() => { // intended delay
           for (const key in model) {
@@ -55,7 +54,7 @@ export default {
         }, 500);
       },
       deep: true
-    },
+    },*/
     formConf: {
       handler(val) {
         saveFormConf(val);
@@ -69,6 +68,10 @@ export default {
   methods: {
     handleTabClick(tab, event) {
 
+    },
+    updateFieldValue(fieldName, value) {
+      // _.set(this.activeWidget, fieldName, value);
+      this.$emit('sync-config', fieldName, this.activeWidget);
     }
   },
   render(createElement) {
@@ -96,21 +99,33 @@ export default {
     return <div class='right-board'>
       <el-tabs v-model={this.currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'>
-          <div className='field-box'>
+          <div class='field-box'>
             <el-scrollbar className='right-scrollbar'>
-              {createElement(Parser, { props: { engineForm: widgetConfigForm, evalContext: evalContext }})}
+              {createElement(Parser, {
+                props: { engineForm: widgetConfigForm, evalContext: evalContext },
+                on: {
+                  fieldValueUpdated: widget => {
+                    this.updateFieldValue(widget.fieldName, this.formModel[widget.fieldName]);
+                  }
+                }
+              })}
             </el-scrollbar>
           </div>
         </el-tab-pane>
         <el-tab-pane label='Advance' name='advance'>
-          <div className='field-box'>
+          <div class='field-box'>
             <el-scrollbar className='right-scrollbar'>
-              {createElement(Parser, { props: { engineForm: advanceConfigForm, evalContext: evalContext }})}
+              {createElement(Parser, { props: { engineForm: advanceConfigForm, evalContext: evalContext },
+                on: {
+                  fieldValueUpdated: widget => {
+                    this.updateFieldValue(widget.fieldName, this.formModel[widget.fieldName]);
+                  }
+                }})}
             </el-scrollbar>
           </div>
         </el-tab-pane>
         <el-tab-pane label='Form attributes' name='form'>
-          <div className='field-box'>
+          <div class='field-box'>
             <el-scrollbar className='right-scrollbar'>
               {/* createElement(Parser, { props: { engineForm: formConfigForm, evalContext: { evalContext: evalContext }}})*/}
             </el-scrollbar>
@@ -142,6 +157,10 @@ export default {
 
   .el-form-item--small {
     display: flex;
+  }
+
+  .field-box {
+    margin: 10px;
   }
 }
 

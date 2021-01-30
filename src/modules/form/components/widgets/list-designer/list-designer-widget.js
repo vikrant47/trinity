@@ -12,8 +12,8 @@ export default class ListDesignerWidget extends BaseWidget {
   }
 
   palletSettings = {
-    label: 'Form Designer',
-    icon: 'form'
+    label: 'List Designer',
+    icon: 'list'
   };
 
   clearPallets() {

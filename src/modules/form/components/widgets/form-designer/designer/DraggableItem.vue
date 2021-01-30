@@ -53,6 +53,10 @@ const layouts = {
             onInput={event => {
               this.$set(this.formModel, widgetInstance.fieldName, event);
               this.$set(widgetInstance.widgetSettings, 'defaultValue', event);
+            }}
+            onSyncConfig={property => {
+              this.$emit('syncConfig', property, widgetInstance);
+              this.$listeners.syncConfig(property, widgetInstance);
             }}>
             {child}
           </render>

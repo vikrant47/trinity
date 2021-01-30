@@ -16,6 +16,7 @@ export default class RicheditorWidget extends BaseWidget {
     }, {
       label: 'Large', value: 'large'
     }];
+    return configSectionWidgets;
   }
 
   overrideFieldSettings(fieldSettings) {

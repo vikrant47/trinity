@@ -38,7 +38,7 @@ export const DEFAULT_CONFIG_SECTION = {
   },
   fieldName: {
     fieldName: 'fieldName',
-    widgetAlias: WIDGETS.reference,
+    widgetAlias: WIDGETS.input,
     /* fieldSettings: {
       disabled: '${widget.system===true}',
     },*/
@@ -46,12 +46,12 @@ export const DEFAULT_CONFIG_SECTION = {
       span: 24,
       label: 'Field',
       required: true,
-      targetModel: 'engine_fields',
+      /* targetModel: 'engine_fields',
       key: 'name',
       displayField: 'label',
       where: {
         model: '${form.model}'
-      }
+      }*/
     }
   },
   'widgetSettings.label': {
@@ -158,29 +158,6 @@ export const DEFAULT_CONFIG_SECTION = {
       label: 'Triggers',
       language: 'javascript',
       parse: true,
-    }
-  }, 'widgetSettings.layout': {
-    fieldName: 'widgetSettings.layout',
-    widgetAlias: WIDGETS.select,
-    fieldSettings: {
-      span: 24,
-      required: true,
-      placeholder: 'Please Select Widget'
-    },
-    widgetSettings: {
-      span: 24,
-      label: 'Layout',
-      widgetIcon: 'select',
-      defaultValue: ITEM_LAYOUT.colFormItem
-    },
-    slot: {
-      options: [{
-        'label': 'Column Layout',
-        'value': ITEM_LAYOUT.colFormItem
-      }, {
-        'label': 'Row Layout',
-        'value': ITEM_LAYOUT.rowFormItem
-      }]
     }
   },
   'widgetSettings.defaultValue': {

@@ -25,7 +25,7 @@ export class BaseWidget extends EngineObservable {
     regList: [],
     tagIcon: 'date',
     document: null,
-    required: true,
+    required: false,
     changeTag: true,
     renderKey: null,
     showLabel: true,
@@ -183,7 +183,9 @@ export class BaseWidget extends EngineObservable {
   getValue() {
     return _.get(this.formModel, this.fieldName);
   }
-
+  syncConfig(property) {
+    this.renderComponent.$emit('syncConfig', property, this);
+  }
   setValue(value, repaint = true) {
     if (typeof value !== 'undefined' && this.fieldName && this.renderComponent) {
       if (this.fieldName.indexOf('.') > 0) {
@@ -229,8 +231,7 @@ export class BaseWidget extends EngineObservable {
   }
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
-      const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
-      this.overrideConfigSection(configSectionWidgets);
+      const configSectionWidgets = this.overrideConfigSection(Engine.clone(DEFAULT_CONFIG_SECTION));
       this.configSection.widgets = Object.keys(configSectionWidgets)
         .filter(key => this.immutable_configs.indexOf(key) < 0)
         .map(fieldName => {

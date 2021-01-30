@@ -26,6 +26,7 @@ const layouts = {
     }
     widget.setFormModel(this.formModel);*/
     const widgetInstance = getWidgetInstance.call(this, widget);
+    widgetInstance.designMode = false;
     // widgetInstance.reset(widget);
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
     const listeners = buildListeners.call(this, widgetInstance);
@@ -48,13 +49,20 @@ const layouts = {
     let child = renderChildren.apply(this, arguments);
     if (widgetSettings.type === 'flex') {
       child = <el-row type={widgetSettings.type} justify={widgetSettings.justify} align={widgetSettings.align}>
-        {child}
+        <el-card>
+          {child}
+        </el-card>
       </el-row>;
     }
     return (
       <el-col span={widgetSettings.span}>
         <el-row gutter={widgetSettings.gutter}>
-          {child}
+          <el-card class='widget-row-card box-card'>
+            <div slot='header' class='clearfix'>
+              <span>{widgetSettings.label}</span>
+            </div>
+            {child}
+          </el-card>
         </el-row>
       </el-col>
     );

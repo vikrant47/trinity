@@ -1,14 +1,29 @@
-import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
-import DraggableItem from '@/modules/form/components/widgets/form-designer/designer/DraggableItem';
-import Parser from '@/modules/form/components/widgets/form-designer/render/Parser';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
+import FormDesignerWidget from '@/modules/form/components/widgets/form-designer/form-designer-widget';
+import FormDesigner from '@/modules/form/components/widgets/form-designer/designer/FormDesigner';
+import Parser from '@/modules/form/components/widgets/form-designer/render/Parser';
 
-export default class RepeaterWidget extends BaseWidget {
+export default class RepeaterWidget extends FormDesignerWidget {
+  forms;
   palletSettings = {
     label: 'Repeater',
     icon: 'el-icon-coin'
   };
+  transient = [
+    'forms',
+    'configSection',
+    'evalContext',
+    'transient',
+    'eventSeen',
+    'events',
+    'waitPromises',
+    'evalContext',
+    'data',
+    'componentConfig',
+    'fieldSettings..*',
+    'widgetSettings..*'
+  ];
 
   overrideWidgetSettings(widgetSettings) {
     if (!widgetSettings.repeaterConfig) {
@@ -16,32 +31,79 @@ export default class RepeaterWidget extends BaseWidget {
     }
   }
 
+  addRepeaterItem(index, itemValue) {
+    const config = this.widgetSettings.repeaterConfig;
+    const value = this.getValue();
+    if (itemValue) {
+      value[index] = itemValue;
+    }
+    const form = new EngineForm();
+    form.setFormConfig(config);
+    form.setRecord(value[index]);
+    form.on(FORM_EVENTS.widget.updateValue, () => {
+      value[index] = this.form.getFormData();
+      this.emit('input', value);
+    });
+    return form;
+  }
+  deleteRepeaterItem(index) {
+    const value = this.getValue();
+    value.splice(index, 1);
+    this.forms.splice(index, 1);
+    this.emit('input', value);
+  }
+
   componentRender(component, h) {
-    const config = this.getComponentConfig(component);
-    const options = {
-      props: {
-        height: this.heights[config.attrs.size] || this.heights.small,
-        value: config.attrs.value
-      }
-    };
+    // const config = this.getComponentConfig(component);
     if (this.designMode) {
-      return h(DraggableItem, options, this.getChildren());
-    } else {
-      const config = this.widgetSettings.repeaterConfig;
-      const value = this.getValue() || [];
-      return h('<div>', {}, value.map((record) => {
-        const widgetConfigForm = new EngineForm();
-        widgetConfigForm.setFormConfig(config);
-        widgetConfigForm.setRecord(record);
-        widgetConfigForm.on(FORM_EVENTS.widget.updateValue, () => {
-          this.$emit('input', value);
-        });
-        return h(Parser, {
-          props: {
-            engineForm: widgetConfigForm
+      return h(FormDesigner, {
+        on: {
+          input: (value) => {
+            this.widgetSettings.repeaterConfig = value;
+            this.syncConfig('widgetSettings.repeaterConfig');
           }
-        });
-      }));
+        },
+        props: {
+          showPallet: false,
+          value: this.widgetSettings.repeaterConfig,
+          pallet: []
+        }
+      }, this.getChildren());
+    } else {
+      const value = this.getValue() || [];
+      this.forms = value.map((record, i) => {
+        return this.addRepeaterItem(i);
+      });
+      return this.getRepeaterTemplate(h);
     }
   }
+  getRepeaterTemplate(h) {
+    return (
+      <div class='repeater-wrapper'>
+        {this.forms.map((form, index) => {
+          return (
+            <div class='repeater-item'>
+              <button class='close-btn' type='button' title='Delete' onClick={event => {
+                this.deleteRepeaterItem(index, form);
+                this.repaint();
+                event.stopPropagation();
+              }}>
+                <i class='el-icon-close'/>
+              </button>
+              {h(Parser, { props: { engineForm: form, evalContext: {}}})}
+            </div>
+          );
+        })}
+        <el-button title='Add' size='mini' type='primary' onClick={event => {
+          this.addRepeaterItem(this.forms.length, {});
+          this.repaint();
+          event.stopPropagation();
+        }}>
+          <i className='el-icon-document-add'/>
+          Add
+        </el-button>
+      </div>
+    );
+  }
 }
+
