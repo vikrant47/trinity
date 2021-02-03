@@ -142,8 +142,9 @@ function setValue(event, config, widget) {
     } else {
       this.$set(this.formData, widget.fieldName, event);
     }
+    this.engineForm.setRecord(this.formData);
     if (previousValue !== event) {
-      this.$emit('fieldValueUpdated', widget);
+      this.$emit('fieldValueUpdated', widget, event);
       this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, {
         previous: previousValue,
         current: event,
@@ -194,10 +195,20 @@ export default {
   data() {
     return {
       widgetData: {},
-      formData: this.engineForm.getRecord(),
+      // formData: this.engineForm.getRecord(),
       formConf: this.engineForm.getFormConfig(),
-      context: Object.assign({ form: this.engineForm }, this.evalContext),
+      context: Object.assign({ form: this.engineForm }, this.evalContext)
     };
+  },
+  computed: {
+    formData: {
+      get() {
+        return this.engineForm.getRecord();
+      },
+      set(newValue) {
+        // this.engineForm.setRecord(newValue);
+      }
+    }
   },
   async mounted() {
     if (!this.formConf.rules) {

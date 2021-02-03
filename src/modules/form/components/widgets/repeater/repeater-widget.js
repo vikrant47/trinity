@@ -1,8 +1,9 @@
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
-import { FORM_EVENTS } from '@/modules/form/engine-api/form-events';
 import FormDesignerWidget from '@/modules/form/components/widgets/form-designer/form-designer-widget';
 import FormDesigner from '@/modules/form/components/widgets/form-designer/designer/FormDesigner';
 import Parser from '@/modules/form/components/widgets/form-designer/render/Parser';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import draggable from 'vuedraggable';
 
 export default class RepeaterWidget extends FormDesignerWidget {
   forms;
@@ -11,6 +12,7 @@ export default class RepeaterWidget extends FormDesignerWidget {
     icon: 'el-icon-coin'
   };
   transient = [
+    'transient',
     'forms',
     'configSection',
     'evalContext',
@@ -30,27 +32,35 @@ export default class RepeaterWidget extends FormDesignerWidget {
       widgetSettings.repeaterConfig = { widgets: [] };
     }
   }
-
-  addRepeaterItem(index, itemValue) {
+  unmarshallWidgets(widgets) {
+    return widgets.map((marshalledWidget) => {
+      marshalledWidget.widgetAlias = marshalledWidget.widgetAlias ? marshalledWidget.widgetAlias : WIDGETS.input;
+      const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
+      const widget = new FormWidgetService().getWidgetInstance(marshalledWidget);
+      return widget;
+    });
+  }
+  buildRepeaterItem(index, itemValue) {
     const config = this.widgetSettings.repeaterConfig;
     const value = this.getValue();
     if (itemValue) {
       value[index] = itemValue;
     }
     const form = new EngineForm();
-    form.setFormConfig(config);
+    form.setFormConfig({ widgets: this.unmarshallWidgets(config.widgets) });
     form.setRecord(value[index]);
-    form.on(FORM_EVENTS.widget.updateValue, () => {
-      value[index] = this.form.getFormData();
-      this.emit('input', value);
-    });
     return form;
+  }
+  addRepeaterItem(index, itemValue) {
+    this.buildRepeaterItem(index, itemValue);
+    const value = this.getValue();
+    this.setValue(value);
   }
   deleteRepeaterItem(index) {
     const value = this.getValue();
     value.splice(index, 1);
     this.forms.splice(index, 1);
-    this.emit('input', value);
+    this.setValue(value);
   }
 
   componentRender(component, h) {
@@ -72,14 +82,18 @@ export default class RepeaterWidget extends FormDesignerWidget {
     } else {
       const value = this.getValue() || [];
       this.forms = value.map((record, i) => {
-        return this.addRepeaterItem(i);
+        return this.buildRepeaterItem(i);
       });
       return this.getRepeaterTemplate(h);
     }
   }
   getRepeaterTemplate(h) {
     return (
-      <div class='repeater-wrapper'>
+      <draggable class='repeater-wrapper' list={this.getValue()} animation='340' onChange={() => {
+        const value = this.getValue() || [];
+        this.setValue(value);
+        this.repaint();
+      }}>
         {this.forms.map((form, index) => {
           return (
             <div class='repeater-item'>
@@ -90,7 +104,12 @@ export default class RepeaterWidget extends FormDesignerWidget {
               }}>
                 <i class='el-icon-close'/>
               </button>
-              {h(Parser, { props: { engineForm: form, evalContext: {}}})}
+              {h(Parser, { props: { engineForm: form, evalContext: {}}, on: {
+                fieldValueUpdated: () => {
+                  const value = this.getValue() || [];
+                  value[index] = form.getRecord();
+                  this.setValue(value);
+                } }})}
             </div>
           );
         })}
@@ -102,7 +121,7 @@ export default class RepeaterWidget extends FormDesignerWidget {
           <i className='el-icon-document-add'/>
           Add
         </el-button>
-      </div>
+      </draggable>
     );
   }
 }

@@ -73,7 +73,7 @@
             :disabled="formConf.disabled"
             :label-width="formConf.labelWidth + 'px'"
           >
-            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup">
+            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup" @change="updateValue">
               <draggable-item
                 v-for="(item, index) in drawingList"
                 :key="item.renderKey"

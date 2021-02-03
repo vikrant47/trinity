@@ -12,6 +12,9 @@ export default class CodeEditorWidget extends BaseWidget {
     configSectionWidgets['widgetSettings.language'] = {
       fieldName: 'widgetSettings.language',
       widgetAlias: WIDGETS.select,
+      widgetSettings: {
+        label: 'Language',
+      },
       slot: {
         options: [{
           label: 'Javascript', value: 'javascript'
@@ -22,7 +25,7 @@ export default class CodeEditorWidget extends BaseWidget {
         }, {
           label: 'Plain', value: 'plain'
         }, {
-          label: 'JSON', value: 'javascript'
+          label: 'JSON', value: 'json'
         }]
       }
     };
@@ -30,10 +33,6 @@ export default class CodeEditorWidget extends BaseWidget {
   }
 
   overrideWidgetSettings(widgetSettings) {
-    widgetSettings = Object.assign({
-      width: '400px',
-      height: '200px'
-    }, widgetSettings);
     return widgetSettings;
   }
 
@@ -74,6 +73,7 @@ export default class CodeEditorWidget extends BaseWidget {
       },
       props: {
         language: config.language,
+        options: { automaticLayout: true },
         value: value
       }
     };

@@ -70,7 +70,7 @@ export default {
 
     },
     updateFieldValue(fieldName, value) {
-      // _.set(this.activeWidget, fieldName, value);
+      this.$set(this.activeWidget, fieldName, value);
       this.$emit('sync-config', fieldName, this.activeWidget);
     }
   },
@@ -104,8 +104,8 @@ export default {
               {createElement(Parser, {
                 props: { engineForm: widgetConfigForm, evalContext: evalContext },
                 on: {
-                  fieldValueUpdated: widget => {
-                    this.updateFieldValue(widget.fieldName, this.formModel[widget.fieldName]);
+                  fieldValueUpdated: (widget, value) => {
+                    this.updateFieldValue(widget.fieldName, value);
                   }
                 }
               })}
@@ -117,8 +117,8 @@ export default {
             <el-scrollbar className='right-scrollbar'>
               {createElement(Parser, { props: { engineForm: advanceConfigForm, evalContext: evalContext },
                 on: {
-                  fieldValueUpdated: widget => {
-                    this.updateFieldValue(widget.fieldName, this.formModel[widget.fieldName]);
+                  fieldValueUpdated: (widget, value) => {
+                    this.updateFieldValue(widget.fieldName, value);
                   }
                 }})}
             </el-scrollbar>
