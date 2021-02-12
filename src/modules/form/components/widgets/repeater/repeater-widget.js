@@ -31,6 +31,7 @@ export default class RepeaterWidget extends FormDesignerWidget {
     if (!widgetSettings.repeaterConfig) {
       widgetSettings.repeaterConfig = { widgets: [] };
     }
+    return widgetSettings;
   }
   unmarshallWidgets(widgets) {
     return widgets.map((marshalledWidget) => {

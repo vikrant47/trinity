@@ -190,4 +190,25 @@ export class Engine {
     }
     return str.join('&');
   }
+
+  /**
+   * This will generate the hashcode for given object
+   * Note: object should not be circular in nature
+   * */
+  static generateHash(object) {
+    if (object === null || typeof object === 'undefined' || typeof object === 'number' || typeof object === 'boolean') {
+      return object;
+    }
+    if (typeof object !== 'string') {
+      object = JSON.stringify(object);
+    }
+    let hash = 0;
+    let chr;
+    for (let i = 0; i < object.length; i++) {
+      chr = object.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
 }

@@ -33,6 +33,7 @@ export default class FormDesignerWidget extends BaseWidget {
       title: 'Custom',
       list: new FormWidgetService().getWidgetInstancesAsArray()
     });
+    return widgetSettings;
   }
 
   getPallet(widgetSettings) {

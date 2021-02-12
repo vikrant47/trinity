@@ -62,7 +62,7 @@ export class BaseWidget extends EngineObservable {
   };
   designMode = false;
   transient = [
-    'oldValue',
+    'oldValueHash',
     'configSection',
     'evalContext',
     'transient',
@@ -75,7 +75,7 @@ export class BaseWidget extends EngineObservable {
     'fieldSettings..*',
     'widgetSettings..*'
   ];
-  oldValue = null;
+  oldValueHash = null;
   fieldName = null;
   slot = {};
   events = {};
@@ -189,7 +189,8 @@ export class BaseWidget extends EngineObservable {
     this.renderComponent.$emit('syncConfig', property, this);
   }
   setValue(value, repaint = true) {
-    if (typeof value !== 'undefined' && this.fieldName && this.renderComponent && this.oldValue !== value) {
+    const hash = Engine.generateHash(value);
+    if (typeof value !== 'undefined' && this.fieldName && this.renderComponent && this.oldValueHash !== hash) {
       if (this.fieldName.indexOf('.') > 0) {
         const result = TemplateEngine.walk(this.fieldName, this.renderComponent.formModel, -1);
         this.renderComponent.$set(result.value, result.prop, value);
@@ -200,7 +201,7 @@ export class BaseWidget extends EngineObservable {
       }
       this.renderComponent.$emit('input', value);
       BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
-      this.oldValue = value;
+      this.oldValueHash = hash;
     }
     return this;
   }
