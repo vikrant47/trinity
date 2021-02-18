@@ -40,7 +40,6 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   setRecord(record) {
-    this.original = Engine.clone(record);
     this.record = record;
   }
 
@@ -55,10 +54,25 @@ export class EngineForm extends EngineDefinitionService {
   registerEvents() {
 
   }
-  getSelectedFields() {
-    return this.definition.form.config.widgets.filter((widget) => {
+
+  static getAllWidgets(widgetConfig = []) {
+    let widgets = [];
+    for (const widget of widgetConfig) {
+      widgets.push(widget);
+      if (widget.widgetSettings.containsChild === true) {
+        widgets = widgets.concat(this.getAllWidgets(widget.widgetSettings.children));
+      }
+    }
+    return widgets;
+  }
+
+  getSelectedWidgets() {
+    return EngineForm.getAllWidgets(this.definition.form.config.widgets).filter((widget) => {
       return widget.fieldName;
-    }).map((widget) => widget.fieldName);
+    });
+  }
+  getSelectedFieldNames() {
+    return this.getSelectedWidgets().map((widget) => widget.fieldName);
   }
   populateFormConfig() {
     return { widgets: this.definition.form.config.widgets };
@@ -92,15 +106,17 @@ export class EngineForm extends EngineDefinitionService {
     this.populateProcessors();
     return this.definition;
   }
+
   getFormDefinition() {
     return this.definition.form;
   }
+
   fillFieldConfig(fieldName, widgetConfig) {
     const field = this.getFieldByName(fieldName);
     if (field) {
       Object.assign(widgetConfig.fieldSettings, {
         readOnly: field.readonly,
-        disabled: field.readonly,
+        disabled: field.readonly
       });
       switch (field.type) {
         case 'reference':
@@ -117,17 +133,24 @@ export class EngineForm extends EngineDefinitionService {
       }
     }
   }
+
   async loadData() {
     // request record
     await this.emit(FORM_EVENTS.model.beforeUpdate);
+    const selectedFields = this.getSelectedFieldNames();
+    if (selectedFields.indexOf('id') < 0) {
+      selectedFields.push('id');
+    }
     const response = await new RestQuery(this.settings.modelAlias).findById(this.settings.recordId, {
-      fields: this.getSelectedFields(),
-      include: this.getIncludeStatement(this.getSelectedFields())
+      fields: selectedFields,
+      include: this.getIncludeStatement(this.getSelectedFieldNames())
     });
+    this.original = Engine.clone(response.contents);
     this.setRecord(response.contents);
     await this.emit(FORM_EVENTS.model.update);
     return this.record;
   }
+
   async refresh() {
     try {
       await this.emit(FORM_EVENTS.model.beforeFetch);
@@ -220,13 +243,33 @@ export class EngineForm extends EngineDefinitionService {
 
   }
 
+  getDirtyFields() {
+    return Object.keys(this.getDirty());
+  }
+
+  getDirty(updatable = true) {
+    const dirty = {};
+    const updatableFields = updatable ? this.getUpdatableFields() : this.getSelectedWidgets().map((widget) => {
+      return { name: widget.fieldName };
+    });
+    for (const field of updatableFields) {
+      if (this.original[field.name] !== this.record[field.name]) {
+        dirty[field.name] = this.record[field.name];
+      }
+    }
+    return dirty;
+  }
+
+  getUpdatableFields() {
+    return this.getFields().filter(field => !field.readonly);
+  }
+
   getFormattedRecord() {
-    const updatableFields = this.definition.fields
-      .filter(field => !field.readonly).map(field => field.name);
+    const updatableFields = this.getUpdatableFields().map(field => field.name);
     const formatted = {};
     const formData = this.getFormData();
     for (const i in formData) {
-      if (updatableFields.indexOf(i) >= 0) {
+      if (updatableFields.indexOf(i) >= 0 || i.startsWith('_')) { // any field starts with underscore(_) can be pushed
         formatted[i] = formData[i];
       }
     }
@@ -243,7 +286,11 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   update() {
-    return new RestQuery(this.settings.modelAlias).update(this.getFormattedRecord(), { where: { id: this.record.id }});
+    const formatted = this.getDirty();
+    if (Object.keys(formatted).length > 0) {
+      return new RestQuery(this.settings.modelAlias).update(formatted, { where: { id: this.original.id }});
+    }
+    return { contents: [this.record] };
   }
 
   /** This will save the form record using api*/
@@ -272,10 +319,12 @@ export class EngineForm extends EngineDefinitionService {
     });
     return model;
   }
+
   invoke(fieldName, method, args) {
     const widget = this.getWidgetRef(fieldName);
     return widget[method].apply(widget, args);
   }
+
   getValue(fieldName) {
     return this.invoke(fieldName, 'getValue');
   }
@@ -283,6 +332,7 @@ export class EngineForm extends EngineDefinitionService {
   setValue(fieldName, value) {
     return this.invoke(fieldName, 'setValue', [value]);
   }
+
   /**
    * @param {FormEvent} event
    * @param {Object} context

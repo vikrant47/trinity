@@ -28,11 +28,12 @@ export default class FormDesignerWidget extends BaseWidget {
   }
 
   overrideWidgetSettings(widgetSettings) {
-    /* const FormWidgetService = require('@/modules/form/services/form.widget.service').FormWidgetService;
+    const FormWidgetService = require('@/modules/form/services/form.widget.service').FormWidgetService;
     widgetSettings.pallet.push({
       title: 'Custom',
       list: new FormWidgetService().getWidgetInstancesAsArray()
-    });*/
+    });
+    return widgetSettings;
   }
 
   getPallet(widgetSettings) {

@@ -1,5 +1,6 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import MonacoEditor from 'vue-monaco';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export default class CodeEditorWidget extends BaseWidget {
   palletSettings = {
@@ -8,23 +9,30 @@ export default class CodeEditorWidget extends BaseWidget {
   };
 
   overrideConfigSection(configSectionWidgets) {
-    configSectionWidgets['widgetSettings.language'].slot.options = [{
-      label: 'Javascript', value: 'javascript'
-    }, {
-      label: 'Html', value: 'html'
-    }, {
-      label: 'Css', value: 'css'
-    }, {
-      label: 'Plain', value: 'plain'
-    }, {
-      label: 'JSON', value: 'javascript'
-    }];
+    configSectionWidgets['widgetSettings.language'] = {
+      fieldName: 'widgetSettings.language',
+      widgetAlias: WIDGETS.select,
+      widgetSettings: {
+        label: 'Language',
+      },
+      slot: {
+        options: [{
+          label: 'Javascript', value: 'javascript'
+        }, {
+          label: 'Html', value: 'html'
+        }, {
+          label: 'Css', value: 'css'
+        }, {
+          label: 'Plain', value: 'plain'
+        }, {
+          label: 'JSON', value: 'json'
+        }]
+      }
+    };
+    return configSectionWidgets;
   }
+
   overrideWidgetSettings(widgetSettings) {
-    widgetSettings = Object.assign({
-      width: '400px',
-      height: '200px',
-    }, widgetSettings);
     return widgetSettings;
   }
 
@@ -65,6 +73,7 @@ export default class CodeEditorWidget extends BaseWidget {
       },
       props: {
         language: config.language,
+        options: { automaticLayout: true },
         value: value
       }
     };

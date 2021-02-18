@@ -38,7 +38,7 @@
       </el-scrollbar>
     </div>
 
-    <div class="center-board">
+    <div class="center-board center-board-with-pallet">
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="24">
           <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup">

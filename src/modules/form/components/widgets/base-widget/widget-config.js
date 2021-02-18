@@ -38,20 +38,20 @@ export const DEFAULT_CONFIG_SECTION = {
   },
   fieldName: {
     fieldName: 'fieldName',
-    widgetAlias: WIDGETS.reference,
+    widgetAlias: WIDGETS.input,
     /* fieldSettings: {
       disabled: '${widget.system===true}',
     },*/
     widgetSettings: {
       span: 24,
       label: 'Field',
-      required: true,
-      targetModel: 'engine_fields',
+      required: true
+      /* targetModel: 'engine_fields',
       key: 'name',
       displayField: 'label',
       where: {
         model: '${form.model}'
-      }
+      }*/
     }
   },
   'widgetSettings.label': {
@@ -109,7 +109,7 @@ export const DEFAULT_CONFIG_SECTION = {
     widgetAlias: WIDGETS.number,
     widgetSettings: {
       span: 24,
-      defaultValue: '0',
+      defaultValue: 150,
       label: 'Label Width',
       min: 0
     }
@@ -152,35 +152,41 @@ export const DEFAULT_CONFIG_SECTION = {
   },
   'widgetSettings.triggers': {
     fieldName: 'widgetSettings.triggers',
-    widgetAlias: WIDGETS.codeEditor,
+    widgetAlias: WIDGETS.repeater,
     widgetSettings: {
+      repeaterConfig: {
+        widgets: [{
+          fieldName: 'action',
+          widgetSettings: {
+            span: 24,
+            label: 'Action'
+          },
+          widgetAlias: WIDGETS.select,
+          slot: {
+            options: [{
+              label: 'Show',
+              value: 'show',
+            }, {
+              label: 'Hide',
+              value: 'hide',
+            }],
+          }
+        }, {
+          fieldName: 'condition',
+          widgetAlias: WIDGETS.input,
+          fieldSettings: {
+            type: 'textarea',
+          },
+          widgetSettings: {
+            span: 24,
+            label: 'Action'
+          },
+        }]
+      },
       advance: true,
       label: 'Triggers',
       language: 'javascript',
-      parse: true,
-    }
-  }, 'widgetSettings.layout': {
-    fieldName: 'widgetSettings.layout',
-    widgetAlias: WIDGETS.select,
-    fieldSettings: {
-      span: 24,
-      required: true,
-      placeholder: 'Please Select Widget'
-    },
-    widgetSettings: {
-      span: 24,
-      label: 'Layout',
-      widgetIcon: 'select',
-      defaultValue: ITEM_LAYOUT.colFormItem
-    },
-    slot: {
-      options: [{
-        'label': 'Column Layout',
-        'value': ITEM_LAYOUT.colFormItem
-      }, {
-        'label': 'Row Layout',
-        'value': ITEM_LAYOUT.rowFormItem
-      }]
+      parse: true
     }
   },
   'widgetSettings.defaultValue': {

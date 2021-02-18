@@ -25,7 +25,7 @@ export class BaseWidget extends EngineObservable {
     regList: [],
     tagIcon: 'date',
     document: null,
-    required: true,
+    required: false,
     changeTag: true,
     renderKey: null,
     showLabel: true,
@@ -62,6 +62,7 @@ export class BaseWidget extends EngineObservable {
   };
   designMode = false;
   transient = [
+    'oldValueHash',
     'configSection',
     'evalContext',
     'transient',
@@ -74,6 +75,7 @@ export class BaseWidget extends EngineObservable {
     'fieldSettings..*',
     'widgetSettings..*'
   ];
+  oldValueHash = null;
   fieldName = null;
   slot = {};
   events = {};
@@ -183,9 +185,12 @@ export class BaseWidget extends EngineObservable {
   getValue() {
     return _.get(this.formModel, this.fieldName);
   }
-
+  syncConfig(property) {
+    this.renderComponent.$emit('syncConfig', property, this);
+  }
   setValue(value, repaint = true) {
-    if (typeof value !== 'undefined' && this.fieldName && this.renderComponent) {
+    const hash = Engine.generateHash(value);
+    if (typeof value !== 'undefined' && this.fieldName && this.renderComponent && this.oldValueHash !== hash) {
       if (this.fieldName.indexOf('.') > 0) {
         const result = TemplateEngine.walk(this.fieldName, this.renderComponent.formModel, -1);
         this.renderComponent.$set(result.value, result.prop, value);
@@ -196,6 +201,7 @@ export class BaseWidget extends EngineObservable {
       }
       this.renderComponent.$emit('input', value);
       BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
+      this.oldValueHash = hash;
     }
     return this;
   }
@@ -229,8 +235,7 @@ export class BaseWidget extends EngineObservable {
   }
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
-      const configSectionWidgets = Engine.clone(DEFAULT_CONFIG_SECTION);
-      this.overrideConfigSection(configSectionWidgets);
+      const configSectionWidgets = this.overrideConfigSection(Engine.clone(DEFAULT_CONFIG_SECTION));
       this.configSection.widgets = Object.keys(configSectionWidgets)
         .filter(key => this.immutable_configs.indexOf(key) < 0)
         .map(fieldName => {

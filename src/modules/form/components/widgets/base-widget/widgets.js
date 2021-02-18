@@ -22,7 +22,7 @@ export const WIDGETS = {
   reference: 'reference',
   icon: 'icon',
   divider: 'divider',
-  repeator: 'repeator',
+  repeater: 'repeater',
   codeEditor: 'codeEditor',
 };
 

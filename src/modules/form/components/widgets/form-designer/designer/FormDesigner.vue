@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="left-board">
+    <div v-if="showPallet===true" class="left-board">
       <!--<div class="logo-wrapper">
         <div class="logo">
           <img alt="logo"> Form Generator
@@ -46,7 +46,7 @@
       </el-scrollbar>
     </div>
 
-    <div class="center-board">
+    <div :class="showPallet?'center-board center-board-with-pallet': 'center-board'">
       <!--<div class="action-bar">
         <el-button icon="el-icon-video-play" type="text" @click="run">
           run
@@ -67,12 +67,13 @@
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="formConf.gutter">
           <el-form
+            class="drawing-form"
             :size="formConf.size"
             :label-position="formConf.labelPosition"
             :disabled="formConf.disabled"
             :label-width="formConf.labelWidth + 'px'"
           >
-            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup">
+            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup" @change="updateValue">
               <draggable-item
                 v-for="(item, index) in drawingList"
                 :key="item.renderKey"
@@ -85,11 +86,12 @@
                 @copyWidget="addWidget"
                 @deleteWidget="drawingItemDelete"
                 @showConfig="showConfig"
+                @syncConfig="syncConfig"
               />
+              <div v-show="!drawingList.length" class="empty-info">
+                Drag in or click on widgets from the left to design the form
+              </div>
             </draggable>
-            <div v-show="!drawingList.length" class="empty-info">
-              Drag in or click on widgets from the left to design the form
-            </div>
           </el-form>
         </el-row>
       </el-scrollbar>
@@ -107,6 +109,7 @@
         :show-field="!!drawingList.length"
         @widget-change="tagChange"
         @fetch-data="fetchData"
+        @sync-config="syncConfig"
       />
     </el-drawer>
     <input id="copyNode" type="hidden">
@@ -138,11 +141,12 @@ import {
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { Engine } from '@/modules/engine/core/engine';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
+import _ from 'lodash';
 
 let beautifier;
 let oldActiveId;
 let tempactiveWidget;
-let hash = null;
 // const drawingListInDB = [];// getDrawingList();
 // const formConfInDB = getFormConf();
 const idGlobal = getIdGlobal();
@@ -154,6 +158,10 @@ export default {
     DraggableItem
   },
   props: {
+    showPallet: {
+      type: Boolean,
+      default: true,
+    },
     value: {
       type: Object,
       default() {
@@ -169,6 +177,7 @@ export default {
   },
   data() {
     return {
+      hash: null,
       activePallet: 'Fields',
       configVisible: false,
       logo: '',
@@ -190,9 +199,9 @@ export default {
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
         const newHash = JSON.stringify(list);
-        if (hash !== newHash) {
-          this.$emit('input', { widgets: list }); // emitting event to top form item
-          hash = newHash;
+        if (this.hash !== newHash) {
+          this.updateValue();
+          this.hash = newHash;
         }
 
         // return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
@@ -226,7 +235,7 @@ export default {
     },
     drawingList: {
       handler(val) {
-        this.saveDrawingListDebounce(val);
+        // this.saveDrawingListDebounce(val);
         if (val.length === 0) {
           this.idGlobal = 100;
         } else {
@@ -261,7 +270,7 @@ export default {
     loadBeautifier(btf => {
       beautifier = btf;
     });
-    hash = JSON.stringify(this.drawingList);
+    this.hash = JSON.stringify(this.drawingList);
     const clipboard = new ClipboardJS('#copyNode', {
       text: trigger => {
         const codeStr = this.generateCode();
@@ -281,6 +290,11 @@ export default {
     this.updateAllSelectedItems({ palletSettings: { hidden: true }});
   },
   methods: {
+    updateValue() {
+      this.$emit('input', {
+        widgets: Engine.marshall(this.drawingList)
+      }); // emitting event to top form item
+    },
     getFilteredPallet() {
       return this.pallet.map((palletItem) => {
         return Object.assign({}, palletItem, {
@@ -334,6 +348,13 @@ export default {
       this.activeFormItem(currentItem);
       this.configVisible = true;
     },
+    syncConfig(property, widgetInstance) {
+      if (property) {
+        const widget = EngineForm.getAllWidgets(this.drawingList).find(item => item.widgetSettings.renderKey === widgetInstance.widgetSettings.renderKey);
+        _.set(widget, property, Engine.clone(_.get(widgetInstance, property)));
+      }
+      this.updateValue();
+    },
     activeDraggableItem(currentItem) {
       this.activeFormItem(currentItem);
       // this.configVisible = true;
@@ -374,6 +395,7 @@ export default {
       list.push(clone);
       this.activeFormItem(clone);
       this.updatedSelectedPalletItem(item, { palletSettings: { hidden: true }});
+      this.updateValue();
     },
     cloneWidget(original) {
       const clone = deepClone(original);// deepClone(origin);
@@ -429,6 +451,7 @@ export default {
           this.activeFormItem(this.drawingList[len - 1]);
         }
         this.updatedSelectedPalletItem(item, { palletSettings: { hidden: false }});
+        this.updateValue();
       });
     },
     generateCode() {

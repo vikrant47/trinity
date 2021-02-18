@@ -70,11 +70,19 @@ $lighterBlue: #409EFF;
   box-sizing: border-box;
 }
 .center-board {
-  height: 100vh;
+  height: 400px;
   width: auto;
-  margin: 0 0px 0 260px;
+  margin: 0;
   box-sizing: border-box;
 }
+.center-board-with-pallet{
+  height: 100vh;
+  margin: 0 0px 0 260px;
+}
+.center-board .el-scrollbar__view{
+  height: 100%;
+}
+
 .empty-info{
   position: absolute;
   top: 46%;
@@ -129,13 +137,18 @@ $lighterBlue: #409EFF;
   }
 }
 
-.center-board-row {
+.center-board>.center-board-row {
   padding: 12px 12px 15px 12px;
   box-sizing: border-box;
+}
+.center-board-with-pallet>.center-board-row {
   & > .el-form {
     // 69 = 12+15+42
     height: calc(100vh - 69px);
   }
+}
+.drawing-form{
+  width: 100%;
 }
 .drawing-board {
   height: 100%;
