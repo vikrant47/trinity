@@ -3,7 +3,7 @@
     <div class="head-container">
       <en-form-toolbar v-if="toolbar" :actions="engineForm.actions" />
     </div>
-    <div class="form-parser">
+    <div class="form-parser-wrapper">
       <parser
         :key="engineForm.hashCode"
         :engine-form="engineForm"

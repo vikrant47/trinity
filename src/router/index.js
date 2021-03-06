@@ -1,15 +1,12 @@
 import router from './routers';
-import store from '@/store';
 import Config from '@/settings';
 import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css';// progress bar style
 import { getToken } from '@/utils/auth'; // getToken from cookie
-import { NavigationService } from '@/modules/navigation/services/navigation.service';
 
 NProgress.configure({ showSpinner: false });// NProgress Configuration
 
 const whiteList = ['/login'];// no redirect whitelist
-const navService = NavigationService.getInstance();
 
 router.beforeEach((to, from, next) => {
   if (to.meta.title) {

@@ -29,7 +29,7 @@ export class BaseWidget extends EngineObservable {
     changeTag: true,
     renderKey: null,
     showLabel: true,
-    labelWidth: null,
+    labelWidth: 150,
     defaultValue: null,
     class: {},
     domProps: {},
@@ -58,7 +58,7 @@ export class BaseWidget extends EngineObservable {
     showStops: false,
     range: false,
     multiple: false,
-    size: 'small'
+    size: 'medium'
   };
   designMode = false;
   transient = [
@@ -126,9 +126,11 @@ export class BaseWidget extends EngineObservable {
 
   init() {
   }
+
   getForm() {
     return this.engineForm;
   }
+
   setForm(engineForm) {
     this.engineForm = engineForm;
   }
@@ -185,9 +187,11 @@ export class BaseWidget extends EngineObservable {
   getValue() {
     return _.get(this.formModel, this.fieldName);
   }
+
   syncConfig(property) {
     this.renderComponent.$emit('syncConfig', property, this);
   }
+
   setValue(value, repaint = true) {
     const hash = Engine.generateHash(value);
     if (typeof value !== 'undefined' && this.fieldName && this.renderComponent && this.oldValueHash !== hash) {
@@ -225,14 +229,17 @@ export class BaseWidget extends EngineObservable {
   overrideConfigSection(configSectionWidgets) {
     return configSectionWidgets;
   }
+
   loadBasicConfigSection() {
     this.loadConfigForConfigSection();
     return { widgets: this.configSection.widgets.filter((widget) => !widget.widgetSettings.advance) };
   }
+
   loadAdvanceConfigSection() {
     this.loadConfigForConfigSection();
     return { widgets: this.configSection.widgets.filter((widget) => widget.widgetSettings.advance) };
   }
+
   loadConfigForConfigSection() {
     if (this.configSection.widgets.length === 0) {
       const configSectionWidgets = this.overrideConfigSection(Engine.clone(DEFAULT_CONFIG_SECTION));
@@ -304,11 +311,11 @@ export class BaseWidget extends EngineObservable {
   }
 
   getFormItemConfig() {
-    let labelWidth = this.widgetSettings.labelWidth ? `${this.widgetSettings.labelWidth}px` : null;
+    let labelWidth = this.widgetSettings.labelWidth ? this.widgetSettings.labelWidth : BaseWidget.defaultWidgetSettings.labelWidth;
     if (this.widgetSettings.showLabel === false) labelWidth = '0';
     Object.assign(this.formItemConfig, {
       attrs: {
-        labelWidth: labelWidth,
+        labelWidth: `${labelWidth}px` || null,
         prop: this.fieldName,
         label: this.widgetSettings.showLabel ? this.widgetSettings.label : '',
         required: this.widgetSettings.required

@@ -5,6 +5,7 @@ import request from '@/utils/request';
 import { TenantService } from '@/modules/engine/services/tenant.service';
 import $router from '@/router/routers';
 import { Engine } from '@/modules/engine/core/engine';
+import { EngineAction } from '@/modules/engine/core/engine.action';
 
 export const NavComponentMapping = {
   folder: Layout,
@@ -40,16 +41,26 @@ export const NavRoutConfig = {
 
 export class NavigationService {
   /** @type instance NavigationService*/
-  static instance = new NavigationService();
+  static instances = {
+    topnav: new NavigationService('topnav'),
+    sidebar: new NavigationService('sidebar'),
+    applist: new NavigationService('applist')
+  };
 
   /** @return NavigationService*/
-  static getInstance() {
-    return NavigationService.instance;
+  static getInstance(position = 'sidebar') {
+    return NavigationService.instances[position];
   }
 
-  naviagtions = [];
+  static allNavigations = [];
+  static navPromise;
+  navigations = [];
+  position;
   flatNavs = [];
-  navPromise;
+
+  constructor(position = 'sidebar') {
+    this.position = position;
+  }
 
   getMenusTree(pid) {
     return request({
@@ -58,19 +69,27 @@ export class NavigationService {
     });
   }
 
-  getNavigations() {
+  async getNavigations() {
+    if (this.navigations.length === 0) {
+      const allNav = await NavigationService.getAllNavigations();
+      this.navigations = NavigationService.navDataToRoute(allNav.filter(nav => nav.position === this.position));
+    }
+    return this.navigations;
+  }
+
+  static getAllNavigations() {
     if (!this.navPromise) {
       this.navPromise = new Promise((resolve, reject) => {
-        if (this.naviagtions.length === 0) {
+        if (this.allNavigations.length === 0) {
           TenantService.instance.request({
-            url: '/api/engine/navigations',
+            url: '/api/engine/navigations?position=' + this.position,
             method: 'get'
           }).then(navs => {
-            this.naviagtions = this.navDataToRoute(navs.contents);
-            resolve(this.naviagtions);
+            this.allNavigations = navs.contents;
+            resolve(this.allNavigations);
           }).catch(err => reject(err));
         } else {
-          resolve(this.naviagtions);
+          resolve(this.allNavigations);
         }
       });
     }
@@ -130,7 +149,7 @@ export class NavigationService {
     });
   }
 
-  getRouteConfig(nav) {
+  static getRouteConfig(nav) {
     const route = Object.assign({ component: Layout, path: nav.name }, NavRoutConfig[nav.type]);
     route.meta = nav;
     route.name = nav.label; // setting name in route
@@ -167,7 +186,7 @@ export class NavigationService {
     }, []);
   }
 
-  navDataToRoute(navigation) { // Traverse the routing string from the background and convert it into a component object
+  static navDataToRoute(navigation) { // Traverse the routing string from the background and convert it into a component object
     return navigation.map(nav => {
       const route = this.getRouteConfig(nav);
       if (nav.children && nav.children.length) {
@@ -176,6 +195,12 @@ export class NavigationService {
       return route;
     });
   }
+
+  async executeNavigation(navigation) {
+    const enAction = new EngineAction(navigation);
+    await enAction.execute({ navigation }, {});
+  }
+
   /** Navigate to given url*/
   navigate(url) {
     return $router.push(url);
@@ -187,5 +212,9 @@ export class NavigationService {
 
   navigateToList(modelAlias, listId = 'default', params = {}) {
     return this.navigate('/models/' + modelAlias + '/form/' + listId + '?' + Engine.toUrlParam(params));
+  }
+
+  refresh() {
+    $router.go();
   }
 }

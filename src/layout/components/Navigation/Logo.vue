@@ -1,13 +1,28 @@
+`
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 v-else class="sidebar-title">{{ title }} </h1>
+        <h1 v-else class="sidebar-title">{{ $store.state.user.application.name }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo">
-        <h1 class="sidebar-title">{{ title }} </h1>
+        <el-dropdown @command="onExecuteNavigation">
+          <div class="el-dropdown-link">
+            <img v-if="logo" :src="logo" class="sidebar-logo">
+            <h1 class="sidebar-title">{{ $store.state.user.application.name }} </h1>
+          </div>
+          <el-dropdown-menu slot="dropdown" class="app-menu">
+            <el-dropdown-item
+              v-for="navigation in applist.navigations"
+              :key="navigation.id"
+              class="app-menu-item"
+              :command="navigation"
+            >
+              {{ navigation.name }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </router-link>
     </transition>
   </div>
@@ -15,6 +30,9 @@
 
 <script>
 import Logo from '@/assets/images/logo.png';
+import { NavigationService } from '@/modules/navigation/services/navigation.service';
+import store from '@/store';
+
 export default {
   name: 'SidebarLogo',
   props: {
@@ -26,8 +44,21 @@ export default {
   data() {
     return {
       title: 'Zion',
-      logo: Logo
+      logo: Logo,
+      applist: NavigationService.getInstance('applist'),
+      store: store
     };
+  },
+  mounted() {
+    this.applist.getNavigations();
+  },
+  created() {
+    this.$store.dispatch('GetInfo');
+  },
+  methods: {
+    onExecuteNavigation(navigation) {
+      this.applist.executeNavigation(navigation.meta);
+    }
   }
 };
 </script>

@@ -1,3 +1,5 @@
+import store from '@/store';
+
 export class EngineScript {
   id = new Date().getTime();
   name;
@@ -26,7 +28,7 @@ export class EngineScript {
 
   static buildContext(context = {}, self) {
     const defaultContext = require('@/modules/engine/context/index').default;
-    return Object.assign({ self: self }, context, defaultContext);
+    return Object.assign({ self: self }, context, store.state.user, defaultContext);
   }
 
   compile() {

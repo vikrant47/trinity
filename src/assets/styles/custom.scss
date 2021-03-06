@@ -102,13 +102,18 @@
   padding: 25px 25px 25px 0px;
   background-color: white;
 }
+.form-container .form-parser-with-sections {
+  padding: 0;
+  background-color: transparent;
+}
 .widget-row-card{
   border: 1px solid #c5daef;
-  margin: 5px 20px 5px 20px;
+  margin: 5px 20px 5px 0px;
   .el-card__header{
-    background-color: #f2f6fa;
+    color: #000;
+    background-color: #ffffff;
     padding: 8px 15px;
-    border-bottom: 1px solid #e6ebf5;
+    /* border: 1px solid #a8b6c2; */
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
   }
