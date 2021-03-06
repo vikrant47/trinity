@@ -10,9 +10,9 @@
         :unique-opened="$store.state.settings.uniqueOpened"
         :active-text-color="variables.menuActiveText"
         :collapse-transition="false"
-        mode="vertical"
+        :mode="navPosition"
       >
-        <sidebar-item v-for="route in navigations" :key="route.path" :item="route" :base-path="route.path" />
+        <navigation-item v-for="route in navigations" :key="route.path" :item="route" :base-path="route.path" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -21,19 +21,24 @@
 <script>
 import { mapGetters } from 'vuex';
 import Logo from './Logo';
-import SidebarItem from './SidebarItem';
+import NavigationItem from './NavigationItem';
 import variables from '@/assets/styles/variables.scss';
 import { NavigationService } from '@/modules/navigation/services/navigation.service';
 
 export default {
-  components: { SidebarItem, Logo },
-  data() {
-    return { navigations: [] };
+  name: 'Navigation',
+  components: { NavigationItem, Logo },
+  props: {
+    position: {
+      type: String,
+      default: 'sidebar'
+    }
   },
-  created() {
-    NavigationService.getInstance().getNavigations().then(nav => {
-      this.navigations = nav;
-    });
+  data() {
+    return {
+      navigations: [],
+      navPosition: this.position === 'sidebar' ? 'vertical' : 'horizontal'
+    };
   },
   computed: {
     ...mapGetters([
@@ -50,7 +55,7 @@ export default {
       return path;
     },
     showLogo() {
-      return this.$store.state.settings.sidebarLogo;
+      return this.position === 'sidebar' && this.$store.state.settings.sidebarLogo;
     },
     variables() {
       return variables;
@@ -58,6 +63,11 @@ export default {
     isCollapse() {
       return !this.sidebar.opened;
     }
+  },
+  created() {
+    NavigationService.getInstance(this.position).getNavigations(this.position).then(nav => {
+      this.navigations = nav;
+    });
   }
 };
 </script>

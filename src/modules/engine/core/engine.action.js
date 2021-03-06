@@ -14,7 +14,7 @@ export class EngineAction extends EngineScript {
   constructor(settings = {}) {
     super(settings);
     Object.assign(this, settings); // <--- webpack pushing default initialization here, re-invoking parent method again
-    if (this.type.indexOf('plain') > -1) {
+    if (this.type && this.type.indexOf('plain') > -1) {
       this.type = this.type.replaceAll('plain', '');
       this.plain = true;
     }

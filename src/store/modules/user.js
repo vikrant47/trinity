@@ -6,6 +6,7 @@ const user = {
     token: getToken(),
     user: {},
     roles: [],
+    application: {},
     // Used when loading the menu for the first time
     loadMenus: false
   },
@@ -19,6 +20,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles;
+    },
+    SET_USER_APP: (state, application) => {
+      state.application = application;
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus;
@@ -48,7 +52,7 @@ const user = {
     GetInfo({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo().then(res => {
-          setUserInfo(res, commit);
+          setUserInfo(res.contents, commit);
           resolve(res);
         }).catch(error => {
           reject(error);
@@ -90,6 +94,8 @@ export const setUserInfo = (res, commit) => {
     commit('SET_ROLES', res.roles);
   }
   commit('SET_USER', res.user);
+  commit('SET_USER_APP', res.application);
+  user.state.user = res.user;
 };
 
 export default user;

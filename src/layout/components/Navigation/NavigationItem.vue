@@ -12,7 +12,7 @@
       <template slot="title">
         <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
       </template>
-      <sidebar-item
+      <navigation-item
         v-for="child in item.children"
         :key="child.id"
         :is-nest="true"
@@ -32,7 +32,7 @@ import AppLink from './Link';
 import FixiOSBug from './FixiOSBug';
 
 export default {
-  name: 'SidebarItem',
+  name: 'NavigationItem',
   components: { Item, AppLink },
   mixins: [FixiOSBug],
   props: {

@@ -73,21 +73,23 @@ function renderFrom(h) {
   const { formConf } = this;
 
   return (
-    <el-row gutter={formConf.gutter}>
-      <el-form
-        size={formConf.size}
-        label-position={formConf.labelPosition}
-        disabled={formConf.disabled}
-        label-width={`${formConf.labelWidth}px`}
-        ref={formConf.formRef}
-        // model cannot be assigned directly https://github.com/vuejs/jsx/issues/49#issuecomment-472013664
-        props={{ model: this.formData }}
-        rules={this[formConf.formRules]}
-      >
-        {renderFormItem.call(this, h, formConf.widgets, this.formModel)}
-        {formConf.formBtns && formBtns.call(this, h)}
-      </el-form>
-    </el-row>
+    <div class={this.containsSection ? 'form-parser form-parser-with-sections' : 'form-parser'}>
+      <el-row gutter={formConf.gutter}>
+        <el-form
+          size={formConf.size}
+          label-position={formConf.labelPosition}
+          disabled={formConf.disabled}
+          label-width={`${formConf.labelWidth}px`}
+          ref={formConf.formRef}
+          // model cannot be assigned directly https://github.com/vuejs/jsx/issues/49#issuecomment-472013664
+          props={{ model: this.formData }}
+          rules={this[formConf.formRules]}
+        >
+          {renderFormItem.call(this, h, formConf.widgets, this.formModel)}
+          {formConf.formBtns && formBtns.call(this, h)}
+        </el-form>
+      </el-row>
+    </div>
   );
 }
 
@@ -194,6 +196,7 @@ export default {
   },
   data() {
     return {
+      containsSection: false,
       widgetData: {},
       // formData: this.engineForm.getRecord(),
       formConf: this.engineForm.getFormConfig(),
@@ -219,6 +222,7 @@ export default {
     this.$emit('beforeInit');
     this.initFormData(this.formConf.widgets, this.formData);
     this.buildRules(this.formConf.widgets, this.formConf.rules);
+    this.containsSection = this.engineForm.containsSection();
     // await this.engineForm.triggerProcessors(new FormEvent(FORM_EVENTS.form.init), {});
   },
   created() {

@@ -6,6 +6,7 @@ import { FORM_EVENTS, FormEvent } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export class EngineForm extends EngineDefinitionService {
   record = {};
@@ -71,9 +72,11 @@ export class EngineForm extends EngineDefinitionService {
       return widget.fieldName;
     });
   }
+
   getSelectedFieldNames() {
     return this.getSelectedWidgets().map((widget) => widget.fieldName);
   }
+
   populateFormConfig() {
     return { widgets: this.definition.form.config.widgets };
     /* const tabs = this.definition.form.config.tabs || [];
@@ -228,6 +231,10 @@ export class EngineForm extends EngineDefinitionService {
   setFormConfig(formConfig = {}) {
     this.definition.form.config = formConfig;
     this.formConfig = formConfig;
+  }
+
+  containsSection() {
+    return this.formConfig.widgets.filter(widget => widget.widgetAlias === WIDGETS.row).length > 0;
   }
 
   getWidgetConfig() {
