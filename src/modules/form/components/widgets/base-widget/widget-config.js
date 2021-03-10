@@ -7,11 +7,13 @@ export const ITEM_LAYOUT = {
 export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.type': {
     widgetAlias: WIDGETS.select,
+
     fieldName: 'fieldSettings.type',
     fieldSettings: {
       placeholder: 'Please Select Type'
     },
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Type',
       widgetIcon: 'select',
@@ -39,10 +41,12 @@ export const DEFAULT_CONFIG_SECTION = {
   fieldName: {
     fieldName: 'fieldName',
     widgetAlias: WIDGETS.input,
+
     /* fieldSettings: {
       disabled: '${widget.system===true}',
     },*/
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Field',
       required: true
@@ -57,7 +61,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.label': {
     fieldName: 'widgetSettings.label',
     widgetAlias: WIDGETS.input,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Label',
       required: true
@@ -66,7 +72,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.title': {
     fieldName: 'fieldSettings.title',
     widgetAlias: WIDGETS.input,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Title',
       required: false
@@ -75,6 +83,7 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.placeholder': {
     fieldName: 'fieldSettings.placeholder',
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Placeholder'
     }
@@ -82,10 +91,12 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.size': {
     fieldName: 'fieldSettings.size',
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Size'
     },
     widgetAlias: WIDGETS.select,
+
     slot: {
       options: [{
         label: 'Large', value: 'large'
@@ -98,7 +109,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.showLabel': {
     fieldName: 'widgetSettings.showLabel',
     widgetAlias: WIDGETS.switch,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Show Label',
       default: true
@@ -107,7 +120,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.labelWidth': {
     fieldName: 'widgetSettings.labelWidth',
     widgetAlias: WIDGETS.number,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       defaultValue: 150,
       label: 'Label Width',
@@ -117,7 +132,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.span': {
     fieldName: 'widgetSettings.span',
     widgetAlias: WIDGETS.number,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Span',
       min: 0,
@@ -127,15 +144,19 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.icon': {
     fieldName: 'fieldSettings.icon',
     widgetAlias: WIDGETS.icon,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Icon'
     }
   },
   'fieldSettings.disabled': {
     widgetAlias: WIDGETS.switch,
+
     fieldName: 'fieldSettings.disabled',
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Disabled',
       default: false
@@ -143,8 +164,10 @@ export const DEFAULT_CONFIG_SECTION = {
   },
   'widgetSettings.required': {
     widgetAlias: WIDGETS.switch,
+
     fieldName: 'widgetSettings.required',
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Required',
       default: false
@@ -153,34 +176,40 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.triggers': {
     fieldName: 'widgetSettings.triggers',
     widgetAlias: WIDGETS.repeater,
+
     widgetSettings: {
+      labelWidth: 0,
       repeaterConfig: {
         widgets: [{
           fieldName: 'action',
           widgetSettings: {
+            labelWidth: 0,
             span: 24,
             label: 'Action'
           },
           widgetAlias: WIDGETS.select,
+
           slot: {
             options: [{
               label: 'Show',
-              value: 'show',
+              value: 'show'
             }, {
               label: 'Hide',
-              value: 'hide',
-            }],
+              value: 'hide'
+            }]
           }
         }, {
           fieldName: 'condition',
           widgetAlias: WIDGETS.input,
+
           fieldSettings: {
-            type: 'textarea',
+            type: 'textarea'
           },
           widgetSettings: {
+            labelWidth: 0,
             span: 24,
             label: 'Action'
-          },
+          }
         }]
       },
       advance: true,
@@ -192,6 +221,7 @@ export const DEFAULT_CONFIG_SECTION = {
   'widgetSettings.defaultValue': {
     fieldName: 'widgetSettings.defaultValue',
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Default',
       required: false
@@ -200,7 +230,9 @@ export const DEFAULT_CONFIG_SECTION = {
   'fieldSettings.showWordLimit': {
     fieldName: 'fieldSettings.showWordLimit',
     widgetAlias: WIDGETS.switch,
+
     widgetSettings: {
+      labelWidth: 0,
       span: 24,
       label: 'Show Limit'
     }
@@ -209,22 +241,27 @@ export const DEFAULT_CONFIG_SECTION = {
 export const DEFAULT_FORM_CONFIG = [{
   fieldName: 'labelSuffix',
   widgetSettings: {
+    labelWidth: 0,
     label: 'Label Suffix',
     required: true
   }
 }, {
   widgetAlias: WIDGETS.number,
+
   fieldName: 'labelWidth',
   widgetSettings: {
+    labelWidth: 0,
     label: 'Label Width',
     required: true
   }
 }, {
   fieldName: 'labelPosition',
   widgetSettings: {
+    labelWidth: 0,
     label: 'Label Position'
   },
   widgetAlias: WIDGETS.select,
+
   slot: {
     options: [{
       label: 'Left', value: 'left'

@@ -1,6 +1,7 @@
 import { MongoParser } from '@/modules/engine/services/mongo.parser';
 import { TenantService } from '@/modules/engine/services/tenant.service';
 import * as _ from 'lodash';
+
 export class RestQuery {
   static mongoParser = new MongoParser();
 
@@ -9,7 +10,11 @@ export class RestQuery {
     let mongoQuery = clonedQuery.where;
     if (!_.isEmpty(mongoQuery)) {
       if (!mongoQuery.$and && !mongoQuery.$or) {
-        mongoQuery = { $and: [mongoQuery] };
+        const conditions = [];
+        for (const key in mongoQuery) {
+          conditions.push({ [key]: mongoQuery[key] });
+        }
+        mongoQuery = { $and: conditions };
       }
       clonedQuery.where = this.mongoParser.getRulesFromMongo(mongoQuery);
     }

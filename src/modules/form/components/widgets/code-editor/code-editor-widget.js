@@ -3,6 +3,9 @@ import MonacoEditor from 'vue-monaco';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export default class CodeEditorWidget extends BaseWidget {
+  formItemConfig = {
+
+  }
   palletSettings = {
     label: 'Rich Editor',
     icon: 'edit'
