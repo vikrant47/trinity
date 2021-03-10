@@ -1,5 +1,7 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import { RestQuery } from '@/modules/engine/services/rest.query';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { EngineScript } from '@/modules/engine/core/engine.script';
 
 export default class ReferenceWidget extends BaseWidget {
   loading = false;
@@ -36,20 +38,48 @@ export default class ReferenceWidget extends BaseWidget {
     return list;
   }
 
+  overrideConfigSection(configSectionWidgets) {
+    configSectionWidgets['fieldSettings.interceptor'] = {
+      fieldName: 'fieldSettings.interceptor',
+      widgetAlias: WIDGETS.codeEditor,
+      widgetSettings: {
+        labelWidth: 0,
+        span: 24,
+        label: 'Interceptor',
+        advance: true,
+        language: 'javascript'
+      }
+    };
+    return configSectionWidgets;
+  }
+
   overrideFieldSettings(fieldSettings) {
     const _this = this;
+    if (!fieldSettings.interceptor) {
+      fieldSettings.interceptor = async(query, resolve) => {
+        return await resolve(query);
+      };
+    } else {
+      const interceptor = fieldSettings.interceptor;
+      fieldSettings.interceptor = (query, resolve) => {
+        return new EngineScript({ script: interceptor }).execute({ query, resolve }, this.buildContext());
+      };
+    }
     return Object.assign(fieldSettings, {
-      async 'remoteMethod'(queryString) {
+      async remoteMethod(value) {
         fieldSettings.loading = true;
-        const response = await new RestQuery(_this.widgetSettings.referenced_model_alias).findAll({
+        const result = await fieldSettings.interceptor({
           where: {
             [_this.widgetSettings.display_field_name]: {
-              '$regex': queryString
+              '$regex': value
             }
           },
           fields: [_this.widgetSettings.referenced_field_name, _this.widgetSettings.display_field_name]
+        }, async(query) => {
+          const response = await new RestQuery(_this.widgetSettings.referenced_model_alias).findAll(query);
+          return response.contents;
         });
-        _this.renderComponent.$set(_this.slot, 'options', response.contents.map(rec => {
+        _this.renderComponent.$set(_this.slot, 'options', result.map(rec => {
           return {
             label: rec[_this.widgetSettings.display_field_name],
             value: rec[_this.widgetSettings.referenced_field_name]

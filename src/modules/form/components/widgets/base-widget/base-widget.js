@@ -311,11 +311,11 @@ export class BaseWidget extends EngineObservable {
   }
 
   getFormItemConfig() {
-    let labelWidth = this.widgetSettings.labelWidth ? this.widgetSettings.labelWidth : BaseWidget.defaultWidgetSettings.labelWidth;
+    let labelWidth = typeof this.widgetSettings.labelWidth !== 'undefined' ? this.widgetSettings.labelWidth : BaseWidget.defaultWidgetSettings.labelWidth;
     if (this.widgetSettings.showLabel === false) labelWidth = '0';
     Object.assign(this.formItemConfig, {
       attrs: {
-        labelWidth: `${labelWidth}px` || null,
+        labelWidth: labelWidth ? `${labelWidth}px` : null,
         prop: this.fieldName,
         label: this.widgetSettings.showLabel ? this.widgetSettings.label : '',
         required: this.widgetSettings.required
