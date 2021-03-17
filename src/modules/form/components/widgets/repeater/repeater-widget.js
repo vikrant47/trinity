@@ -105,12 +105,16 @@ export default class RepeaterWidget extends FormDesignerWidget {
               }}>
                 <i class='el-icon-close'/>
               </button>
-              {h(Parser, { props: { engineForm: form, evalContext: {}}, on: {
-                fieldValueUpdated: () => {
-                  const value = this.getValue() || [];
-                  value[index] = form.getRecord();
-                  this.setValue(value);
-                } }})}
+              {h(Parser, {
+                style: {
+                  padding: '0',
+                },
+                props: { engineForm: form, evalContext: {}}, on: {
+                  fieldValueUpdated: () => {
+                    const value = this.getValue() || [];
+                    value[index] = form.getRecord();
+                    this.setValue(value);
+                  } }})}
             </div>
           );
         })}

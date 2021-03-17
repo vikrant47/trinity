@@ -131,11 +131,11 @@ export default {
     if (this.widget.designMode !== true) {
       template = h('el-col', this.widget.getWrapperConfig(), [
         h('el-form-item', this.widget.getFormItemConfig(), [
-          this.widget.componentRender(this, h)
+          this.widget.renderWidget(this, h)
         ])
       ]);
     } else {
-      template = this.widget.componentRender(this, h);
+      template = this.widget.renderWidget(this, h);
     }
     this.widget.afterRender();
     return template;

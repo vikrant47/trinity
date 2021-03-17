@@ -22,11 +22,11 @@ export const NavRoutConfig = {
     component: Layout
   },
   list: {
-    path: '/models/:modelAlias/list/:listId',
+    path: '/models/:modelAlias/list/:listId/:view',
     component: ListView
   },
   form: {
-    path: '/models/:modelAlias/form/:formId/:recordId',
+    path: '/models/:modelAlias/form/:formId/:recordId/:view',
     component: ListView
   },
   dashboard: {
@@ -159,11 +159,14 @@ export class NavigationService {
       route.path = nav.name;
     }
     if (nav.type === 'list') {
-      route.path = route.path.replace(':listId', nav.list || 'default').replace(':modelAlias', (nav.modelAlias || '').toLowerCase());
+      route.path = route.path.replace(':listId', nav.list || 'default')
+        .replace(':view', (nav.view || 'details'))
+        .replace(':modelAlias', (nav.modelAlias || '').toLowerCase());
     } else if (nav.type === 'form') {
       route.path = route.path
         .replace(':formId', nav.form || 'default')
         .replace(':recordId', nav.record_id || 'new')
+        .replace(':view', (nav.view || 'edit'))
         .replace(':modelAlias', (nav.modelAlias || '').toLowerCase());
     } else if (nav.type === 'widget') {
       route.path = route.path.replace(':widgetId', nav.widget_id);
@@ -206,12 +209,12 @@ export class NavigationService {
     return $router.push(url);
   }
 
-  navigateToForm(modelAlias, formId = 'default', recordId = 'new', params = {}) {
-    return this.navigate('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '?' + Engine.toUrlParam(params));
+  navigateToForm(modelAlias, formId = 'default', recordId = 'new', view = 'edit', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '/' + view + '?' + Engine.toUrlParam(params));
   }
 
-  navigateToList(modelAlias, listId = 'default', params = {}) {
-    return this.navigate('/models/' + modelAlias + '/form/' + listId + '?' + Engine.toUrlParam(params));
+  navigateToList(modelAlias, listId = 'default', view = 'details', params = {}) {
+    return this.navigate('/models/' + modelAlias + '/form/' + listId + '/' + view + '?' + Engine.toUrlParam(params));
   }
 
   refresh() {

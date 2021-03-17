@@ -38,6 +38,7 @@ export class EngineList extends EngineDefinitionService {
   condition = {};
   quickSearchValue = null;
   selection = [];
+  lazy = false;
 
   constructor(settings) {
     super();
@@ -107,7 +108,16 @@ export class EngineList extends EngineDefinitionService {
     return null;
   }
 
-  getQuery() {
+  setCondition(condition) {
+    this.condition = condition;
+  }
+
+  async beforeQuery() {
+    await this.emit(LIST_EVENTS.query.prepare, this.condition);
+  }
+
+  async getQuery() {
+    await this.beforeQuery();
     const qsCondition = this.buildQuickSearchCondition();
     if (qsCondition) {
       if (!_.isEmpty(this.condition)) {
@@ -143,7 +153,7 @@ export class EngineList extends EngineDefinitionService {
         fields: selectedFieldNames,
         page: this.pagination.page,
         limit: this.pagination.limit,
-        where: this.getQuery(),
+        where: await this.getQuery(),
         include: this.getIncludeStatement(selectedFieldNames),
         order: [{
           field: this.order.attribute,
@@ -196,28 +206,31 @@ export class EngineList extends EngineDefinitionService {
   }
 
   async loadDefinition() {
-    try {
-      this.emit(LIST_EVENTS.definition.beforeLoadDefinition);
-      if (this.settings.remote === false) {
+    if (this.definitionLoaded === false) {
+      try {
+        this.emit(LIST_EVENTS.definition.beforeLoadDefinition);
+        if (this.settings.remote === false) {
+          this.sanitizeDefinition();
+        }
+        this.enableLoading();
+        // request data
+        const response = await new ModelService(this.settings.modelAlias).requestDefinition({
+          list: this.settings.list === 'default' ? 'default' : this.settings.list
+        });
+        this.definition = response.contents;
         this.sanitizeDefinition();
-      }
-      this.enableLoading();
-      // request data
-      const response = await new ModelService(this.settings.modelAlias).requestDefinition({
-        list: this.settings.list === 'default' ? 'default' : atob(this.settings.list)
-      });
-      this.definition = response.contents;
-      this.sanitizeDefinition();
-      // time Show table in milliseconds
-      setTimeout(() => {
+        // time Show table in milliseconds
+        setTimeout(() => {
+          this.disableLoading();
+        }, this.settings.loaderDelay);
+        this.emit(LIST_EVENTS.definition.fetch, this.definition);
+        this.definitionLoaded = true;
+        return this.definition;
+      } catch (err) {
         this.disableLoading();
-      }, this.settings.loaderDelay);
-      this.emit(LIST_EVENTS.definition.fetch, this.definition);
-      return this.definition;
-    } catch (err) {
-      this.disableLoading();
-      this.emit(LIST_EVENTS.list.error, err);
-      throw err;
+        this.emit(LIST_EVENTS.list.error, err);
+        throw err;
+      }
     }
   }
 

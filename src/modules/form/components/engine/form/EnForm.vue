@@ -10,6 +10,9 @@
         @submit="submitForm"
       />
     </div>
+    <div class="related-record-wrapper">
+      <RelatedRecord :engine-form="engineForm" />
+    </div>
   </div>
 </template>
 
@@ -23,12 +26,17 @@ import locale from 'element-ui/lib/locale/lang/en';
 import ElementUI from 'element-ui';
 import EnFormToolbar from '@/modules/form/components/engine/toolbar/EnFormToolbar';
 import { FORM_EVENTS, FormEvent } from '@/modules/form/engine-api/form-events';
+import RelatedRecord from '@/modules/form/components/engine/form/RelatedRecord';
 
 Vue.use(ElementUI, { locale });
 export default {
   name: 'EnForm',
-  components: { EnFormToolbar, Parser },
+  components: { RelatedRecord, EnFormToolbar, Parser },
   props: {
+    previewMode: {
+      type: Boolean,
+      default: false
+    },
     toolbar: {
       type: Boolean,
       default: false
@@ -77,6 +85,7 @@ export default {
   data() {
     return {
       engineForm: new EngineForm({
+        previewMode: this.previewMode,
         formConfig: this.formConfig,
         remote: this.remote,
         modelAlias: this.modelAlias,

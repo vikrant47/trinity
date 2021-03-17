@@ -103,6 +103,7 @@ export class BaseWidget extends EngineObservable {
   wrapperConfig = {};
   engineForm;
   data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
+  previewMode = false;
   static debouncedCallbacks = {
     valueChanged: _.debounce((renderComponent, value) => {
       renderComponent.$emit('input_update', value);
@@ -427,8 +428,24 @@ export class BaseWidget extends EngineObservable {
     // component.widget.applyConfig(component.config);
   }
 
+  setPreviewMode(previewMode) {
+    this.previewMode = previewMode;
+  }
+
+  previewView(component, h) {
+    const value = this.getValue();
+    return h('div', { class: 'field-preview' }, [(typeof value === 'undefined' || value === null) ? 'None' : value]);
+  }
+
   componentRender(component, h) {
     return h('el-input', this.getComponentConfig(), this.getChildren(h));
+  }
+
+  renderWidget(component, h) {
+    if (this.previewMode) {
+      return this.previewView(component, h);
+    }
+    return this.componentRender(component, h);
   }
 
   getMethods() {
