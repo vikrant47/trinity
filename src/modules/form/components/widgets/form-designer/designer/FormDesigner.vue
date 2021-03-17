@@ -235,7 +235,7 @@ export default {
     },
     drawingList: {
       handler(val) {
-        // this.saveDrawingListDebounce(val);
+        this.saveDrawingListDebounce(val);
         if (val.length === 0) {
           this.idGlobal = 100;
         } else {

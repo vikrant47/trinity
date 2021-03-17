@@ -1,6 +1,9 @@
 export const LIST_EVENTS = {
+  query: {
+    prepare: 'query.prepare'
+  },
   action: {
-    click: 'action.click',
+    click: 'action.click'
   },
   list: {
     error: 'list.error',

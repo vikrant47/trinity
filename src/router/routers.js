@@ -44,13 +44,13 @@ export const constantRouterMap = [
         meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
         props: true
       }, {
-        path: 'models/:modelAlias/list/:list',
+        path: 'models/:modelAlias/list/:list/:view',
         component: (resolve) => require(['@/modules/list/views/index'], resolve),
         name: 'List',
         meta: { title: 'Home', icon: 'index', affix: true, noCache: true },
         props: true
       }, {
-        path: '/models/:modelAlias/form/:formId/:recordId',
+        path: '/models/:modelAlias/form/:formId/:recordId/:view',
         component: (resolve) => require(['@/modules/form/views/FormRenderer'], resolve),
         name: 'Form',
         meta: { title: 'Home', icon: 'index', affix: true, noCache: true },

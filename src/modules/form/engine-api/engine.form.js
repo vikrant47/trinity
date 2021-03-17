@@ -22,9 +22,11 @@ export class EngineForm extends EngineDefinitionService {
   settings = {
     recordId: 'new',
     showLoader: true,
-    loaderDelay: 30
+    loaderDelay: 30,
+    previewMode: false
   };
   original = {};
+  relatedRecords = [];
 
   static navigate(modelAlias, formId = 'default', recordId = 'new', context = 'create') {
     $router.replace('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '?context = ' + context);
@@ -96,6 +98,14 @@ export class EngineForm extends EngineDefinitionService {
     this.actions = this.buildAction(this.definition.form.actions);
   }
 
+  getRelatedRecords() {
+    return this.relatedRecords;
+  }
+
+  populateRelatedRecords() {
+    this.relatedRecords = this.definition.form.relatedRecords.sort((r1, r2) => r1.sort_order - r2.sort_order);
+  }
+
   populateProcessors() {
     this.processors = this.buildProcessors(this.definition.form.processors);
   }
@@ -107,6 +117,7 @@ export class EngineForm extends EngineDefinitionService {
     this.populateFields();
     this.populateActions();
     this.populateProcessors();
+    this.populateRelatedRecords();
     return this.definition;
   }
 

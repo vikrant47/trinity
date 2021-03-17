@@ -62,7 +62,7 @@
     </div>
     <!--Paging component-->
     <div class="list-footer">
-      <EnPagination :pagination-model="paginationModel" @refresh-click="engineList.refresh()" />
+      <EnPagination :pagination-model="engineList.pagination" @refresh-click="engineList.refresh()" />
     </div>
     <slot name="footer" />
   </div>
@@ -75,12 +75,16 @@ import { EngineList } from '@/modules/list/engine-api/engine.list';
 import { ListEventHandler } from '@/modules/list/services/list.event.handler';
 import { Pagination } from '@/modules/list/models/pagination';
 import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
-import Vue from 'vue';
+
 export default {
   name: 'EnList',
   components: { EnListToolbar, EnPagination },
   mixins: [],
   props: {
+    lazy: {
+      type: Boolean,
+      default: false
+    },
     height: {
       type: Number,
       default: 460
@@ -132,33 +136,42 @@ export default {
     return {
       listFields: [],
       paginationModel: new Pagination(this.pagination),
-      engineList: null,
+      engineList: new EngineList({
+        pagination: this.paginationModel,
+        remote: this.remote,
+        showLoader: this.showLoader,
+        loaderDelay: this.loaderDelay,
+        modelAlias: this.modelAlias,
+        list: this.list,
+        fields: this.fields,
+        rows: this.rows || [],
+        actions: this.actions || []
+      })
     };
+  },
+  mounted() {
+    this.$emit('mounted', this.engineList);
   },
   beforeCreate() {
     this.listEventHandler = new ListEventHandler(this);
+    this.$emit('beforeCreate', this.engineList);
   },
   created() {
-    const engineList = new EngineList({
-      pagination: this.paginationModel,
-      remote: this.remote,
-      showLoader: this.showLoader,
-      loaderDelay: this.loaderDelay,
-      modelAlias: this.modelAlias,
-      list: this.list,
-      fields: this.fields,
-      rows: this.rows || [],
-      actions: this.actions || []
-    });
-    engineList.loadDefinition().then(() => {
-      this.listFields = this.engineList.getWidgets();
-      this.engineList.refresh().then(() => {
-        // Vue.set(this, 'engineList', engineList);
-      });
-    });
-    Vue.set(this, 'engineList', engineList);
+    this.$emit('created', this.engineList);
+    if (!this.lazy) {
+      this.loadList();
+    }
+    // Vue.set(this, 'engineList', engineList);
   },
   methods: {
+    loadList() {
+      this.engineList.loadDefinition().then(() => {
+        this.listFields = this.engineList.getWidgets();
+        this.engineList.refresh().then(() => {
+          // Vue.set(this, 'engineList', engineList);
+        });
+      });
+    },
     async cellClick($event, row, column) {
       const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.engineList);
       Object.assign(listEvent, { rowData: row, columnData: column });

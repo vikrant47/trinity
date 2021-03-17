@@ -14,6 +14,7 @@ export class EngineDefinitionService extends EngineObservable {
   modelAlias = null;
   loading = true;
   loadingBackground = 'rgb(255 255 255 / 55%)';
+  definitionLoaded = false;
 
   getModelAlias() {
     return this.modelAlias;
@@ -22,6 +23,10 @@ export class EngineDefinitionService extends EngineObservable {
   /** Add widget instance ref in engine form*/
   addWidgetRef(widget) {
     this.$widgetRefs[widget.getFieldName()] = widget;
+  }
+
+  isDefinitionLoaded() {
+    return this.definitionLoaded;
   }
 
   enableLoading() {

@@ -31,6 +31,7 @@ const layouts = {
     widgetInstance.setData(this.widgetData[widgetInstance.fieldName] || {});
     const listeners = buildListeners.call(this, widgetInstance);
     const child = renderChildren.apply(this, arguments);
+    widgetInstance.setPreviewMode(this.previewMode);
     return (
       <render widget={widgetInstance} {...{ on: listeners }} wrapper={true} form-model={formData}
         eval-context={this.context}>
@@ -200,7 +201,8 @@ export default {
       widgetData: {},
       // formData: this.engineForm.getRecord(),
       formConf: this.engineForm.getFormConfig(),
-      context: Object.assign({ form: this.engineForm }, this.evalContext)
+      context: Object.assign({ form: this.engineForm }, this.evalContext),
+      previewMode: this.engineForm.settings.previewMode
     };
   },
   computed: {
