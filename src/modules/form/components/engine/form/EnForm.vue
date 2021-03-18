@@ -124,6 +124,9 @@ export default {
 </script>
 
 <style lang='scss'>
+.form-parser-wrapper{
+  margin-bottom: 15px;
+}
 @import '../../../styles/home';
 @import '../../../styles/index';
 @import '../../../styles/mixin';
