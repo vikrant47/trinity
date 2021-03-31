@@ -24,5 +24,7 @@ export const WIDGETS = {
   divider: 'divider',
   repeater: 'repeater',
   codeEditor: 'codeEditor',
+  fileUpload: 'fileUpload',
+
 };
 
