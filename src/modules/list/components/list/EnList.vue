@@ -1,5 +1,5 @@
 <template>
-  <div class="list-container">
+  <div v-if="engineList.definitionLoaded" class="list-container">
     <!--Toolbar-->
     <div class="head-container">
       <en-list-toolbar
@@ -13,56 +13,18 @@
     </div>
     <!-- <pre>{{ engineList.definition.list.columns|json }}</pre>-->
     <!--Table rendering-->
-    <div class="table-wrapper">
-      <el-table
-        ref="table"
-        v-loading="engineList.loading"
-        element-loading-background="engineList.loadingBackground"
-        resizable
-        border
-        stripe
-        height="height"
-        :data="engineList.rows"
-        highlight-current-row
-        @selection-change="listEventHandler.selectionChangeHandler($event)"
-        @current-change="listEventHandler.handleCurrentChange($event)"
-        @sort-change="listEventHandler.sortHandler($event)"
-      >
-        <el-table-column fixed type="selection" width="40" />
-        <el-table-column
-          v-for="column in listFields.filter(field=>field.visible)"
-          :key="column.name"
-          :prop="column.name"
-          :label="column.label"
-          :sortable="column.config.sortable && 'custom'"
-          :width="column.config.width"
-          :min-width="column.config.minWidth"
-        >
-          <template slot="header" slot-scope="scope">
-            <div class="header-label">
-              <span>{{ scope.column.label }}</span>
-            </div>
-            <slot name="header" />
-          </template>
-          <template #default="{row}">
-            <div
-              :is="column.config.widget"
-              v-if="column.config.widget"
-              :row="row"
-              :column="column"
-              :href="column.name==='id'"
-              @click="cellClick($event,row,column)"
-            />
-          </template>
-        </el-table-column>
-        <el-scrollbar class="right-scrollbar">
-          <slot name="body" />
-        </el-scrollbar>
-      </el-table>
-    </div>
-    <!--Paging component-->
-    <div class="list-footer">
-      <EnPagination :pagination-model="engineList.pagination" @refresh-click="engineList.refresh()" />
+    <div class="list-view-wrapper">
+      <div
+        :is="engineList.getView()"
+        :engine-list="engineList"
+        :list-fields="listFields"
+        :list-event-handler="listEventHandler"
+        @cellClick="cellClick"
+      />
+      <!--Paging component-->
+      <div class="list-footer">
+        <en-pagination :pagination-model="engineList.pagination" @refresh-click="engineList.refresh()" />
+      </div>
     </div>
     <slot name="footer" />
   </div>
@@ -75,10 +37,11 @@ import { EngineList } from '@/modules/list/engine-api/engine.list';
 import { ListEventHandler } from '@/modules/list/services/list.event.handler';
 import { Pagination } from '@/modules/list/models/pagination';
 import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
+import TabularListView from '@/modules/list/components/list/TabularListView';
 
 export default {
   name: 'EnList',
-  components: { EnListToolbar, EnPagination },
+  components: { TabularListView, EnListToolbar, EnPagination },
   mixins: [],
   props: {
     lazy: {
@@ -167,9 +130,6 @@ export default {
     loadList() {
       this.engineList.loadDefinition().then(() => {
         this.listFields = this.engineList.getWidgets();
-        this.engineList.refresh().then(() => {
-          // Vue.set(this, 'engineList', engineList);
-        });
       });
     },
     async cellClick($event, row, column) {

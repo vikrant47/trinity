@@ -159,12 +159,12 @@ export class NavigationService {
       route.path = nav.name;
     }
     if (nav.type === 'list') {
-      route.path = route.path.replace(':listId', nav.list || 'default')
+      route.path = route.path.replace(':listId', nav.engine_list_id || 'default')
         .replace(':view', (nav.view || 'details'))
         .replace(':modelAlias', (nav.modelAlias || '').toLowerCase());
     } else if (nav.type === 'form') {
       route.path = route.path
-        .replace(':formId', nav.form || 'default')
+        .replace(':formId', nav.engine_form_id || 'default')
         .replace(':recordId', nav.record_id || 'new')
         .replace(':view', (nav.view || 'edit'))
         .replace(':modelAlias', (nav.modelAlias || '').toLowerCase());

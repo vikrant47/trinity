@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 export class Engine {
+  /** Constants */
   static TRANSIENTS = ['transient', '__ob__', 'undefined'];
   static NOTIFICATION_TYPE = {
     SUCCESS: 'success',

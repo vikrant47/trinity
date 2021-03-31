@@ -7,8 +7,15 @@ import { Engine } from '@/modules/engine/core/engine';
 import { LIST_EVENTS } from '@/modules/list/engine-api/list-events';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
 import { LIST_WIDGETS } from '@/modules/list/components/widgets/base/list.widgets';
+import TabularListView from '@/modules/list/components/list/TabularListView';
+import MediaLibrary from '@/modules/engine/components/file/MediaLibrary';
 
 export class EngineList extends EngineDefinitionService {
+  static views = {
+    tabular: TabularListView,
+    mediaLibrary: MediaLibrary,
+  };
+  defaultView = true;
   definition = {
     list: {
       fields: []
@@ -48,6 +55,19 @@ export class EngineList extends EngineDefinitionService {
     this.definition.list.config = { widgets: this.settings.columns };
     this.pagination = this.settings.pagination || new Pagination();
     this.registerEvents();
+  }
+
+  getViewName() {
+    let component = this.definition.list.type;
+    if (component === 'external_url' && this.definition.list.external_url.startsWith('renderer:')) {
+      component = this.definition.list.external_url.replace('renderer:', '');
+    }
+    return EngineList.views[component] ? component : 'tabular';
+  }
+
+  /** Lazy loading view*/
+  getView() {
+    return EngineList.views[this.getViewName()];
   }
 
   getSelectedFieldIds() {

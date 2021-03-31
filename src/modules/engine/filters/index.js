@@ -1,5 +1,5 @@
-import { FormatDate } from '@/modules/engine/filters/format.date';
+import EngineFilters from '@/modules/engine/filters/engine.filter';
 
 export default {
-  FormatDate,
+  ...EngineFilters
 };

@@ -22,5 +22,6 @@ export const WidgetTypes = {
   [WIDGETS.icon]: require('../icon-picker/icon-picker-widget').default,
   [WIDGETS.divider]: require('../divider/divider-widget').default,
   [WIDGETS.repeater]: require('../repeater/repeater-widget').default,
-  [WIDGETS.codeEditor]: require('../code-editor/code-editor-widget').default
+  [WIDGETS.codeEditor]: require('../code-editor/code-editor-widget').default,
+  [WIDGETS.fileUpload]: require('../fileupload/file-upload-widget').default,
 };
