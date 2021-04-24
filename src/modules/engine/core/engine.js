@@ -21,6 +21,10 @@ export class Engine {
     }
   };
 
+  static getMediaServerUrl(mediaFile = null) {
+    return process.env.VUE_APP_MEDIA_SERVER_URL + (mediaFile && mediaFile || '');
+  }
+
   static notify(vm, options) {
     vm.$notify(Object.assign({}, Engine.DEFAULT_SETTINGS.notification, options));
   }
@@ -192,6 +196,16 @@ export class Engine {
     return str.join('&');
   }
 
+  static generateUniqueHash(object) {
+    if (object === null || typeof object === 'undefined' || typeof object === 'number' || typeof object === 'boolean') {
+      return object;
+    }
+    if (typeof object !== 'string') {
+      object = JSON.stringify(object);
+    }
+    return object;
+  }
+
   /**
    * This will generate the hashcode for given object
    * Note: object should not be circular in nature
@@ -211,5 +225,11 @@ export class Engine {
       hash |= 0; // Convert to 32bit integer
     }
     return hash;
+  }
+
+  static sleep(timeout = 0) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, timeout);
+    });
   }
 }

@@ -124,7 +124,7 @@ export const DEFAULT_CONFIG_SECTION = {
     widgetSettings: {
       labelWidth: 0,
       span: 24,
-      defaultValue: 150,
+      defaultValue: 100,
       label: 'Label Width',
       min: 0
     }

@@ -330,6 +330,12 @@ export class EngineForm extends EngineDefinitionService {
     });
   }
 
+  reset() {
+    Object.values(this.$widgetRefs).forEach((widget) => {
+      widget.setValue('');
+    });
+  }
+
   getFormData() {
     const model = {};
     Object.values(this.$widgetRefs).forEach((widget) => {
@@ -349,6 +355,10 @@ export class EngineForm extends EngineDefinitionService {
 
   setValue(fieldName, value) {
     return this.invoke(fieldName, 'setValue', [value]);
+  }
+
+  setRawValue(fieldName, value) {
+    this.record[fieldName] = value;
   }
 
   /**

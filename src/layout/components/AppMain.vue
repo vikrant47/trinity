@@ -10,21 +10,31 @@
       <span> ⋅ </span>
       <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">{{ $store.state.settings.caseNumber }}</a>
     </div>
+    <en-popup v-for="popup in popups" :key="popup.id" :model="popup" />
   </section>
 </template>
 
 <script>
+import EnPopup from '@/modules/engine/components/popup/EnPopup';
+import { EnginePopup } from '@/modules/engine/services/engine.popup';
+
 export default {
   name: 'AppMain',
+  components: { EnPopup },
+  data() {
+    return {
+      popups: EnginePopup.popups
+    };
+  },
   computed: {
     cachedViews() {
-      return this.$store.state.tagsView.cachedViews
+      return this.$store.state.tagsView.cachedViews;
     },
     key() {
-      return this.$route.path
+      return this.$route.path;
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -36,7 +46,7 @@ export default {
   overflow: hidden;
 }
 
-.fixed-header+.app-main {
+.fixed-header + .app-main {
   padding-top: 50px;
 }
 
@@ -46,7 +56,7 @@ export default {
     min-height: calc(100vh - 84px);
   }
 
-  .fixed-header+.app-main {
+  .fixed-header + .app-main {
     padding-top: 84px;
   }
 }

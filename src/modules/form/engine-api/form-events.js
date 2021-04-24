@@ -8,8 +8,8 @@ export const FORM_EVENTS = {
     beforeSubmit: 'form.beforeSubmit'
   },
   definition: {
-    beforeFetch: 'beforeFetch',
-    fetch: 'fetch'
+    beforeFetch: 'definition.beforeFetch',
+    fetch: 'definition.fetch'
   },
   widget: {
     init: 'widget.init',

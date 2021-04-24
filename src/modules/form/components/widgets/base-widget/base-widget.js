@@ -29,7 +29,7 @@ export class BaseWidget extends EngineObservable {
     changeTag: true,
     renderKey: null,
     showLabel: true,
-    labelWidth: 150,
+    labelWidth: 100,
     defaultValue: null,
     class: {},
     domProps: {},
@@ -194,7 +194,7 @@ export class BaseWidget extends EngineObservable {
   }
 
   setValue(value, repaint = true) {
-    const hash = Engine.generateHash(value);
+    const hash = Engine.generateUniqueHash(value);
     if (typeof value !== 'undefined' && this.fieldName && this.renderComponent && this.oldValueHash !== hash) {
       if (this.fieldName.indexOf('.') > 0) {
         const result = TemplateEngine.walk(this.fieldName, this.renderComponent.formModel, -1);
@@ -374,7 +374,7 @@ export class BaseWidget extends EngineObservable {
 
   /** Force re-rendering of render component*/
   repaint() {
-    this.renderComponent.$set(this.renderComponent.render, 'key', new Date().getTime());
+    // this.renderComponent.$set(this.renderComponent.render, 'key', new Date().getTime());
     this.renderComponent.$forceUpdate();
   }
 
@@ -409,6 +409,14 @@ export class BaseWidget extends EngineObservable {
         this.update();
       }
     }
+  }
+
+  hide() {
+    this.widgetSettings.visible = false;
+  }
+
+  show() {
+    this.widgetSettings.visible = true;
   }
 
   /** Lifecycle events*/

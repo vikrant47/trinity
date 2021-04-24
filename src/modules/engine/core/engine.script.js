@@ -5,7 +5,7 @@ export class EngineScript {
   name;
   alias;
   script;
-  compiledScript;
+  compiled;
 
   constructor(settings = {}) {
     Object.assign(this, settings);
@@ -32,20 +32,21 @@ export class EngineScript {
   }
 
   compile() {
-    this.compiledScript = EngineScript.compile(this.script);
+    this.script = EngineScript.compile(this.script);
+    this.compiled = true;
     return this;
   }
 
   execute(event, context = {}) {
-    if (!this.compiledScript) {
+    if (!this.compiled) {
       this.compile();
     }
     context = EngineScript.buildContext(context, this);
-    if (typeof this.compiledScript === 'function') {
-      return this.compiledScript(event, context);
-    } else if (typeof this.compiledScript === 'object' && this.compiledScript.handler) {
-      return this.compiledScript.handler(event, context);
+    if (typeof this.script === 'function') {
+      return this.script(event, context);
+    } else if (typeof this.script === 'object' && this.script.handler) {
+      return this.script.handler(event, context);
     }
-    throw new Error('Invalid script no handler found ', this.compiledScript);
+    throw new Error('Invalid script no handler found ', this.script);
   }
 }

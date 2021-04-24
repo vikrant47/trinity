@@ -1,7 +1,7 @@
 <template>
   <div class="form-container">
-    <div class="head-container">
-      <en-form-toolbar v-if="toolbar" :actions="engineForm.actions" />
+    <div v-if="toolbar" class="head-container">
+      <en-form-toolbar :actions="engineForm.actions" />
     </div>
     <div class="form-parser-wrapper">
       <parser
@@ -10,7 +10,7 @@
         @submit="submitForm"
       />
     </div>
-    <div class="related-record-wrapper">
+    <div v-if="showRelatedRecords && engineForm.relatedRecords.length" class="related-record-wrapper">
       <RelatedRecord :engine-form="engineForm" />
     </div>
   </div>
@@ -40,6 +40,10 @@ export default {
     toolbar: {
       type: Boolean,
       default: false
+    },
+    showRelatedRecords: {
+      type: Boolean,
+      default: true
     },
     formConfig: {
       type: Object,

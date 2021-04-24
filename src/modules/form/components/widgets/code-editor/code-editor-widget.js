@@ -3,20 +3,19 @@ import MonacoEditor from 'vue-monaco';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export default class CodeEditorWidget extends BaseWidget {
-  formItemConfig = {
-
-  }
+  formItemConfig = {};
   palletSettings = {
     label: 'Rich Editor',
     icon: 'edit'
   };
+  fullscreen = false;
 
   overrideConfigSection(configSectionWidgets) {
     configSectionWidgets['widgetSettings.language'] = {
       fieldName: 'widgetSettings.language',
       widgetAlias: WIDGETS.select,
       widgetSettings: {
-        label: 'Language',
+        label: 'Language'
       },
       slot: {
         options: [{
@@ -62,8 +61,10 @@ export default class CodeEditorWidget extends BaseWidget {
     };
   }
 
-  componentRender(component, h) {
-    const config = this.getComponentConfig(component);
+  jsxRender(h) {
+    const config = this.getComponentConfig();
+    this.width = config.width;
+    this.height = config.height;
     let value = config.attrs.value;
     if (value && config.parse === true && typeof value !== 'string') {
       value = JSON.stringify(config.attrs.value);
@@ -80,12 +81,36 @@ export default class CodeEditorWidget extends BaseWidget {
         value: value
       }
     };
-    return h('div', {
-      class: 'code-editor-wrapper',
-      style: {
-        width: config.width,
-        height: config.height
-      }
-    }, [h(MonacoEditor, options)]);
+    const vEditor = h(MonacoEditor, options);
+    return (<div class='code-editor-wrapper' id={'code-editor-wrapper' + this.id}>
+      <el-button
+        type='button'
+        class='el-button'
+        icon='el-icon-full-screen'
+        style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '9999' }}
+        onClick={event => {
+          event.stopPropagation();
+          console.log(this);
+          const wrapper = document.getElementById('code-editor-wrapper' + this.id);
+          if (!this.fullscreen) {
+            wrapper.className = 'code-editor-wrapper full-screen';
+            this.fullscreen = true;
+          } else {
+            wrapper.className = 'code-editor-wrapper';
+            this.fullscreen = false;
+          }
+          setTimeout(() => {
+            const editor = vEditor.componentInstance.getEditor();
+            editor.layout();
+          }, 500);
+          return false;
+        }}
+      />
+      {vEditor}
+    </div>);
+  }
+
+  componentRender(component, h) {
+    return this.jsxRender(h);
   }
 }
