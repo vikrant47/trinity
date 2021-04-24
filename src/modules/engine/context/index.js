@@ -9,7 +9,8 @@ import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineList } from '@/modules/list/engine-api/engine.list';
 import { NavigationService } from '@/modules/navigation/services/navigation.service';
-import { NotificationService } from '@/modules/engine/services/notification.service';
+import { EnginePopup } from '@/modules/engine/services/engine.popup';
+import { EngineNotification } from '@/modules/engine/services/engine.notification';
 
 export default {
   services: {
@@ -22,8 +23,9 @@ export default {
     EngineForm,
     EngineList,
     FormWidgetService,
+    EnginePopup: EnginePopup,
     navigation: NavigationService.getInstance(),
-    notification: NotificationService.getInstance(),
+    notification: EngineNotification.getInstance()
   },
   libraries: { _ }
 };

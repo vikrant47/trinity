@@ -3,17 +3,17 @@ import { ModelService } from '@/modules/engine/services/model.service';
 import { Pagination } from '@/modules/list/models/pagination';
 import * as _ from 'lodash';
 import { SearchDataService } from '@/modules/list/services/search.data.service';
-import { Engine } from '@/modules/engine/core/engine';
 import { LIST_EVENTS } from '@/modules/list/engine-api/list-events';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
 import { LIST_WIDGETS } from '@/modules/list/components/widgets/base/list.widgets';
 import TabularListView from '@/modules/list/components/list/TabularListView';
 import MediaLibrary from '@/modules/engine/components/file/MediaLibrary';
+import { EngineNotification } from '@/modules/engine/services/engine.notification';
 
 export class EngineList extends EngineDefinitionService {
   static views = {
     tabular: TabularListView,
-    mediaLibrary: MediaLibrary,
+    mediaLibrary: MediaLibrary
   };
   defaultView = true;
   definition = {
@@ -21,6 +21,7 @@ export class EngineList extends EngineDefinitionService {
       fields: []
     }
   };
+  $viewRef = null;
   columns = [];
   rows = [];
   order = {
@@ -101,7 +102,11 @@ export class EngineList extends EngineDefinitionService {
       const quickSearch = sds.getQuickSearchOperatorByValue(this.quickSearchValue);
       if (this.definition.list) {
         let searchableColumns = 0;
-        this.getWidgets().forEach((column) => {
+        let widgets = this.getWidgets();
+        if (widgets.length === 0) {
+          widgets = this.getFields();
+        }
+        widgets.forEach((column) => {
           if (column.searchable) {
             searchableColumns = searchableColumns + 1;
             if (!quickSearch.supportedTypes || quickSearch.supportedTypes.indexOf(column.type) > -1) {
@@ -114,7 +119,7 @@ export class EngineList extends EngineDefinitionService {
           }
         });
         if (searchableColumns > 0 && conditions.length === 0) {
-          Engine.notify(this.vm, {
+          EngineNotification.getInstance().showMessage({
             type: 'info',
             message: 'No column qualified for given search'
           });
@@ -192,6 +197,10 @@ export class EngineList extends EngineDefinitionService {
       this.emit(LIST_EVENTS.list.error, err);
       throw err;
     }
+  }
+
+  getFields() {
+    return this.definition.fields;
   }
 
   getColumnNames() {

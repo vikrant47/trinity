@@ -16,6 +16,7 @@
     <div class="list-view-wrapper">
       <div
         :is="engineList.getView()"
+        ref="viewRef"
         :engine-list="engineList"
         :list-fields="listFields"
         :list-event-handler="listEventHandler"
@@ -130,6 +131,7 @@ export default {
     loadList() {
       this.engineList.loadDefinition().then(() => {
         this.listFields = this.engineList.getWidgets();
+        this.engineList.$viewRef = this.$refs.viewRef;
       });
     },
     async cellClick($event, row, column) {

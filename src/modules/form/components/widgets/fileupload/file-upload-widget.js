@@ -21,6 +21,16 @@ export default class FileUploadWidget extends BaseWidget {
   handleExceed() {
   }
 
+  updateValueFromFileList(fileList) {
+    if (fileList) {
+      if (fileList.length > 0) {
+        this.setValue(fileList[0].response.contents);
+      } else {
+        this.setValue(null);
+      }
+    }
+  }
+
   overrideWidgetSettings(widgetSettings) {
     return Object.assign({
       multiple: false,
@@ -31,13 +41,17 @@ export default class FileUploadWidget extends BaseWidget {
   buildTemplate(h) {
     return (<el-upload
       class='upload-demo'
+      props = {{
+        'on-success': (response, file, fileList) => {
+          this.updateValueFromFileList(fileList);
+        },
+        'on-remove': (file, fileList) => {
+          this.updateValueFromFileList(fileList);
+        }
+      }}
       action={EngineFileService.getUploadUrl()}
-      onPreview={this.handlePreview}
-      onRemove={this.handleRemove}
-      beforeRemove={this.beforeRemove}
       multiple={this.widgetSettings.multiple}
       limit={this.widgetSettings.limit}
-      onExceed={this.handleExceed}
       fileList={this.fileList}>
       <el-button size='small' type='primary'>Upload</el-button>
       <div slot='tip' class='el-upload__tip'>{this.widgetSettings.title}</div>

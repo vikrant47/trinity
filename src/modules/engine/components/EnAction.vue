@@ -1,6 +1,6 @@
 <template>
   <div class="action-wrapper">
-    <el-dropdown v-if="action.children.length > 0">
+    <el-dropdown v-if="action.children && action.children.length > 0">
       <el-button
         :id="action.id"
         :type="action.type"
@@ -28,7 +28,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <el-button
-      v-if="action.children.length===0"
+      v-if="!action.children || action.children.length===0"
       :id="action.id"
       :type="action.type"
       :children="action.children"
