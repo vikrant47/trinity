@@ -66,6 +66,7 @@ export default class FormDesignerWidget extends BaseWidget {
         on: {
           input: (value) => {
             this.setValue(value, false);
+            console.log('Value updated ', value, this.fieldName);
           }
         },
         props: {

@@ -201,7 +201,7 @@ export class Engine {
       return object;
     }
     if (typeof object !== 'string') {
-      object = JSON.stringify(object);
+      return JSON.stringify(object);
     }
     return object;
   }

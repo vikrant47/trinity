@@ -73,7 +73,13 @@
             :disabled="formConf.disabled"
             :label-width="formConf.labelWidth + 'px'"
           >
-            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup" @change="updateValue">
+            <draggable
+              class="drawing-board"
+              :list="drawingList"
+              :animation="340"
+              group="componentsGroup"
+              @change="updateValue"
+            >
               <draggable-item
                 v-for="(item, index) in drawingList"
                 :key="item.renderKey"
@@ -141,7 +147,6 @@ import {
 import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { Engine } from '@/modules/engine/core/engine';
-import { EngineForm } from '@/modules/form/engine-api/engine.form';
 import _ from 'lodash';
 
 let beautifier;
@@ -160,7 +165,7 @@ export default {
   props: {
     showPallet: {
       type: Boolean,
-      default: true,
+      default: true
     },
     value: {
       type: Object,
@@ -187,7 +192,7 @@ export default {
       selectComponents,
       layoutComponents,
       labelWidth: 100,
-      drawingList: Engine.clone(this.value && this.value.widgets || []),
+      drawingList: this.initDrawingList(Engine.clone(this.value && this.value.widgets || [])),
       drawingData: {},
       activeId: drawingDefalut[0].formId,
       drawerVisible: false,
@@ -258,7 +263,7 @@ export default {
     value: {
       handler(val) {
         if (val.widgets && val.widgets.length > 0) {
-          this.drawingList = val.widgets;
+          this.drawingList = this.initDrawingList(val.widgets);
         }
       }
     }
@@ -290,10 +295,20 @@ export default {
     this.updateAllSelectedItems({ palletSettings: { hidden: true }});
   },
   methods: {
+    initDrawingList(drawingList) {
+      for (const widget of drawingList) {
+        if (!widget.widgetSettings.renderKey) {
+          new FormWidgetService().createRenderKey(widget);
+        }
+      }
+      return drawingList;
+    },
     updateValue() {
+      const value = Engine.marshall(this.drawingList);
       this.$emit('input', {
-        widgets: Engine.marshall(this.drawingList)
+        widgets: value
       }); // emitting event to top form item
+      console.log('updated value ', value);
     },
     getFilteredPallet() {
       return this.pallet.map((palletItem) => {
@@ -350,8 +365,10 @@ export default {
     },
     syncConfig(property, widgetInstance) {
       if (property) {
-        const widget = EngineForm.getAllWidgets(this.drawingList).find(item => item.widgetSettings.renderKey === widgetInstance.widgetSettings.renderKey);
-        _.set(widget, property, Engine.clone(_.get(widgetInstance, property)));
+        const widget = this.drawingList.find(item => item.widgetSettings.renderKey === widgetInstance.widgetSettings.renderKey);
+        const value = Engine.clone(_.get(widgetInstance, property));
+        _.set(widget, property, value);
+        console.log('config synced', widgetInstance.fieldName, property, value);
       }
       this.updateValue();
     },
@@ -391,6 +408,7 @@ export default {
     addWidget(item, list) {
       list = list || this.drawingList;
       const clone = deepClone(item);
+      new FormWidgetService().createIdAndKey(clone);
       this.fetchData(clone);
       list.push(clone);
       this.activeFormItem(clone);

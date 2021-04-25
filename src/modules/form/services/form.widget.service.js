@@ -3,6 +3,7 @@ import { WidgetTypes } from '@/modules/form/components/widgets/base-widget/widge
 import { Engine } from '@/modules/engine/core/engine';
 
 export class FormWidgetService {
+  static RENDER_KEY_COUNTER = 0;
   widgetInstances = {};
 
   /** Add id and key in widget*/
@@ -19,6 +20,14 @@ export class FormWidgetService {
     }
     if (Array.isArray(widgetSettings.children)) {
       widgetSettings.children = widgetSettings.children.map(childItem => childItem.createIdAndKey(idGlobal));
+    }
+    return widget;
+  }
+  createRenderKey(widget) {
+    const widgetSettings = widget.widgetSettings;
+    widgetSettings.renderKey = `${FormWidgetService.RENDER_KEY_COUNTER++}${+new Date()}`;
+    if (Array.isArray(widgetSettings.children)) {
+      widgetSettings.children = widgetSettings.children.map(childItem => this.createRenderKey(childItem));
     }
     return widget;
   }

@@ -39,17 +39,60 @@ export default class ReferenceWidget extends BaseWidget {
   }
 
   overrideConfigSection(configSectionWidgets) {
-    configSectionWidgets['fieldSettings.interceptor'] = {
-      fieldName: 'fieldSettings.interceptor',
-      widgetAlias: WIDGETS.codeEditor,
-      widgetSettings: {
-        labelWidth: 0,
-        span: 24,
-        label: 'Interceptor',
-        advance: true,
-        language: 'javascript'
-      }
-    };
+    if (!this.isWidgetWithField()) {
+      Object.assign(configSectionWidgets, {
+        'widgetSettings.referenced_model_alias': {
+          fieldName: 'widgetSettings.referenced_model_alias',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 150,
+            span: 24,
+            label: 'Reference Model',
+            advance: true,
+            referenced_model_alias: 'engine_models',
+            referenced_field_name: 'alias',
+            display_field_name: 'label'
+          }
+        },
+        'widgetSettings.referenced_field_name': {
+          fieldName: 'widgetSettings.referenced_field_name',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 150,
+            span: 24,
+            label: 'Reference Field',
+            advance: true,
+            referenced_model_alias: 'engine_fields',
+            referenced_field_name: 'name',
+            display_field_name: 'label'
+          }
+        },
+        'widgetSettings.display_field_name': {
+          fieldName: 'widgetSettings.display_field_name',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 150,
+            span: 24,
+            label: 'Display Field',
+            advance: true,
+            referenced_model_alias: 'engine_fields',
+            referenced_field_name: 'name',
+            display_field_name: 'label'
+          }
+        }
+      });
+      configSectionWidgets['fieldSettings.interceptor'] = {
+        fieldName: 'fieldSettings.interceptor',
+        widgetAlias: WIDGETS.codeEditor,
+        widgetSettings: {
+          labelWidth: 0,
+          span: 24,
+          label: 'Interceptor',
+          advance: true,
+          language: 'javascript'
+        }
+      };
+    }
     return configSectionWidgets;
   }
 
