@@ -224,8 +224,6 @@ export class EngineForm extends EngineDefinitionService {
         immutable_configs: ['fieldName', 'referenced_model_alias', 'display_field_name', 'disabled', 'formModel'],
         widgetSettings: {
           label: field.label,
-          referenced_model_alias: field.referenced_model_alias,
-          display_field_name: field.display_field_name
         },
         palletSettings: {
           label: field.label

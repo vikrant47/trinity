@@ -62,6 +62,7 @@ export class BaseWidget extends EngineObservable {
   };
   designMode = false;
   transient = [
+    'immutable_configs',
     'oldValueHash',
     'configSection',
     'evalContext',
@@ -128,6 +129,11 @@ export class BaseWidget extends EngineObservable {
   init() {
   }
 
+  /** whether this widget is backed by a system field*/
+  isWidgetWithField() {
+    return typeof this.id !== 'undefined';
+  }
+
   getForm() {
     return this.engineForm;
   }
@@ -163,7 +169,7 @@ export class BaseWidget extends EngineObservable {
     if (this.formModel) {
       const value = this.getValue();
       if (typeof value === 'undefined') {
-        console.warn('Unable to update value for fieldName ', this.fieldName, this);
+        // console.warn('Unable to update value for fieldName ', this.fieldName, this);
       }
       if (this.componentConfig.attrs) {
         this.componentConfig.attrs.value = value;
@@ -207,6 +213,9 @@ export class BaseWidget extends EngineObservable {
       this.renderComponent.$emit('input', value);
       BaseWidget.debouncedCallbacks.valueChanged(this.renderComponent, value);
       this.oldValueHash = hash;
+      console.log('Value updated via base widget ', this.fieldName);
+    } else {
+      console.warn('Unable to update value ', this.fieldName, ' ,oldHash = newHash', this.oldValueHash === hash);
     }
     return this;
   }
