@@ -1,30 +1,41 @@
 <template>
   <div class="action-wrapper">
-    <el-dropdown v-if="action.children && action.children.length > 0">
-      <el-button
-        :id="action.id"
-        :type="action.style.type"
-        :children="action.children"
-        :name="action.name"
-        :icon="action.style.icon"
-        :label="action.label"
-        :shape="action.style.shape"
-        :plain="action.style.plain"
-        :loading="action.loading"
-        :size="action.style.size"
-        @click="process($event)"
-      >{{ action.label }}
-      </el-button>
+    <el-dropdown
+      v-if="action.children && action.children.length > 0"
+      :id="action.id"
+      split-button
+      :type="action.style.type"
+      :children="action.children"
+      :name="action.name"
+      :icon="action.style.icon"
+      :label="action.label"
+      :shape="action.style.shape"
+      :plain="action.style.plain"
+      :loading="action.loading"
+      :size="action.style.size"
+      @click="process($event)"
+      @command="handleChildAction"
+    >
+      {{ action.label }}
       <el-dropdown-menu
         v-for="child of action.children"
         :key="child.id"
         slot="dropdown"
       >
-        <en-action
-          :action="child"
-          :context="context"
+        <el-dropdown-item
+          :command="child"
+          :type="child.style.type"
+          :children="child.children"
+          :name="child.name"
+          :icon="child.style.icon"
+          :label="child.label"
+          :shape="child.style.shape"
+          :plain="child.style.plain"
+          :loading="child.loading"
+          :size="child.style.size"
+          @click="process($event,child)"
         >{{ child.label }}
-        </en-action>
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <el-button
@@ -77,10 +88,16 @@ export default {
   created() {
   },
   methods: {
-    async process($event) {
+    async handleChildAction(child) {
+      return await this.process(null, child);
+    },
+    async process($event, action) {
+      if (!action) {
+        action = this.action;
+      }
       this.loading = true;
       try {
-        await this.action.execute(this.event, this.context);
+        await action.execute(this.event, this.context);
       } catch (e) {
         console.error('Error while processing action handler ', e, { context: this.context });
       } finally {
