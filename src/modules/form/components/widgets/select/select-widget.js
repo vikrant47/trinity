@@ -1,29 +1,52 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
-import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
 
 export default class SelectWidget extends BaseWidget {
   palletSettings = {
     label: 'Select',
     icon: 'select'
   };
+
   overrideConfigSection(configSectionWidgets) {
-    return Object.assign(configSectionWidgets, {
-      'widgetSettings.slot.options': {
-        fieldName: 'widgetSettings.slot.options',
-        widgetAlias: WIDGETS.repeater,
-        fieldSettings: {
-          required: true,
-        },
-        widgetSettings: {
-          span: 24,
-          label: 'Layout',
-          widgetIcon: 'select',
-          defaultValue: ITEM_LAYOUT.colFormItem,
-          repeaterConfig: {},
+    if (!this.isWidgetWithField()) {
+      return Object.assign(configSectionWidgets, {
+        'slot.options': {
+          fieldName: 'widgetSettings.slot.options',
+          widgetAlias: WIDGETS.repeater,
+          widgetSettings: {
+            span: 24,
+            label: 'Choices',
+            advance: true,
+            repeaterConfig: {
+              'widgets': [
+                {
+                  'fieldName': 'label',
+                  'designMode': false,
+                  'widgetAlias': WIDGETS.input,
+                  'widgetSettings': {
+                    span: 24,
+                    'label': 'Label',
+                    'required': true
+                  }
+                },
+                {
+                  'fieldName': 'value',
+                  'designMode': false,
+                  'widgetAlias': WIDGETS.input,
+                  span: 24,
+                  'widgetSettings': {
+                    span: 24,
+                    'label': 'Value',
+                    'required': true
+                  }
+                }
+
+              ]
+            }
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   overrideFieldSettings(fieldSettings) {
@@ -36,9 +59,11 @@ export default class SelectWidget extends BaseWidget {
       defaultFirstOption: false
     }, fieldSettings);
   }
+
   slot = {
     options: []
-  }
+  };
+
   options(h, key) {
     const list = [];
     if (this.slot.options) {

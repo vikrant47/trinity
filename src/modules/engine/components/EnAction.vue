@@ -3,15 +3,15 @@
     <el-dropdown v-if="action.children && action.children.length > 0">
       <el-button
         :id="action.id"
-        :type="action.type"
+        :type="action.style.type"
         :children="action.children"
         :name="action.name"
-        :icon="action.icon"
+        :icon="action.style.icon"
         :label="action.label"
-        :shape="action.shape"
-        :plain="action.plain"
+        :shape="action.style.shape"
+        :plain="action.style.plain"
         :loading="action.loading"
-        :size="action.size"
+        :size="action.style.size"
         @click="process($event)"
       >{{ action.label }}
       </el-button>
@@ -30,14 +30,15 @@
     <el-button
       v-if="!action.children || action.children.length===0"
       :id="action.id"
-      :type="action.type"
+      :type="action.style.type"
       :children="action.children"
       :name="action.name"
-      :icon="action.icon"
+      :icon="action.style.icon"
       :label="action.label"
-      :shape="action.shape"
+      :shape="action.style.shape"
+      :plain="action.style.plain"
       :loading="action.loading"
-      :size="action.size"
+      :size="action.style.size"
       @click="process($event)"
     >{{ action.label }}
     </el-button>

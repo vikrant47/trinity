@@ -45,7 +45,7 @@ export default class ReferenceWidget extends BaseWidget {
           fieldName: 'widgetSettings.referenced_model_alias',
           widgetAlias: WIDGETS.reference,
           widgetSettings: {
-            labelWidth: 150,
+            labelWidth: 100,
             span: 24,
             label: 'Reference Model',
             advance: true,
@@ -58,7 +58,7 @@ export default class ReferenceWidget extends BaseWidget {
           fieldName: 'widgetSettings.referenced_field_name',
           widgetAlias: WIDGETS.reference,
           widgetSettings: {
-            labelWidth: 150,
+            labelWidth: 100,
             span: 24,
             label: 'Reference Field',
             advance: true,
@@ -71,7 +71,7 @@ export default class ReferenceWidget extends BaseWidget {
           fieldName: 'widgetSettings.display_field_name',
           widgetAlias: WIDGETS.reference,
           widgetSettings: {
-            labelWidth: 150,
+            labelWidth: 100,
             span: 24,
             label: 'Display Field',
             advance: true,

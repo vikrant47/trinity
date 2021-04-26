@@ -12,6 +12,10 @@ export default {
     Parser
   },
   props: {
+    renderKey: {
+      type: String,
+      default: null
+    },
     showField: {
       type: Boolean
     },
@@ -28,6 +32,7 @@ export default {
   },
   data() {
     return {
+      id: new Date().getTime(),
       currentTab: 'advance',
       currentNode: null,
       dialogVisible: false,
@@ -66,6 +71,20 @@ export default {
 
   },
   methods: {
+    onResize(event) {
+      event.stopPropagation();
+      // console.log(this);
+      const wrapper = document.getElementById('right-panel-wrapper-' + this.renderKey);
+      const drawer = wrapper.firstChild.firstChild.firstChild;
+      if (!this.fullscreen) {
+        drawer.className = 'el-drawer rtl full-screen';
+        this.fullscreen = true;
+      } else {
+        drawer.className = 'el-drawer rtl';
+        this.fullscreen = false;
+      }
+      return false;
+    },
     handleTabClick(tab, event) {
 
     },
@@ -96,7 +115,14 @@ export default {
     });
     formConfigForm.setRecord(activeWidget.configSection);*/
     const evalContext = { activeWidget: Engine.clone(activeWidget) };
-    return <div class='right-board'>
+    return <div class='right-board' id={'right-board-' + this.id}>
+      <el-button
+        type='button'
+        class='el-button'
+        icon='el-icon-full-screen'
+        style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '9999' }}
+        onClick={this.onResize}
+      />
       <el-tabs v-model={this.currentTab} class='center-tabs'>
         <el-tab-pane label='Component properties' name='field'>
           <div class='field-box'>
@@ -115,12 +141,14 @@ export default {
         <el-tab-pane label='Advance' name='advance'>
           <div class='field-box'>
             <el-scrollbar className='right-scrollbar'>
-              {createElement(Parser, { props: { engineForm: advanceConfigForm, evalContext: evalContext },
+              {createElement(Parser, {
+                props: { engineForm: advanceConfigForm, evalContext: evalContext },
                 on: {
                   fieldValueUpdated: (widget, value) => {
                     this.updateFieldValue(widget.fieldName, value);
                   }
-                }})}
+                }
+              })}
             </el-scrollbar>
           </div>
         </el-tab-pane>
