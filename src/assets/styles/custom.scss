@@ -153,8 +153,20 @@
 .el-tab-pane.components-list {
   display: block !important;
 }
-
-.repeater-wrapper {
+.repeater-wrapper{
+  border: 1px solid #dadcdd;
+  border-radius: 5px;
+  padding: 10px;
+}
+.repeater-wrapper-no-repeat{
+  .close-btn {
+    display: none;
+  }
+  .add-item{
+    display: none;
+  }
+}
+.repeater-wrapper:not(.repeater-wrapper-no-repeat) {
   border: 1px solid #dadcdd;
   border-radius: 5px;
   padding: 10px;

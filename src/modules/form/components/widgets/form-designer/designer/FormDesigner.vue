@@ -102,22 +102,25 @@
         </el-row>
       </el-scrollbar>
     </div>
-    <el-drawer
-      :destroy-on-close="true"
-      :modal-append-to-body="false"
-      :visible.sync="configVisible"
-      direction="rtl"
-      :before-close="onConfigClose"
-    >
-      <right-panel
-        :active-widget="activeWidget"
-        :form-conf="formConf"
-        :show-field="!!drawingList.length"
-        @widget-change="tagChange"
-        @fetch-data="fetchData"
-        @sync-config="syncConfig"
-      />
-    </el-drawer>
+    <div :id="'right-panel-wrapper-'+renderKey" class="right-panel-wrapper">
+      <el-drawer
+        :destroy-on-close="true"
+        :modal-append-to-body="false"
+        :visible.sync="configVisible"
+        direction="rtl"
+        :before-close="onConfigClose"
+      >
+        <right-panel
+          :render-key="renderKey"
+          :active-widget="activeWidget"
+          :form-conf="formConf"
+          :show-field="!!drawingList.length"
+          @widget-change="tagChange"
+          @fetch-data="fetchData"
+          @sync-config="syncConfig"
+        />
+      </el-drawer>
+    </div>
     <input id="copyNode" type="hidden">
   </div>
 </template>
@@ -182,6 +185,7 @@ export default {
   },
   data() {
     return {
+      renderKey: new Date().getTime(),
       hash: null,
       activePallet: 'Fields',
       configVisible: false,

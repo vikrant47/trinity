@@ -90,7 +90,7 @@ export default class CodeEditorWidget extends BaseWidget {
         style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '9999' }}
         onClick={event => {
           event.stopPropagation();
-          console.log(this);
+          // console.log(this);
           const wrapper = document.getElementById('code-editor-wrapper' + this.id);
           if (!this.fullscreen) {
             wrapper.className = 'code-editor-wrapper full-screen';

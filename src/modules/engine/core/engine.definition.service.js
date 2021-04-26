@@ -98,7 +98,15 @@ export class EngineDefinitionService extends EngineObservable {
   }
 
   buildAction(actions) {
-    let actionInstances = actions.map(action => new EngineAction(action));
+    let actionInstances = actions.map(action => {
+      if (typeof action.style === 'string') {
+        action.style = JSON.parse(action.style);
+      }
+      if (Array.isArray(action.style)) {
+        action.style = action.style[0];
+      }
+      return new EngineAction(action);
+    });
     actionInstances = Engine.convertToTree(actionInstances, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order
     });

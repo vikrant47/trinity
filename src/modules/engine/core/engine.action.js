@@ -1,23 +1,24 @@
 import { EngineScript } from '@/modules/engine/core/engine.script';
 
 export class EngineAction extends EngineScript {
-  type = 'default';
   children = [];
-  icon = 'el-icon-check';
+  style = {
+    icon: 'el-icon-check',
+    plain: true,
+    shape: 'plain',
+    size: 'small',
+    type: 'plain'
+  };
   label;
-  plain = true;
   loading = false;
-  shape = 'plain';
-  size = 'small';
   parent;
 
   constructor(settings = {}) {
     super(settings);
-    Object.assign(this, settings); // <--- webpack pushing default initialization here, re-invoking parent method again
-    if (this.type && this.type.indexOf('plain') > -1) {
-      this.type = this.type.replaceAll('plain', '');
-      this.plain = true;
+    if (settings.style) {
+      Object.assign(this.style, settings.style);
     }
+    Object.assign(this, settings); // <--- webpack pushing default initialization here, re-invoking parent method again
   }
 
   showLoader() {
