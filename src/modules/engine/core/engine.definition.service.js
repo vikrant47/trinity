@@ -108,7 +108,8 @@ export class EngineDefinitionService extends EngineObservable {
       return new EngineAction(action);
     });
     actionInstances = Engine.convertToTree(actionInstances, {
-      comparator: (action1, action2) => action1.sort_order - action2.sort_order
+      comparator: (action1, action2) => action1.sort_order - action2.sort_order,
+      parentField: 'parent_id',
     });
     return actionInstances;
   }
