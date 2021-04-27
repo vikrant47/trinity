@@ -19,7 +19,7 @@
         @click="process($event)"
       >
         {{ action.label }}
-        <span class="separator" style="margin-left:10px;font-weight: 800; ">|
+        <span class="separator">
           <i class="el-icon-arrow-down el-icon--right" />
         </span>
       </el-button>
@@ -116,8 +116,9 @@ export default {
 </script>
 
 <style scoped>
-.action-wrapper .parent-action .el-icon--right{
-  margin-left: 0px;
+.action-wrapper .parent-action .separator{
+  margin-left: 5px;
+  border-left: 1px solid white;
 }
 .action-wrapper .parent-action{
   padding-right: 5px;
