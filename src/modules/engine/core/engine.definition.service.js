@@ -15,6 +15,7 @@ export class EngineDefinitionService extends EngineObservable {
   loading = true;
   loadingBackground = 'rgb(255 255 255 / 55%)';
   definitionLoaded = false;
+  model = null;
 
   getModelAlias() {
     return this.modelAlias;
@@ -45,11 +46,16 @@ export class EngineDefinitionService extends EngineObservable {
     this.hashCode = new Date().getTime();
   }
 
+  populateModel() {
+    this.model = this.definition.model;
+  }
+
   populateFields() {
     this.fields = this.definition.fields;
   }
 
   sanitizeDefinition() {
+    this.populateModel();
     this.populateFields();
     return this.definition;
   }
@@ -109,7 +115,7 @@ export class EngineDefinitionService extends EngineObservable {
     });
     actionInstances = Engine.convertToTree(actionInstances, {
       comparator: (action1, action2) => action1.sort_order - action2.sort_order,
-      parentField: 'parent_id',
+      parentField: 'parent_id'
     });
     return actionInstances;
   }
