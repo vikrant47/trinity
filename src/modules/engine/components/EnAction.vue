@@ -2,25 +2,32 @@
   <div class="action-wrapper">
     <el-dropdown
       v-if="action.children && action.children.length > 0"
-      :id="action.id"
-      split-button
-      :type="action.style.type"
-      :children="action.children"
-      :name="action.name"
-      :icon="action.style.icon"
-      :label="action.label"
-      :shape="action.style.shape"
-      :plain="action.style.plain"
-      :loading="action.loading"
-      :size="action.style.size"
-      @click="process($event)"
       @command="handleChildAction"
     >
-      {{ action.label }}
+      <el-button
+        :id="action.id"
+        class="parent-action action"
+        :type="action.style.type"
+        :children="action.children"
+        :name="action.name"
+        :icon="action.style.icon"
+        :label="action.label"
+        :shape="action.style.shape"
+        :plain="action.style.plain"
+        :loading="action.loading"
+        :size="action.style.size"
+        @click="process($event)"
+      >
+        {{ action.label }}
+        <span class="separator">
+          <i class="el-icon-arrow-down el-icon--right" />
+        </span>
+      </el-button>
       <el-dropdown-menu
         v-for="child of action.children"
         :key="child.id"
         slot="dropdown"
+        :divided="true"
       >
         <el-dropdown-item
           :command="child"
@@ -109,5 +116,11 @@ export default {
 </script>
 
 <style scoped>
-
+.action-wrapper .parent-action .separator{
+  margin-left: 5px;
+  border-left: 1px solid white;
+}
+.action-wrapper .parent-action{
+  padding-right: 5px;
+}
 </style>

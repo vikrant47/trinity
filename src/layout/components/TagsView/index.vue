@@ -1,7 +1,22 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
     <scroll-pane ref="scrollPane" class="tags-view-wrapper">
-      <router-link
+      <el-breadcrumb
+        class="tags-view-item"
+        separator-class="el-icon-arrow-right"
+        @click.middle.native="closeSelectedTag(tag)"
+        @contextmenu.prevent.native="openMenu(tag,$event)"
+      >
+        <el-breadcrumb-item
+          v-for="tag in visitedViews"
+          ref="tag"
+          :key="tag.path"
+          :class="isActive(tag)?'active':''"
+          :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
+        >{{ tag.title }}
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+      <!--<router-link
         v-for="tag in visitedViews"
         ref="tag"
         :key="tag.path"
@@ -14,7 +29,7 @@
       >
         {{ tag.title }}
         <span v-if="!tag.meta.affix" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
-      </router-link>
+      </router-link>-->
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">Refresh</li>
@@ -207,8 +222,8 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495060;
+      /*border: 1px solid #d8dce5;*/
+      /*color: #495060;*/
       background: #fff;
       padding: 0 8px;
       font-size: 12px;
@@ -224,9 +239,9 @@ export default {
       }
 
       &.active {
-        background-color: #42b983;
+        /*background-color: #42b983;
         color: #fff;
-        border-color: #42b983;
+        border-color: #42b983;*/
 
         &::before {
           content: '';
