@@ -29,6 +29,10 @@ export class Engine {
     vm.$notify(Object.assign({}, Engine.DEFAULT_SETTINGS.notification, options));
   }
 
+  static generateUniqueString() {
+    return (new Date().getTime() * Math.random()).toString();
+  }
+
   /**
    * This will convert given data to tree which parent child relationship
    * e.g. [{id:1,name:parent,parent_id:null},{name:child,parent_id:1}]  will be converted into

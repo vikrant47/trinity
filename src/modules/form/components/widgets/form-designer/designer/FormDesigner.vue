@@ -185,7 +185,7 @@ export default {
   },
   data() {
     return {
-      renderKey: new Date().getTime(),
+      renderKey: 'KEY_Designer_' + new Date().getTime(),
       hash: null,
       activePallet: 'Fields',
       configVisible: false,

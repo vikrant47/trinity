@@ -49,7 +49,12 @@ const layouts = {
     const widgetSettings = widget.widgetSettings;
     let child = renderChildren.apply(this, arguments);
     if (widgetSettings.type === 'flex') {
-      child = <el-row type={widgetSettings.type} justify={widgetSettings.justify} align={widgetSettings.align}>
+      child = <el-row
+        type={widgetSettings.type}
+        justify={widgetSettings.justify}
+        align={widgetSettings.align}
+        /* class={this.widgetSettings.visible ? 'visible' : 'hidden'}*/
+      >
         <el-card>
           {child}
         </el-card>
@@ -57,7 +62,7 @@ const layouts = {
     }
     return (
       <el-col span={widgetSettings.span}>
-        <el-row gutter={widgetSettings.gutter}>
+        <el-row gutter={widgetSettings.gutter} /* class={widgetSettings.visible ? 'visible' : 'hidden'}*/>
           <el-card class='widget-row-card box-card'>
             <div slot='header' class='clearfix'>
               <span>{widgetSettings.label}</span>
@@ -126,6 +131,7 @@ function getWidgetInstance(widgetJson) {
   if (!this.$options.widgets[fieldName]) {
     this.engineForm.fillFieldConfig(fieldName, widgetJson);
     const widgetInstance = new FormWidgetService().getWidgetInstance(widgetJson);
+    widgetInstance.setFormId(this.engineForm.getId());
     this.engineForm.addWidgetRef(widgetInstance);
     widgetInstance.setForm(this.engineForm);
     widgetInstance.init();
@@ -135,18 +141,37 @@ function getWidgetInstance(widgetJson) {
   return this.$options.widgets[fieldName];
 }
 
+let widgetUpdateQueue = {};
+const debouncedCallbacks = {
+  bulkUpdate: _.debounce((xthis) => {
+    if (Object.keys(widgetUpdateQueue).length > 0) {
+      for (const fieldName in widgetUpdateQueue) {
+        const widgetInfo = widgetUpdateQueue[fieldName];
+        setValue.call(xthis, widgetInfo.value, {}, widgetInfo.widget);
+      }
+    }
+    widgetUpdateQueue = {};
+  }, 100)
+};
+
+function bulkUpdateValue(value, config, widget) {
+  widgetUpdateQueue[widget.fieldName] = { widget, value };
+  debouncedCallbacks.bulkUpdate(this);
+}
+
 function setValue(event, config, widget) {
   if (typeof event !== 'undefined') {
     const previousValue = _.get(this.formData, widget.fieldName);
-    this.$set(config, 'defaultValue', event);
-    if (widget.fieldName.indexOf('.') > 0) {
-      const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
-      this.$set(result.value, result.prop, event);
-    } else {
-      this.$set(this.formData, widget.fieldName, event);
-    }
-    this.engineForm.setRecord(this.formData);
-    if (previousValue !== event) {
+    // this.$set(config, 'defaultValue', event);
+    if (previousValue !== event) { // TODO: handle concurrent field value update here using debounce
+      if (widget.fieldName.indexOf('.') > 0) {
+        const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
+        this.$set(result.value, result.prop, event);
+        delete this.formData['widget.fieldName'];
+      } else {
+        this.$set(this.formData, widget.fieldName, event);
+      }
+      this.engineForm.setRecord(this.formData);
       this.$emit('fieldValueUpdated', widget, event);
       this.engineForm.triggerProcessors(new WidgetEvent(FORM_EVENTS.widget.updateValue, widget, {
         previous: previousValue,
@@ -172,6 +197,7 @@ function buildListeners(widget) {
     listeners[key] = event => methods[key].call(this, event);
   });
   // response render.js Neutral vModel $emit('input', val)
+  listeners.bulk_input_update = event => bulkUpdateValue.call(this, event, config, widget);
   listeners.input_update = event => setValue.call(this, event, config, widget);
   listeners['widget-data'] = event => setWidgetData.call(this, event, config, widget);
 

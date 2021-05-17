@@ -118,19 +118,24 @@
 }
 
 .widget-row-card {
+  border-radius: unset;
   border: 1px solid #c5daef;
-  margin: 5px 20px 5px 0px;
-
+  margin: 0px 20px 5px 0px;
+  padding-bottom: 10px;
   .el-card__header {
+    /*border: 1px solid #acc9fe;*/
+    border-bottom: 1px solid #d7deff;
     color: #000;
-    background-color: #ffffff;
     padding: 8px 15px;
     /* border: 1px solid #a8b6c2; */
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
+    background-color: #e8f4ff;
   }
 }
-
+.el-form-item--small.el-form-item{
+  margin-bottom: 8px;
+}
 /**Form designer*/
 .left-board .el-scrollbar__wrap {
   background-color: #fafbfe;
@@ -240,6 +245,9 @@
   .form-parser {
     padding: 0;
   }
+  .el-transfer-panel{
+   width: 38%;
+  }
 }
 
 .full-screen {
@@ -250,6 +258,10 @@
   height: 100% !important;
   z-index: 9999;
 }
+.hidden{
+  display: none !important;
+}
+
 /**Media library*/
 ul.icon-list {
   overflow: hidden;

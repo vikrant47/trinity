@@ -62,6 +62,7 @@ export class BaseWidget extends EngineObservable {
   };
   designMode = false;
   transient = [
+    'formId',
     'immutable_configs',
     'oldValueHash',
     'configSection',
@@ -105,12 +106,19 @@ export class BaseWidget extends EngineObservable {
   engineForm;
   data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
   previewMode = false;
-  debouncedCallbacks = {
-    valueChanged: _.debounce((renderComponent, value) => {
+  immutable_configs = ['formModel'];
+  static debouncedCallbacks = {
+    bulkUpdate: _.debounce((renderComponent, value) => {
       renderComponent.$emit('input_update', value);
     }, 500),
+    valueChanged: _.debounce((renderComponent, value) => {
+      renderComponent.$emit('input_update', value);
+    }, 500)
   };
-  immutable_configs = ['formModel'];
+
+  static debounceWidgetsUpdate(widget, value) {
+
+  }
 
   /**
    * @property model: WidgetModel
@@ -124,6 +132,10 @@ export class BaseWidget extends EngineObservable {
     this.fieldSettings = Object.assign({}, BaseWidget.defaultFieldSettings, this.fieldSettings);
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
+  }
+
+  setFormId(formId) {
+    this.formId = formId;
   }
 
   init() {
@@ -211,7 +223,7 @@ export class BaseWidget extends EngineObservable {
         this.repaint();
       }
       this.renderComponent.$emit('input', value);
-      this.debouncedCallbacks.valueChanged(this.renderComponent, value);
+      BaseWidget.debouncedCallbacks.bulkUpdate(this.renderComponent, value);
       this.oldValueHash = hash;
       console.log('Value updated via base widget ', this.fieldName);
     } else {
@@ -430,7 +442,7 @@ export class BaseWidget extends EngineObservable {
 
   /** Lifecycle events*/
   mounted() {
-
+    this.emit('mounted');
   }
 
   beforeRender() {

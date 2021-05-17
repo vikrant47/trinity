@@ -3,6 +3,10 @@ import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widge
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export default class RowWidget extends BaseWidget {
+  constructor() {
+    super();
+    this.fieldName = new Date().getTime();
+  }
   palletSettings = {
     label: 'Row',
     icon: 'row'
@@ -50,6 +54,51 @@ export default class RowWidget extends BaseWidget {
           span: 24,
           label: 'Disabled',
           default: false
+        }
+      },
+      'widgetSettings.triggers': {
+        fieldName: 'widgetSettings.triggers',
+        widgetAlias: WIDGETS.repeater,
+
+        widgetSettings: {
+          labelWidth: 0,
+          repeaterConfig: {
+            widgets: [{
+              fieldName: 'action',
+              widgetSettings: {
+                labelWidth: 0,
+                span: 24,
+                label: 'Action'
+              },
+              widgetAlias: WIDGETS.select,
+
+              slot: {
+                options: [{
+                  label: 'Show',
+                  value: 'show'
+                }, {
+                  label: 'Hide',
+                  value: 'hide'
+                }]
+              }
+            }, {
+              fieldName: 'condition',
+              widgetAlias: WIDGETS.input,
+
+              fieldSettings: {
+                type: 'textarea'
+              },
+              widgetSettings: {
+                labelWidth: 0,
+                span: 24,
+                label: 'Action'
+              }
+            }]
+          },
+          advance: true,
+          label: 'Triggers',
+          language: 'javascript',
+          parse: true
         }
       }
     };

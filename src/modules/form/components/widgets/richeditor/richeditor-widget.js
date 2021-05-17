@@ -2,7 +2,7 @@ import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-w
 import Markdown from '@/modules/form/components/widgets/richeditor/MarkDown';
 
 export default class RicheditorWidget extends BaseWidget {
-  heights = { small: '200px', medium: '300px', large: '500px' };
+  static heights = { small: '150px', medium: '200px', large: '300px' };
   palletSettings = {
     label: 'Rich Editor',
     icon: 'edit'
@@ -46,7 +46,7 @@ export default class RicheditorWidget extends BaseWidget {
     const options = {
       on: this.getEvents(),
       props: {
-        height: this.heights[config.attrs.size] || this.heights.small,
+        height: RicheditorWidget.heights[config.attrs.size] || RicheditorWidget.heights.small,
         value: config.attrs.value,
       }
     };

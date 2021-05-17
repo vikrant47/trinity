@@ -1,5 +1,6 @@
 import { EngineObservable } from '@/modules/engine/core/engine.observable';
 import { EngineAction } from '@/modules/engine/core/engine.action';
+import { Engine } from '@/modules/engine/core/engine';
 
 export class EnginePopup extends EngineObservable {
   static popups = []; // all the popups in the world
@@ -22,6 +23,7 @@ export class EnginePopup extends EngineObservable {
   width = '60%';
   size = 'medium';
   showCancel = true;
+  destroyOnClose = false;
 
   static destroy(popId) {
     const index = EnginePopup.findIndex(popId);
@@ -50,18 +52,23 @@ export class EnginePopup extends EngineObservable {
   }
 
   constructor(settings = {}) {
+    super();
     if (settings.id) {
       const popup = EnginePopup.get(settings.id); // destroyying an existing component withs ame id
       if (popup) {
         throw new Error('A popup exists with same id' + settings.id);
       }
     }
-    super();
-    Object.assign(this, settings);
+    Object.assign(this, this.initSettings(settings));
     this.width = EnginePopup.sizes[this.size];
     if (!this.id) {
-      this.id = new Date().getTime();
+      this.id = Engine.generateUniqueString();
     }
+    this.initActions();
+    this.initComponent();
+  }
+
+  initActions() {
     if (this.showCancel) {
       this.actions.push(new EngineAction({
         label: 'Cancel',
@@ -74,7 +81,16 @@ export class EnginePopup extends EngineObservable {
       }));
     }
     this.sortActions();
-    this.initComponent();
+  }
+
+  initSettings(settings) {
+    settings.actions = settings.actions.map((action) => {
+      if (!(action instanceof EngineAction)) {
+        return new EngineAction(action);
+      }
+      return action;
+    });
+    return settings;
   }
 
   static getComponentLoader() {
@@ -108,7 +124,9 @@ export class EnginePopup extends EngineObservable {
 
   destroy() {
     this.onClosed();
-    EnginePopup.destroy(this.id);
+    if (!this.destroyOnClose) {
+      EnginePopup.destroy(this.id);
+    }
   }
 
   /** events*/
@@ -122,5 +140,8 @@ export class EnginePopup extends EngineObservable {
 
   onClosed() {
     this.emit('closed');
+    if (this.destroyOnClose) {
+      EnginePopup.destroy(this.id);
+    }
   }
 }

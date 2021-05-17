@@ -117,9 +117,9 @@ export default {
     };
   },
   watch: {},
-  mounted() {
+  async mounted() {
     this.widget.setRenderComponent(this);
-    this.widget.mounted();
+    await this.widget.mounted();
   },
   render(h) {
     this.widget.setRenderComponent(this);

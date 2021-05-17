@@ -1,5 +1,5 @@
 <template>
-  <div class="form-container">
+  <div v-loading="engineForm.loading" class="form-container">
     <div v-if="toolbar" class="head-container">
       <en-form-toolbar :actions="engineForm.actions" />
     </div>
@@ -53,7 +53,8 @@ export default {
     },
     modelAlias: {
       type: String,
-      required: true
+      required: false,
+      default: '',
     },
     recordId: {
       type: String,

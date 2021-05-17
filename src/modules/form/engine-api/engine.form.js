@@ -9,8 +9,9 @@ import { EngineDefinitionService } from '@/modules/engine/core/engine.definition
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export class EngineForm extends EngineDefinitionService {
+  id;
   record = {};
-  definition = { form: { config: { tabs: {}}}, fields: [] };
+  definition = { form: { config: { tabs: {}}, actions: [], processors: [], relatedRecords: [] }, fields: [] };
   formConfig = {
     widgets: [],
     labelSuffix: '',
@@ -34,12 +35,17 @@ export class EngineForm extends EngineDefinitionService {
 
   constructor(settings) {
     super();
+    this.id = Engine.generateUniqueString();
     this.settings = Object.assign(this.settings, settings);
     this.modelAlias = this.settings.modelAlias;
     if (this.settings.formConfig) {
       this.definition.form.config = this.settings.formConfig;
     }
     this.registerEvents();
+  }
+
+  getId() {
+    return this.id;
   }
 
   setRecord(record) {
@@ -111,6 +117,7 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   sanitizeDefinition() {
+    this.id = this.definition.form.id;
     super.sanitizeDefinition();
     Object.assign(this.formConfig, this.populateFormConfig());
     this.updateHash();
@@ -192,6 +199,7 @@ export class EngineForm extends EngineDefinitionService {
       await this.emit(FORM_EVENTS.definition.beforeFetch);
       if (this.settings.remote === false) {
         this.sanitizeDefinition();
+        return;
       }
       this.enableLoading();
       // request data
@@ -223,7 +231,7 @@ export class EngineForm extends EngineDefinitionService {
         fieldName: field.name,
         immutable_configs: ['fieldName', 'referenced_model_alias', 'display_field_name', 'disabled', 'formModel'],
         widgetSettings: {
-          label: field.label,
+          label: field.label
         },
         palletSettings: {
           label: field.label

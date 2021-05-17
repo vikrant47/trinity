@@ -25,6 +25,6 @@ export const WIDGETS = {
   repeater: 'repeater',
   codeEditor: 'codeEditor',
   fileUpload: 'fileUpload',
-
+  multiReference: 'multiReference'
 };
 
