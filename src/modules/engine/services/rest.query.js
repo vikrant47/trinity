@@ -142,4 +142,8 @@ export class RestQuery {
       queryMethod: options.method
     }, options));
   }
+
+  request() {
+    return TenantService.request.apply(TenantService, arguments);
+  }
 }

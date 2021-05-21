@@ -234,4 +234,23 @@ export default class MultiReferenceWidget extends BaseWidget {
     });
     return h('el-transfer', config, this.getChildren(h));
   }
+
+  async save() {
+    const assigned = this.getValue();
+    // const previous = this.multiReferenceData.filter(d => d[through] && d[through].length > 0).map(d => d.id);
+    await new RestQuery().request({
+      url: '/api/engine/models/' + this.widgetSettings.referenced_model_alias + '/bulk-assign',
+      method: 'post',
+      data: {
+        assigned,
+        associations: {
+          referenced_model_alias: this.widgetSettings.referenced_model_alias,
+          through_referenced_field: this.widgetSettings.through_referenced_field,
+          through_model_alias: this.widgetSettings.through_model_alias,
+          through_source_field: this.widgetSettings.through_source_field,
+          source_field_value: this.widgetSettings.source_field_value
+        }
+      }
+    });
+  }
 }
