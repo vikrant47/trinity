@@ -1,11 +1,12 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import { ITEM_LAYOUT } from '@/modules/form/components/widgets/base-widget/widget-config';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { Engine } from '@/modules/engine/core/engine';
 
 export default class RowWidget extends BaseWidget {
   constructor() {
     super();
-    this.fieldName = new Date().getTime();
+    this.fieldName = Engine.generateUniqueString('row');
   }
   palletSettings = {
     label: 'Row',

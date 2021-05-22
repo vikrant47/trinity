@@ -27,4 +27,5 @@ export const WIDGETS = {
   fileUpload: 'fileUpload',
   multiReference: 'multiReference'
 };
+export const LAYOUT_WIDGETS = [WIDGETS.row];
 

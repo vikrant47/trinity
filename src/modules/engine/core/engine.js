@@ -29,8 +29,8 @@ export class Engine {
     vm.$notify(Object.assign({}, Engine.DEFAULT_SETTINGS.notification, options));
   }
 
-  static generateUniqueString() {
-    return (new Date().getTime() * Math.random()).toString();
+  static generateUniqueString(prefix = 'ID_') {
+    return _.uniqueId(prefix);
   }
 
   /**
@@ -86,7 +86,12 @@ export class Engine {
   }
 
   static isTransientProp(parsedTransients, field) {
-    return parsedTransients.current.filter(current => field.match(current)).length > 0;
+    for (const matcher of parsedTransients.current) {
+      if (field.match(matcher)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -105,18 +110,19 @@ export class Engine {
     }
     if (object) {
       if (typeof object.marshall === 'function') {
-        const marshalled = object.marshall(); // must return an object otherwise return false if cant handled
+        const marshalled = object.marshall(options); // must return an object otherwise return false if cant handled
         if (marshalled !== false) {
           return marshalled;
         }
       }
       if (Array.isArray(object)) {
-        return object.map(entry => this.marshall(entry));
+        return object.map(entry => this.marshall(entry, options));
       } else if (typeof object === 'object') {
         const marshalled = {};
         const parsedTransients = this.parseTransients(object, options);
         for (const key in object) {
           if (typeof object[key] !== undefined && !this.isTransientProp(parsedTransients, key)) {
+            // console.log('marshaling children ', key, { transients: parsedTransients.children[key] });
             marshalled[key] = this.marshall(object[key], { transients: parsedTransients.children[key] });
           }
         }
@@ -237,3 +243,5 @@ export class Engine {
     });
   }
 }
+
+window.Engine = Engine;

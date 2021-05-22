@@ -6,7 +6,7 @@ import { FORM_EVENTS, FormEvent } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
-import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { LAYOUT_WIDGETS, WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export class EngineForm extends EngineDefinitionService {
   id;
@@ -77,7 +77,7 @@ export class EngineForm extends EngineDefinitionService {
 
   getSelectedWidgets() {
     return EngineForm.getAllWidgets(this.definition.form.config.widgets).filter((widget) => {
-      return widget.fieldName;
+      return LAYOUT_WIDGETS.indexOf(widget.widgetAlias) < 0;
     });
   }
 
@@ -152,6 +152,7 @@ export class EngineForm extends EngineDefinitionService {
           widgetConfig.slot.options = field.choices;
           break;
       }
+      widgetConfig.fieldRecord = field;
     }
   }
 
@@ -276,9 +277,10 @@ export class EngineForm extends EngineDefinitionService {
     const updatableFields = updatable ? this.getUpdatableFields() : this.getSelectedWidgets().map((widget) => {
       return { name: widget.fieldName };
     });
+    const formData = this.getFormData();
     for (const field of updatableFields) {
-      if (this.original[field.name] !== this.record[field.name]) {
-        dirty[field.name] = this.record[field.name];
+      if (this.original[field.name] !== formData[field.name]) {
+        dirty[field.name] = formData[field.name];
       }
     }
     return dirty;

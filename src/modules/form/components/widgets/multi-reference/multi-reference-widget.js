@@ -206,6 +206,7 @@ export default class MultiReferenceWidget extends BaseWidget {
       fields: ['id', this.widgetSettings.referenced_display_field],
       include: [{
         fields: ['id'],
+        as: 'ref_' + this.widgetSettings.through_model_alias,
         reference: this.widgetSettings.through_referenced_field,
         modelAlias: this.widgetSettings.through_model_alias,
         required: false,
