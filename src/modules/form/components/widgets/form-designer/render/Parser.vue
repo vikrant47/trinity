@@ -264,7 +264,7 @@ export default {
         const { widgetSettings } = widget;
         const value = _.get(formModel, widget.fieldName);
         if (widget.fieldName && (typeof value === 'undefined' || value === null)) {
-          formModel.$set(widget.fieldName, widgetSettings.defaultValue);
+          _.set(formModel, widget.fieldName, widgetSettings.defaultValue);
         }
         if (widgetSettings.children) {
           this.initFormData(widgetSettings.children, formModel);
