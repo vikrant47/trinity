@@ -56,7 +56,7 @@ export default class RepeaterWidget extends FormDesignerWidget {
     if (!this.designMode) {
       if (!value || value.length === 0) {
         value = [{}];
-        this.formModel.$set(this.fieldName, value);
+        _.set(this.formModel, this.fieldName, value);
       }
     }
     return value;
