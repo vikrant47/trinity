@@ -1,33 +1,35 @@
 <template>
-  <div v-if="engineList.definitionLoaded" class="list-container">
-    <!--Toolbar-->
-    <div class="head-container">
-      <en-list-toolbar
-        v-if="toolbar"
-        :engine-list="engineList"
-        :search-value="engineList.quickSearchValue"
-        :actions="engineList.actions"
-        @on-search="engineList.search($event)"
-      />
-      <slot name="toolbar" />
-    </div>
-    <!-- <pre>{{ engineList.definition.list.columns|json }}</pre>-->
-    <!--Table rendering-->
-    <div class="list-view-wrapper">
-      <div
-        :is="engineList.getView()"
-        ref="viewRef"
-        :engine-list="engineList"
-        :list-fields="listFields"
-        :list-event-handler="listEventHandler"
-        @cellClick="cellClick"
-      />
-      <!--Paging component-->
-      <div class="list-footer">
-        <en-pagination :pagination-model="engineList.pagination" @refresh-click="engineList.refresh()" />
+  <div v-loading="engineList.loading" class="list-container-wrapper">
+    <div v-if="engineList.definitionLoaded" class="list-container">
+      <!--Toolbar-->
+      <div class="head-container">
+        <en-list-toolbar
+          v-if="toolbar"
+          :engine-list="engineList"
+          :search-value="engineList.quickSearchValue"
+          :actions="engineList.actions"
+          @on-search="engineList.search($event)"
+        />
+        <slot name="toolbar" />
       </div>
+      <!-- <pre>{{ engineList.definition.list.columns|json }}</pre>-->
+      <!--Table rendering-->
+      <div class="list-view-wrapper">
+        <div
+          :is="engineList.getView()"
+          ref="viewRef"
+          :engine-list="engineList"
+          :list-fields="listFields"
+          :list-event-handler="listEventHandler"
+          @cellClick="cellClick"
+        />
+        <!--Paging component-->
+        <div class="list-footer">
+          <en-pagination :pagination-model="engineList.pagination" @refresh-click="engineList.refresh()" />
+        </div>
+      </div>
+      <slot name="footer" />
     </div>
-    <slot name="footer" />
   </div>
 </template>
 
@@ -90,10 +92,6 @@ export default {
     list: {
       type: String,
       default: 'default'
-    },
-    showLoader: {
-      type: Boolean,
-      default: true
     }
   },
   data() {
@@ -103,7 +101,6 @@ export default {
       engineList: new EngineList({
         pagination: this.paginationModel,
         remote: this.remote,
-        showLoader: this.showLoader,
         loaderDelay: this.loaderDelay,
         modelAlias: this.modelAlias,
         list: this.list,

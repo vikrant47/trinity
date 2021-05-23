@@ -6,11 +6,12 @@ import { FORM_EVENTS, FormEvent } from '@/modules/form/engine-api/form-events';
 import * as _ from 'lodash';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
-import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { LAYOUT_WIDGETS, WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export class EngineForm extends EngineDefinitionService {
+  id;
   record = {};
-  definition = { form: { config: { tabs: {}}}, fields: [] };
+  definition = { form: { config: { tabs: {}}, actions: [], processors: [], relatedRecords: [] }, fields: [] };
   formConfig = {
     widgets: [],
     labelSuffix: '',
@@ -34,12 +35,17 @@ export class EngineForm extends EngineDefinitionService {
 
   constructor(settings) {
     super();
+    this.id = Engine.generateUniqueString();
     this.settings = Object.assign(this.settings, settings);
     this.modelAlias = this.settings.modelAlias;
     if (this.settings.formConfig) {
       this.definition.form.config = this.settings.formConfig;
     }
     this.registerEvents();
+  }
+
+  getId() {
+    return this.id;
   }
 
   setRecord(record) {
@@ -71,7 +77,7 @@ export class EngineForm extends EngineDefinitionService {
 
   getSelectedWidgets() {
     return EngineForm.getAllWidgets(this.definition.form.config.widgets).filter((widget) => {
-      return widget.fieldName;
+      return LAYOUT_WIDGETS.indexOf(widget.widgetAlias) < 0;
     });
   }
 
@@ -111,6 +117,7 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   sanitizeDefinition() {
+    this.id = this.definition.form.id;
     super.sanitizeDefinition();
     Object.assign(this.formConfig, this.populateFormConfig());
     this.updateHash();
@@ -145,6 +152,7 @@ export class EngineForm extends EngineDefinitionService {
           widgetConfig.slot.options = field.choices;
           break;
       }
+      widgetConfig.fieldRecord = field;
     }
   }
 
@@ -192,6 +200,7 @@ export class EngineForm extends EngineDefinitionService {
       await this.emit(FORM_EVENTS.definition.beforeFetch);
       if (this.settings.remote === false) {
         this.sanitizeDefinition();
+        return;
       }
       this.enableLoading();
       // request data
@@ -223,7 +232,7 @@ export class EngineForm extends EngineDefinitionService {
         fieldName: field.name,
         immutable_configs: ['fieldName', 'referenced_model_alias', 'display_field_name', 'disabled', 'formModel'],
         widgetSettings: {
-          label: field.label,
+          label: field.label
         },
         palletSettings: {
           label: field.label
@@ -268,9 +277,10 @@ export class EngineForm extends EngineDefinitionService {
     const updatableFields = updatable ? this.getUpdatableFields() : this.getSelectedWidgets().map((widget) => {
       return { name: widget.fieldName };
     });
+    const formData = this.getFormData();
     for (const field of updatableFields) {
-      if (this.original[field.name] !== this.record[field.name]) {
-        dirty[field.name] = this.record[field.name];
+      if (this.original[field.name] !== formData[field.name]) {
+        dirty[field.name] = formData[field.name];
       }
     }
     return dirty;

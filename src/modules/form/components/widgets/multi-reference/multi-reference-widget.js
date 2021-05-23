@@ -3,11 +3,11 @@ import { RestQuery } from '@/modules/engine/services/rest.query';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 import { EngineScript } from '@/modules/engine/core/engine.script';
 
-export default class ReferenceWidget extends BaseWidget {
+export default class MultiReferenceWidget extends BaseWidget {
   loading = false;
 
   palletSettings = {
-    label: 'Reference',
+    label: 'Multi Reference',
     icon: 'reference'
   };
   slot = { options: [] };
@@ -41,6 +41,25 @@ export default class ReferenceWidget extends BaseWidget {
   overrideConfigSection(configSectionWidgets) {
     if (!this.isWidgetWithField()) {
       Object.assign(configSectionWidgets, {
+        'widgetSettings.relation_type': {
+          fieldName: 'widgetSettings.relation_type',
+          widgetAlias: WIDGETS.select,
+          widgetSettings: {
+            labelWidth: 100,
+            span: 24,
+            label: 'Relation Type',
+            advance: true
+          },
+          slot: {
+            options: [{
+              label: 'Belongs To Many',
+              value: 'belongs_to_many'
+            }, {
+              label: 'Morph To Many',
+              value: 'morph_to_many'
+            }]
+          }
+        },
         'widgetSettings.referenced_model_alias': {
           fieldName: 'widgetSettings.referenced_model_alias',
           widgetAlias: WIDGETS.reference,
@@ -74,6 +93,45 @@ export default class ReferenceWidget extends BaseWidget {
             labelWidth: 100,
             span: 24,
             label: 'Display Field',
+            advance: true,
+            referenced_model_alias: 'engine_fields',
+            referenced_field_name: 'name',
+            display_field_name: 'label'
+          }
+        },
+        'widgetSettings.through_model_alias': {
+          fieldName: 'widgetSettings.through_model_alias',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 100,
+            span: 24,
+            label: 'Through Model',
+            advance: true,
+            referenced_model_alias: 'engine_models',
+            referenced_field_name: 'name',
+            display_field_name: 'label'
+          }
+        },
+        'widgetSettings.through_source_field_name': {
+          fieldName: 'widgetSettings.through_source_field_name',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 100,
+            span: 24,
+            label: 'Through Source Field',
+            advance: true,
+            referenced_model_alias: 'engine_fields',
+            referenced_field_name: 'name',
+            display_field_name: 'label'
+          }
+        },
+        'widgetSettings.through_target_field_name': {
+          fieldName: 'widgetSettings.through_target_field_name',
+          widgetAlias: WIDGETS.reference,
+          widgetSettings: {
+            labelWidth: 100,
+            span: 24,
+            label: 'Through Target Field',
             advance: true,
             referenced_model_alias: 'engine_fields',
             referenced_field_name: 'name',
@@ -131,6 +189,10 @@ export default class ReferenceWidget extends BaseWidget {
         fieldSettings.loading = false;
         _this.repaint();
       },
+      props: {
+        key: _this.widgetSettings.through_target_field_id,
+        label: _this.widgetSettings.display_field_name
+      },
       filterable: true,
       remote: true,
       reserveKeyword: true,
@@ -138,20 +200,58 @@ export default class ReferenceWidget extends BaseWidget {
     });
   }
 
-  componentRender(component, h) {
-    if (!this.valueInitialized) {
-      const refModel = this.formModel['ref_' + this.fieldName];
-      if (refModel) {
-        const value = refModel[this.widgetSettings.referenced_field_name || 'id'];
-        if (this.slot.options.findIndex(option => option.value === value) < 0) {
-          this.slot.options.push({
-            label: refModel[this.widgetSettings.display_field_name],
-            value: value
-          });
+  async mounted() {
+    this.loading = true;
+    const result = await new RestQuery(this.widgetSettings.referenced_model_alias).findAll({
+      fields: ['id', this.widgetSettings.referenced_display_field],
+      include: [{
+        fields: ['id'],
+        as: 'ref_' + this.widgetSettings.through_model_alias,
+        reference: this.widgetSettings.through_referenced_field,
+        modelAlias: this.widgetSettings.through_model_alias,
+        required: false,
+        where: {
+          [this.widgetSettings.through_source_field]: this.widgetSettings.source_field_value
         }
-        this.valueInitialized = true;
+      }]
+    });
+    this.multiReferenceData = result.contents;
+    super.mounted();
+    this.loading = false;
+    this.repaint();
+  }
+
+  componentRender(component, h) {
+    //  await this.waitFor('mounted');
+    const config = this.getComponentConfig(component);
+    Object.assign(config.attrs, {
+      data: this.multiReferenceData,
+      titles: ['Available', 'Selected'],
+      props: {
+        key: 'id',
+        label: this.widgetSettings.referenced_display_field
+      },
+      'v-loading': this.loading
+    });
+    return h('el-transfer', config, this.getChildren(h));
+  }
+
+  async save() {
+    const assigned = this.getValue();
+    // const previous = this.multiReferenceData.filter(d => d[through] && d[through].length > 0).map(d => d.id);
+    await new RestQuery().request({
+      url: '/api/engine/models/' + this.widgetSettings.referenced_model_alias + '/bulk-assign',
+      method: 'post',
+      data: {
+        assigned,
+        associations: {
+          referenced_model_alias: this.widgetSettings.referenced_model_alias,
+          through_referenced_field: this.widgetSettings.through_referenced_field,
+          through_model_alias: this.widgetSettings.through_model_alias,
+          through_source_field: this.widgetSettings.through_source_field,
+          source_field_value: this.widgetSettings.source_field_value
+        }
       }
-    }
-    return h('el-select', this.getComponentConfig(component), this.getChildren(h));
+    });
   }
 }

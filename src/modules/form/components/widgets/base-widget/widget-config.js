@@ -196,6 +196,9 @@ export const DEFAULT_CONFIG_SECTION = {
             }, {
               label: 'Hide',
               value: 'hide'
+            }, {
+              label: 'Slug',
+              value: 'slug'
             }]
           }
         }, {
@@ -208,7 +211,7 @@ export const DEFAULT_CONFIG_SECTION = {
           widgetSettings: {
             labelWidth: 0,
             span: 24,
-            label: 'Action'
+            label: 'Condition'
           }
         }]
       },

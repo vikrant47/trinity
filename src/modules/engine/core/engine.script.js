@@ -1,7 +1,8 @@
 import store from '@/store';
+import { Engine } from '@/modules/engine/core/engine';
 
 export class EngineScript {
-  id = new Date().getTime();
+  id;
   name;
   alias;
   script;
@@ -9,9 +10,15 @@ export class EngineScript {
 
   constructor(settings = {}) {
     Object.assign(this, settings);
+    if (!this.id) {
+      this.id = Engine.generateUniqueString();
+    }
   }
 
   static compile(script) {
+    if (typeof script === 'function') {
+      return script;
+    }
     return new Function(`
     "use strict";
     return ${script.trim()}

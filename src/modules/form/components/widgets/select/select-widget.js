@@ -47,6 +47,7 @@ export default class SelectWidget extends BaseWidget {
         }
       });
     }
+    return configSectionWidgets;
   }
 
   overrideFieldSettings(fieldSettings) {

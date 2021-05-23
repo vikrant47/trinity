@@ -35,7 +35,7 @@
                   @click="addWidget(element)"
                 >
                   <div class="components-body">
-                    <svg-icon :icon-class="element.palletSettings.icon" />
+                    <svg-icon :icon-class="element.palletSettings.icon||'component'" />
                     {{ element.palletSettings.label }}
                   </div>
                 </div>
@@ -78,7 +78,7 @@
               :list="drawingList"
               :animation="340"
               group="componentsGroup"
-              @change="updateValue"
+              @change="saveDrawingListDebounce"
             >
               <draggable-item
                 v-for="(item, index) in drawingList"
@@ -151,6 +151,7 @@ import loadBeautifier from '@/modules/form/utils/loadBeautifier';
 import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { Engine } from '@/modules/engine/core/engine';
 import _ from 'lodash';
+import { LAYOUT_WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 let beautifier;
 let oldActiveId;
@@ -185,7 +186,7 @@ export default {
   },
   data() {
     return {
-      renderKey: new Date().getTime(),
+      renderKey: 'KEY_Designer_' + new Date().getTime(),
       hash: null,
       activePallet: 'Fields',
       configVisible: false,
@@ -207,12 +208,12 @@ export default {
       showFileName: false,
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
+        list = list || this.drawingList;
         const newHash = JSON.stringify(list);
         if (this.hash !== newHash) {
           this.updateValue();
           this.hash = newHash;
         }
-
         // return saveDrawingList(list.map(widget => Engine.marshall(widget, new FormWidgetService().getWidgetInstance(widget))));
       }),
       saveIdGlobalDebounce: debounce(340, saveIdGlobal),
@@ -241,17 +242,6 @@ export default {
         oldActiveId = val;
       },
       immediate: true
-    },
-    drawingList: {
-      handler(val) {
-        this.saveDrawingListDebounce(val);
-        if (val.length === 0) {
-          this.idGlobal = 100;
-        } else {
-          this.updateAllSelectedItems({ palletSettings: { hidden: true }});
-        }
-      },
-      deep: true
     },
     idGlobal: {
       handler(val) {
@@ -308,10 +298,11 @@ export default {
       return drawingList;
     },
     updateValue() {
-      const value = Engine.marshall(this.drawingList);
+      const value = Engine.clone(this.drawingList);
       this.$emit('input', {
         widgets: value
       }); // emitting event to top form item
+      this.updateAllSelectedItems({ palletSettings: { hidden: true }});
       console.log('updated value ', value);
     },
     getFilteredPallet() {
@@ -367,14 +358,29 @@ export default {
       this.activeFormItem(currentItem);
       this.configVisible = true;
     },
+    findWidgetByKey(renderKey, drawingList) {
+      for (const item of drawingList) {
+        if (item.widgetSettings.renderKey === renderKey) {
+          return item;
+        }
+        if (LAYOUT_WIDGETS.indexOf(item.widgetAlias) >= 0 && item.widgetSettings.children) {
+          return this.findWidgetByKey(renderKey, item.widgetSettings.children);
+        }
+      }
+      return null;
+    },
     syncConfig(property, widgetInstance) {
       if (property) {
-        const widget = this.drawingList.find(item => item.widgetSettings.renderKey === widgetInstance.widgetSettings.renderKey);
-        const value = Engine.clone(_.get(widgetInstance, property));
-        _.set(widget, property, value);
-        console.log('config synced', widgetInstance.fieldName, property, value);
+        const widget = this.findWidgetByKey(widgetInstance.widgetSettings.renderKey, this.drawingList);
+        if (widget) {
+          const value = Engine.clone(_.get(widgetInstance, property));
+          widget.$set(property, value);
+          this.saveDrawingListDebounce(this.drawingList);
+          console.log('config synced', widgetInstance.fieldName, property, value);
+        } else {
+          console.warn('config synced failed! no widget found with key ', widgetInstance.widgetSettings.renderKey);
+        }
       }
-      this.updateValue();
     },
     activeDraggableItem(currentItem) {
       this.activeFormItem(currentItem);
@@ -417,7 +423,7 @@ export default {
       list.push(clone);
       this.activeFormItem(clone);
       this.updatedSelectedPalletItem(item, { palletSettings: { hidden: true }});
-      this.updateValue();
+      this.saveDrawingListDebounce();
     },
     cloneWidget(original) {
       const clone = deepClone(original);// deepClone(origin);
@@ -473,7 +479,7 @@ export default {
           this.activeFormItem(this.drawingList[len - 1]);
         }
         this.updatedSelectedPalletItem(item, { palletSettings: { hidden: false }});
-        this.updateValue();
+        this.saveDrawingListDebounce();
       });
     },
     generateCode() {

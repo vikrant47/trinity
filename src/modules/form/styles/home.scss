@@ -205,18 +205,18 @@ $lighterBlue: #409EFF;
   }
 }
 .drawing-row-item{
+  margin-bottom: 15px;
+  padding-top: 25px;
   position: relative;
   cursor: move;
   box-sizing: border-box;
   border: 1px dashed #ccc;
   border-radius: 3px;
-  padding: 0 2px;
-  margin-bottom: 15px;
   .drawing-row-item {
     margin-bottom: 2px;
   }
   .el-col{
-    margin-top: 22px;
+    margin-top: 0px;
   }
   .el-form-item{
     margin-bottom: 0;

@@ -54,9 +54,9 @@ export default class RepeaterWidget extends FormDesignerWidget {
   getValue() {
     let value = _.get(this.formModel, this.fieldName);
     if (!this.designMode) {
-      if (!value) {
+      if (!value || value.length === 0) {
         value = [{}];
-        _.set(this.formModel, this.fieldName, value);
+        this.formModel.$set(this.fieldName, value);
       }
     }
     return value;
@@ -117,16 +117,15 @@ export default class RepeaterWidget extends FormDesignerWidget {
       this.forms = value.map((record, i) => {
         return this.buildRepeaterItem(i);
       });
-      return this.getRepeaterTemplate(h);
+      return this.getRepeaterTemplate(h, value);
     }
   }
 
-  getRepeaterTemplate(h) {
+  getRepeaterTemplate(h, value) {
     return (
       <draggable
         class={'repeater-wrapper ' + (this.widgetSettings.doNotRepeat === true ? 'repeater-wrapper-no-repeat' : '')}
-        list={this.getValue()} animation='340' onChange={() => {
-          const value = this.getValue();
+        list={value} animation='340' onChange={() => {
           this.setValue(value);
           this.repaint();
         }}>

@@ -23,9 +23,10 @@ export class FormWidgetService {
     }
     return widget;
   }
+
   createRenderKey(widget) {
     const widgetSettings = widget.widgetSettings;
-    widgetSettings.renderKey = `${FormWidgetService.RENDER_KEY_COUNTER++}${+new Date()}`;
+    widgetSettings.renderKey = `KEY_${FormWidgetService.RENDER_KEY_COUNTER++}${+new Date()}`;
     if (Array.isArray(widgetSettings.children)) {
       widgetSettings.children = widgetSettings.children.map(childItem => this.createRenderKey(childItem));
     }
@@ -104,6 +105,13 @@ export class FormWidgetService {
     return sections;
   }
 
+  toWidgetInstance(widgets) {
+    if (!Array.isArray(widgets)) {
+      widgets = [widgets];
+    }
+    return widgets.map(widget => this.getWidgetInstance(widget));
+  }
+
   /** Return the widget instance from given json*/
   getWidgetInstance(widgetJSON) {
     if (typeof widgetJSON === 'string') {
@@ -113,9 +121,9 @@ export class FormWidgetService {
     if (typeof widgetJSON.widgetAlias !== 'string' && typeof widgetJSON.widgetClass !== 'string') {
       throw new Error('Invalid json, widgetAlias / widgetClass key doesn\'t exists');
     } else if (typeof widgetJSON.widgetAlias === 'string') {
-      Widget = new FormWidgetService().getWidgetByAlias(widgetJSON.widgetAlias);
+      Widget = this.getWidgetByAlias(widgetJSON.widgetAlias);
     } else {
-      Widget = new FormWidgetService().getWidgetByClass(widgetJSON.widgetClass);
+      Widget = this.getWidgetByClass(widgetJSON.widgetClass);
     }
     if (!Widget) {
       throw new Error('Invalid json,No matching widgetAlias / widgetClass found', widgetJSON);

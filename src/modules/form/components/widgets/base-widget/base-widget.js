@@ -3,7 +3,7 @@ import {
   ITEM_LAYOUT
 } from '@/modules/form/components/widgets/base-widget/widget-config';
 import Vue from 'vue';
-import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { LAYOUT_WIDGETS, WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 import _ from 'lodash';
 import { Engine } from '@/modules/engine/core/engine';
 import { TemplateEngine } from '@/modules/engine/core/template.engine';
@@ -61,7 +61,8 @@ export class BaseWidget extends EngineObservable {
     size: 'medium'
   };
   designMode = false;
-  transient = [
+  static transient = [
+    'formId',
     'immutable_configs',
     'oldValueHash',
     'configSection',
@@ -70,12 +71,24 @@ export class BaseWidget extends EngineObservable {
     'eventSeen',
     'events',
     'waitPromises',
-    'evalContext',
     'data',
     'componentConfig',
     'fieldSettings..*',
-    'widgetSettings..*'
+    'widgetSettings..*',
+    'widgetSettings.on',
+    'designMode',
+    'formItemConfig',
+    'previewMode',
+    'wrapperConfig',
+    'fieldRecord',
+    'oldValueHash',
+    'events',
+    'palletSettings',
+    'engineForm',
+    { widgetSettings: ['formId', 'on'] },
+    'widgetSettings.formId', 'widgetSettings.regList', 'widgetSettings.document', 'widgetSettings.changeTag', 'widgetSettings.renderKey', 'widgetSettings.domProps', 'widgetSettings.nativeOn', 'widgetSettings.on', 'widgetSettings.directives', 'widgetSettings.scopedSlots', 'widgetSettings.key', 'widgetSettings.ref', 'widgetSettings.refInFor', 'widgetSettings.visible', 'widgetSettings.wrapper'
   ];
+  transient = BaseWidget.transient;
   oldValueHash = null;
   fieldName = null;
   slot = {};
@@ -105,12 +118,30 @@ export class BaseWidget extends EngineObservable {
   engineForm;
   data = {}; // a widget data is temporary storage and can be wiped out on widget re-render
   previewMode = false;
-  debouncedCallbacks = {
-    valueChanged: _.debounce((renderComponent, value) => {
+  immutable_configs = ['formModel'];
+  fieldRecord = null;
+  static debouncedCallbacks = {
+    bulkUpdate: _.debounce((renderComponent, value) => {
       renderComponent.$emit('input_update', value);
     }, 500),
+    valueChanged: _.debounce((renderComponent, value) => {
+      renderComponent.$emit('input_update', value);
+    }, 500)
   };
-  immutable_configs = ['formModel'];
+
+  static debounceWidgetsUpdate(widget, value) {
+
+  }
+
+  static marshallPojo(pojo) {
+    const transient = this.transient;
+    transient.push('widgetSettings.children');
+    const marshalled = Engine.marshall(pojo, { transient });
+    if (LAYOUT_WIDGETS.indexOf(pojo.widgetAlias) && pojo.widgetSettings) {
+      marshalled.widgetSettings.children = this.marshallPojo(pojo.widgetSettings.children);
+    }
+    return marshalled;
+  }
 
   /**
    * @property model: WidgetModel
@@ -125,8 +156,27 @@ export class BaseWidget extends EngineObservable {
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
   }
+  init() {}
 
-  init() {
+  unmarshall(source) {
+    if (source.fieldSettings) {
+      if (!source.fieldSettings.placeholder) {
+        source.fieldSettings.placeholder = 'Please Enter ' + (source.widgetSettings.label ? source.widgetSettings.label : 'Value');
+      }
+    }
+    if (source.widgetSettings) {
+      if (!source.widgetSettings.label) {
+        source.widgetSettings.label = this.palletSettings.label;
+      }
+    }
+    source.fieldSettings = Object.assign({}, this.fieldSettings, source.fieldSettings);
+    source.palletSettings = Object.assign({}, this.palletSettings, source.palletSettings);
+    source.widgetSettings = Object.assign({}, this.widgetSettings, source.widgetSettings);
+    Object.assign(this, source);
+    return this;
+  }
+  setFormId(formId) {
+    this.formId = formId;
   }
 
   /** whether this widget is backed by a system field*/
@@ -207,12 +257,13 @@ export class BaseWidget extends EngineObservable {
         this.renderComponent.$set(result.value, result.prop, value);
       }
       this.renderComponent.$set(this.renderComponent.formModel, this.fieldName, value);
+      this.renderComponent.$emit('input', value);
+      BaseWidget.debouncedCallbacks.bulkUpdate(this.renderComponent, value);
+      this.oldValueHash = hash;
       if (repaint) {
+        this.repainter = 'self';
         this.repaint();
       }
-      this.renderComponent.$emit('input', value);
-      this.debouncedCallbacks.valueChanged(this.renderComponent, value);
-      this.oldValueHash = hash;
       console.log('Value updated via base widget ', this.fieldName);
     } else {
       console.warn('Unable to update value ', this.fieldName, ' ,oldHash = newHash', this.oldValueHash === hash);
@@ -220,18 +271,8 @@ export class BaseWidget extends EngineObservable {
     return this;
   }
 
-  marshall() {
-    return Engine.marshall(Object.assign({}, this, {
-      configSection: null,
-      formModel: {
-        [this.fieldName]: this.formModel && this.formModel[this.fieldName] || null,
-        marshall: null
-      }
-    }));
-  }
-
   clone() {
-    const marshalledWidget = this.marshall();
+    const marshalledWidget = Engine.marshall(this);
     const FormWidgetService = require('../../../services/form.widget.service').FormWidgetService;
     return new FormWidgetService().getWidgetInstance(marshalledWidget);
   }
@@ -334,23 +375,9 @@ export class BaseWidget extends EngineObservable {
     return this.formItemConfig;
   }
 
-  unmarshall(source, unmarshall) {
-    if (source.fieldSettings) {
-      if (!source.fieldSettings.placeholder) {
-        source.fieldSettings.placeholder = 'Please Enter ' + (source.widgetSettings.label ? source.widgetSettings.label : 'Value');
-      }
-    }
-    if (source.widgetSettings) {
-      if (!source.widgetSettings.label) {
-        source.widgetSettings.label = this.palletSettings.label;
-      }
-    }
-    return false;
-  }
-
   getComponentConfig() {
-    let widgetSettings = Engine.clone(this.widgetSettings, true);
-    let fieldSettings = Engine.clone(this.fieldSettings, true);
+    let widgetSettings = Engine.clone(this.widgetSettings);
+    let fieldSettings = Engine.clone(this.fieldSettings);
     fieldSettings = this.overrideFieldSettings(fieldSettings) || fieldSettings;
     widgetSettings = this.overrideWidgetSettings(widgetSettings) || widgetSettings;
     fieldSettings.name = this.fieldName;
@@ -403,19 +430,34 @@ export class BaseWidget extends EngineObservable {
   }
 
   handleTriggers() {
-    if (!this.designMode) {
-      let triggers = this.widgetSettings.triggers;
-      if (triggers && triggers.length) {
-        if (!Array.isArray(triggers)) {
-          triggers = [triggers];
-        }
-        for (const trigger of triggers) {
-          if (trigger.action === 'show' || trigger.action === 'hide') {
-            const result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
-            this.widgetSettings.visible = trigger.action === 'show' ? result : !result;
+    if (this.repainter !== 'self') {
+      const form = this.evalContext.form;
+      if (!this.designMode) {
+        let triggers = this.widgetSettings.triggers;
+        if (triggers && triggers.length) {
+          if (!Array.isArray(triggers)) {
+            triggers = [triggers];
           }
+          for (const trigger of triggers) {
+            if (trigger.condition && trigger.condition.trim().length > 0) {
+              if (trigger.action === 'show' || trigger.action === 'hide') {
+                const result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
+                this.widgetSettings.visible = trigger.action === 'show' ? result : !result;
+              } else if (trigger.action === 'slug') {
+                if (!this.fieldRecord || (form.isNew() && this.fieldRecord.immutable === true) || this.fieldRecord.immutable === false) {
+                  let result = null;
+                  if (trigger.condition.indexOf('$') >= 0) {
+                    result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
+                  } else {
+                    result = _.snakeCase(form.getValue(trigger.condition));
+                  }
+                  this.setValue(result, false);
+                }
+              }
+            }
+          }
+          // this.update();
         }
-        this.update();
       }
     }
   }
@@ -430,11 +472,12 @@ export class BaseWidget extends EngineObservable {
 
   /** Lifecycle events*/
   mounted() {
-
+    this.emit('mounted');
   }
 
   beforeRender() {
     this.handleTriggers();
+    this.repainter = null;
   }
 
   afterRender() {
