@@ -156,7 +156,9 @@ export class BaseWidget extends EngineObservable {
     this.palletSettings = Object.assign({}, BaseWidget.defaultPalletSettings, this.palletSettings);
     this.widgetSettings = Object.assign({}, BaseWidget.defaultWidgetSettings, this.widgetSettings);
   }
-  init() {}
+
+  init() {
+  }
 
   unmarshall(source) {
     if (source.fieldSettings) {
@@ -175,6 +177,7 @@ export class BaseWidget extends EngineObservable {
     Object.assign(this, source);
     return this;
   }
+
   setFormId(formId) {
     this.formId = formId;
   }
@@ -258,11 +261,12 @@ export class BaseWidget extends EngineObservable {
       }
       this.renderComponent.$set(this.renderComponent.formModel, this.fieldName, value);
       this.renderComponent.$emit('input', value);
-      BaseWidget.debouncedCallbacks.bulkUpdate(this.renderComponent, value);
+      // BaseWidget.debouncedCallbacks.bulkUpdate(this.renderComponent, value);
+      this.renderComponent.$emit('input_update', value);
       this.oldValueHash = hash;
       if (repaint) {
         this.repainter = 'self';
-        this.repaint();
+        // this.repaint();
       }
       console.log('Value updated via base widget ', this.fieldName);
     } else {
@@ -448,7 +452,7 @@ export class BaseWidget extends EngineObservable {
                   let result = null;
                   if (trigger.condition.indexOf('$') >= 0) {
                     result = TemplateEngine.evalExpression(trigger.condition, this.buildContext());
-                  } else {
+                  } else if (form.isDirty(trigger.condition)) {
                     result = _.snakeCase(form.getValue(trigger.condition));
                   }
                   this.setValue(result, false);

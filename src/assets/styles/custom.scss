@@ -64,12 +64,14 @@
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
 }
-.related-record-wrapper .list-container .el-table{
+
+.related-record-wrapper .list-container .el-table {
   -webkit-box-shadow: none;
   box-shadow: none;
   border: none;
   border-top: 1px solid #93cdf3;
 }
+
 .list-container .action-list-wrapper .action-wrapper, .form-container .head-container .action-wrapper {
   margin-right: 5px;
 }
@@ -97,7 +99,9 @@
 .list-container .el-icon-loading {
   font-size: 40px;
 }
-
+.list-container button.el-icon-loading {
+  font-size: 11px;
+}
 
 .form-container .form-container .components-body {
   padding: 2px 10px;
@@ -122,6 +126,7 @@
   border: 1px solid #c5daef;
   margin: 0px 20px 5px 0px;
   padding-bottom: 10px;
+
   .el-card__header {
     /*border: 1px solid #acc9fe;*/
     border-bottom: 1px solid #d7deff;
@@ -133,9 +138,11 @@
     background-color: #e8f4ff;
   }
 }
-.el-form-item--small.el-form-item{
+
+.el-form-item--small.el-form-item {
   margin-bottom: 8px;
 }
+
 /**Form designer*/
 .left-board .el-scrollbar__wrap {
   background-color: #fafbfe;
@@ -163,19 +170,23 @@
 .el-tab-pane.components-list {
   display: block !important;
 }
-.repeater-wrapper{
+
+.repeater-wrapper {
   border: 1px solid #dadcdd;
   border-radius: 5px;
   padding: 10px;
 }
-.repeater-wrapper-no-repeat{
+
+.repeater-wrapper-no-repeat {
   .close-btn {
     display: none;
   }
-  .add-item{
+
+  .add-item {
     display: none;
   }
 }
+
 .repeater-wrapper:not(.repeater-wrapper-no-repeat) {
   border: 1px solid #dadcdd;
   border-radius: 5px;
@@ -199,7 +210,7 @@
 }
 
 .code-editor-wrapper {
-  background-color:white ;
+  background-color: white;
   border: 1px solid #cccccc;
   width: 300px;
   height: 200px;
@@ -209,6 +220,33 @@
   > div {
     width: 100%;
     height: 100%;
+  }
+}
+
+/**Transfer/ Multi Select*/
+
+.transfer-wrapper {
+  display: flex;
+
+  .el-transfer {
+    width: 100%;
+    margin-right: -40px;
+  }
+
+  .sort-wrapper {
+    position: relative;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    .actions {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      button {
+        margin: 6px 0 0;
+      }
+    }
   }
 }
 
@@ -245,8 +283,9 @@
   .form-parser {
     padding: 0;
   }
-  .el-transfer-panel{
-   width: 38%;
+
+  .el-transfer-panel {
+    width: 38%;
   }
 }
 
@@ -258,7 +297,8 @@
   height: 100% !important;
   z-index: 9999;
 }
-.hidden{
+
+.hidden {
   display: none !important;
 }
 
@@ -266,8 +306,9 @@
 ul.icon-list {
   overflow: hidden;
   list-style: none;
-  padding: 0!important;
+  padding: 0 !important;
 }
+
 .icon-list li {
   float: left;
   width: 10.66%;
@@ -278,58 +319,69 @@ ul.icon-list {
   font-size: 13px;
   margin: 5px;
   position: relative;
-  :hover{
+
+  :hover {
     cursor: pointer;
     background-color: #f7faff;
   }
 }
-.icon-list li.selected{
+
+.icon-list li.selected {
   background-color: #f7faff;
   color: #5cb6ff;
-  div.file-item{
+
+  div.file-item {
     border: 1px solid #49acfd;
   }
 }
-.icon-list li:hover i, .icon-list li:hover span{
+
+.icon-list li:hover i, .icon-list li:hover span {
   color: #8dcafc;
 }
-.icon-list li div.file-item{
+
+.icon-list li div.file-item {
   border: 1px solid #e9e9e9;
   border-radius: 4px;
   width: 100%;
   height: 100%;
-  .image-file{
+
+  .image-file {
     height: 80%;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
   }
-  .icon-name{
+
+  .icon-name {
     position: absolute;
     bottom: 5px;
     right: 47px;
   }
 }
-.icon-list li div.selection, .icon-list li div.selection input{
+
+.icon-list li div.selection, .icon-list li div.selection input {
   width: 25px;
   height: 25px;
   position: absolute;
   top: 1px;
   left: 1px;
 }
-.icon-list li div.selection input{
+
+.icon-list li div.selection input {
   width: 15px;
   height: 15px;
   border: 1px solid #49acfd;
   color: #8dcafc;
 }
+
 .icon-list li div span {
   line-height: normal;
-  font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
   color: #99a9bf;
   transition: color .15s linear;
   display: inline-block;
   vertical-align: middle;
+
   i {
     display: block;
     font-size: 85px;

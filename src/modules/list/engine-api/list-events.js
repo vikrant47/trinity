@@ -14,8 +14,8 @@ export const LIST_EVENTS = {
     beforeSubmit: 'list.beforeSubmit'
   },
   definition: {
-    beforeFetch: 'beforeFetch',
-    fetch: 'fetch'
+    beforeFetch: 'definition.beforeFetch',
+    fetch: 'definition.fetch'
   },
   cell: {
     click: 'cell.click',

@@ -11,6 +11,12 @@ export class EngineObservable {
     this.eventSeen.push(event);
   }
 
+  async syncEmit(eventName, ...args) {
+    this.visitEvent(eventName);
+    this.resolveWaiters(eventName, args);
+    await this.syncTriggerCallback(eventName, args);
+  }
+
   emit(eventName, ...args) {
     this.visitEvent(eventName);
     this.resolveWaiters(eventName, args);
@@ -18,12 +24,20 @@ export class EngineObservable {
     return this;
   }
 
-  resolveWaiters(eventName, ...args) {
+  resolveWaiters(eventName, args) {
     if (this.waitPromises[eventName]) {
       this.waitPromises[eventName].forEach((promise) => {
         promise.resolve.apply(this, args);
       });
       delete this.waitPromises[eventName]; // removing promises registry for resolved
+    }
+  }
+
+  async syncTriggerCallback(eventName, args) {
+    if (this.events[eventName]) {
+      for (const callback of this.events[eventName]) {
+        await callback.apply(this, args);
+      }
     }
   }
 

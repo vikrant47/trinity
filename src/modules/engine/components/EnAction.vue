@@ -5,6 +5,7 @@
       @command="handleChildAction"
     >
       <el-button
+        v-if="!action.hidden"
         :id="action.id"
         class="parent-action action"
         :type="action.style.type"
@@ -30,6 +31,7 @@
         :divided="true"
       >
         <el-dropdown-item
+          v-if="!child.hidden"
           :command="child"
           :type="child.style.type"
           :children="child.children"
@@ -46,7 +48,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <el-button
-      v-if="!action.children || action.children.length===0"
+      v-if="(!action.children || action.children.length===0) && !action.hidden"
       :id="action.id"
       :type="action.style.type"
       :children="action.children"

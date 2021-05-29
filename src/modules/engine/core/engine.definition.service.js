@@ -60,6 +60,10 @@ export class EngineDefinitionService extends EngineObservable {
     return this.definition;
   }
 
+  getModel() {
+    return this.definition.model;
+  }
+
   getFields() {
     return this.definition.fields;
   }
@@ -76,8 +80,16 @@ export class EngineDefinitionService extends EngineObservable {
     return this.getFields().filter(field => field.type === WIDGETS.reference);
   }
 
+  getFieldById(id) {
+    return this.getFields().find(field => field.id === id);
+  }
+
   getFieldByName(name) {
     return this.getFields().find(field => field.name === name);
+  }
+
+  hasField(name) {
+    return typeof this.getFieldByName(name) !== 'undefined';
   }
 
   /** Will return the widget instance*/
@@ -120,6 +132,14 @@ export class EngineDefinitionService extends EngineObservable {
     return actionInstances;
   }
 
+  getAction(name) {
+    return this.actions.find(action => action.name === name);
+  }
+
+  getActions() {
+    return this.actions;
+  }
+
   buildProcessors(processors) {
     return processors.map(processor => new EngineScript(processor));
   }
@@ -131,7 +151,11 @@ export class EngineDefinitionService extends EngineObservable {
   async triggerProcessors(event, context = {}) {
     for (const processor of this.processors) {
       if (processor.events && processor.events.indexOf(event.getName()) >= 0) {
-        await processor.execute(event, context);
+        try {
+          await processor.execute(event, context);
+        } catch (e) {
+          console.error('Error while executing processor "' + processor.name + '"', e);
+        }
       }
     }
   }
