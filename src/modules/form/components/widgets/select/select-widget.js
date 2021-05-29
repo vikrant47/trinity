@@ -8,6 +8,19 @@ export default class SelectWidget extends BaseWidget {
   };
 
   overrideConfigSection(configSectionWidgets) {
+    Object.assign(configSectionWidgets, {
+      'fieldSettings.multiple': {
+        fieldName: 'fieldSettings.multiple',
+        widgetAlias: WIDGETS.switch,
+        fieldSettings: {},
+        widgetSettings: {
+          labelWidth: 100,
+          span: 24,
+          label: 'Multiple',
+          advance: true
+        }
+      }
+    });
     if (!this.isWidgetWithField()) {
       return Object.assign(configSectionWidgets, {
         'slot.options': {

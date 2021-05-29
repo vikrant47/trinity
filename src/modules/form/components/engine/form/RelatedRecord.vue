@@ -7,7 +7,7 @@
         class="related-record-item"
         :label="item.label"
       >
-        <div v-if="item.type==='list'" class="related-record-list">
+        <div v-if="item.type==='list'||item.type==='association'" class="related-record-list">
           <en-list
             ref="items"
             :model-alias="item.referenced_model_alias"
@@ -16,7 +16,7 @@
             :toolbar="true"
             :list="item.referenced_list_id"
             :remote="true"
-            @mounted="listMounted($event,item)"
+            @created="listMounted($event,item)"
           />
         </div>
       </el-tab-pane>
@@ -47,7 +47,14 @@ export default {
   },
   mounted() {
     this.engineForm.on(FORM_EVENTS.model.fetch, () => { // related records must be rendered after data fetch
-      this.relatedRecords = this.engineForm.getRelatedRecords();
+      this.relatedRecords = this.engineForm.getRelatedRecords().map((record) => {
+        if (record.type === 'association') {
+          const association = record.ref_model_association_id;
+          record.referenced_model_alias = association.referenced_model_alias;
+          record.referenced_model_id = association.referenced_model_id;
+        }
+        return record;
+      });
     });
   },
   updated() {
@@ -62,8 +69,26 @@ export default {
     },
     async listMounted(list, relatedRecord) {
       // await this.engineForm.waitFor(FORM_EVENTS.model.fetch);
-      const referencedField = relatedRecord.ref_referenced_field_id;
-      list.setCondition({ [relatedRecord.referenced_field_name]: this.engineForm.getValue(referencedField.referenced_field_name) });
+      if (relatedRecord.type === 'association') {
+        list.setModelAssociation(relatedRecord.ref_model_association_id);
+        const association = relatedRecord.ref_model_association_id;
+        list.on('beforeQuery', (query) => {
+          query.include.push({
+            $fields: [association.through_target_field_id, association.through_source_field_id],
+            fields: ['id'],
+            as: 'ref_through_records',
+            $reference: association.through_target_field_id,
+            $modelAlias: association.through_model_id,
+            required: false,
+            where: {
+              ['$' + association.through_source_field_id]: this.engineForm.getOriginalValue(association.source_field_name || 'id')
+            }
+          });
+        });
+      } else {
+        const referencedField = relatedRecord.ref_referenced_field_id;
+        list.setCondition({ [relatedRecord.referenced_field_name]: this.engineForm.getValue(referencedField.referenced_field_name) });
+      }
       // list.setCondition({ [relatedRecord.referenced_field_name]: form.getValue() });
     }
   }

@@ -2,11 +2,13 @@
   <el-dialog
     :title="model.title"
     :visible.sync="model.visible"
-    width="model.width"
+    :width="model.width"
     :before-close="model.close"
     @closed="model.onClosed()"
   >
-    <div :is="model.component.type" ref="componentInstance" v-bind="model.component.props" class="popup-body" />
+    <div v-loading="model.loading" class="popup-wrapper">
+      <div :is="model.component.type" ref="componentInstance" v-bind="model.component.props" class="popup-body" />
+    </div>
     <div slot="footer" class="dialog-footer">
       <en-action
         v-for="action in model.actions"
@@ -15,7 +17,7 @@
         :event="{
         }"
         :context="{
-          popup: model,
+          popup: model
         }"
       />
     </div>
@@ -49,6 +51,7 @@ export default {
 .dialog-footer {
   display: inline-flex;
 }
+
 .dialog-footer .action-wrapper {
   margin: 2px;
 }

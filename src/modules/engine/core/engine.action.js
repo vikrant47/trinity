@@ -12,6 +12,7 @@ export class EngineAction extends EngineScript {
   label;
   loading = false;
   parent;
+  hidden = false;
 
   constructor(settings = {}) {
     super(settings);
@@ -29,6 +30,14 @@ export class EngineAction extends EngineScript {
   hideLoader() {
     this.loading = false;
     return this;
+  }
+
+  show() {
+    this.hidden = false;
+  }
+
+  hide() {
+    this.hidden = true;
   }
 }
 

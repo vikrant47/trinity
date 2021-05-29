@@ -357,6 +357,18 @@ export class EngineForm extends EngineDefinitionService {
     return widget[method].apply(widget, args);
   }
 
+  getOriginalValue(fieldName) {
+    return _.get(this.original, fieldName);
+  }
+
+  getModelValue(fieldName) {
+    return _.get(this.record, fieldName);
+  }
+
+  isDirty(fieldName) {
+    return this.getOriginalValue(fieldName) !== this.getModelValue(fieldName);
+  }
+
   getValue(fieldName) {
     return this.invoke(fieldName, 'getValue');
   }

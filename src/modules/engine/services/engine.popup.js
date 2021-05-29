@@ -24,6 +24,7 @@ export class EnginePopup extends EngineObservable {
   size = 'medium';
   showCancel = true;
   destroyOnClose = false;
+  loading = false;
 
   static destroy(popId) {
     const index = EnginePopup.findIndex(popId);
@@ -66,6 +67,16 @@ export class EnginePopup extends EngineObservable {
     }
     this.initActions();
     this.initComponent();
+  }
+
+  showLoader() {
+    this.loading = true;
+    return this;
+  }
+
+  hideLoader() {
+    this.loading = false;
+    return this;
   }
 
   initActions() {

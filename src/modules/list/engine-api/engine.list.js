@@ -3,7 +3,7 @@ import { ModelService } from '@/modules/engine/services/model.service';
 import { Pagination } from '@/modules/list/models/pagination';
 import * as _ from 'lodash';
 import { SearchDataService } from '@/modules/list/services/search.data.service';
-import { LIST_EVENTS } from '@/modules/list/engine-api/list-events';
+import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
 import { EngineDefinitionService } from '@/modules/engine/core/engine.definition.service';
 import { LIST_WIDGETS } from '@/modules/list/components/widgets/base/list.widgets';
 import TabularListView from '@/modules/list/components/list/TabularListView';
@@ -47,6 +47,7 @@ export class EngineList extends EngineDefinitionService {
   quickSearchValue = null;
   selection = [];
   lazy = false;
+  modelAssociation = null;
 
   constructor(settings) {
     super();
@@ -56,6 +57,14 @@ export class EngineList extends EngineDefinitionService {
     this.definition.list.config = { widgets: this.settings.columns };
     this.pagination = this.settings.pagination || new Pagination();
     this.registerEvents();
+  }
+
+  setModelAssociation(modelAssociation) {
+    this.modelAssociation = modelAssociation;
+  }
+
+  getModelAssociation() {
+    return this.modelAssociation;
   }
 
   getViewName() {
@@ -92,6 +101,10 @@ export class EngineList extends EngineDefinitionService {
 
   populateProcessors() {
     this.processors = this.buildProcessors(this.definition.list.processors);
+  }
+
+  isAssociatedList() {
+    return !!this.modelAssociation;
   }
 
   /** *{$or:[{}]}*/
@@ -165,7 +178,9 @@ export class EngineList extends EngineDefinitionService {
 
   async refresh() {
     this.emit(LIST_EVENTS.model.beforeFetch);
+    await this.triggerProcessors(new ListEvent(LIST_EVENTS.model.beforeFetch, this));
     if (this.settings.remote === false) {
+      await this.triggerProcessors(new ListEvent(LIST_EVENTS.model.fetch, this));
       this.emit(LIST_EVENTS.model.fetch, this.rows);
       return this.rows;
     }
@@ -174,7 +189,7 @@ export class EngineList extends EngineDefinitionService {
       const selectedFields = this.getSelectedFields();
       const selectedFieldNames = selectedFields.map(field => field.name);
       // request rows
-      const response = await new RestQuery(this.settings.modelAlias).paginate({
+      const query = {
         fields: selectedFieldNames,
         page: this.pagination.page,
         limit: this.pagination.limit,
@@ -184,16 +199,20 @@ export class EngineList extends EngineDefinitionService {
           field: this.order.attribute,
           direction: this.order.direction
         }]
-      });
+      };
+      await this.syncEmit('beforeQuery', query);
+      const response = await new RestQuery(this.settings.modelAlias).paginate(query);
       this.pagination.total = response.contents.total;
       this.rows = response.contents.data;
       // time Show table in milliseconds
       setTimeout(() => {
         this.disableLoading();
         this.emit(LIST_EVENTS.model.fetch, this.rows);
+        this.triggerProcessors(new ListEvent(LIST_EVENTS.model.fetch, this));
       }, this.settings.loaderDelay);
     } catch (err) {
       this.disableLoading();
+      await this.triggerProcessors(new ListEvent(LIST_EVENTS.list.error, this));
       this.emit(LIST_EVENTS.list.error, err);
       throw err;
     }
@@ -238,6 +257,7 @@ export class EngineList extends EngineDefinitionService {
     if (this.definitionLoaded === false) {
       try {
         this.emit(LIST_EVENTS.definition.beforeLoadDefinition);
+        await this.triggerProcessors(new ListEvent(LIST_EVENTS.definition.beforeFetch, this));
         if (this.settings.remote === false) {
           this.sanitizeDefinition();
         }
@@ -254,6 +274,7 @@ export class EngineList extends EngineDefinitionService {
         }, this.settings.loaderDelay);
         this.emit(LIST_EVENTS.definition.fetch, this.definition);
         this.definitionLoaded = true;
+        await this.triggerProcessors(new ListEvent(LIST_EVENTS.definition.fetch, this));
         return this.definition;
       } catch (err) {
         this.disableLoading();
@@ -265,6 +286,7 @@ export class EngineList extends EngineDefinitionService {
 
   triggerProcessors(event, context = {}) {
     event.list = this;
+    context.list = this;
     return super.triggerProcessors(event, context);
   }
 

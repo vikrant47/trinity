@@ -1,7 +1,6 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import { RestQuery } from '@/modules/engine/services/rest.query';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
-import { EngineScript } from '@/modules/engine/core/engine.script';
 
 export default class MultiReferenceWidget extends BaseWidget {
   loading = false;
@@ -13,6 +12,7 @@ export default class MultiReferenceWidget extends BaseWidget {
   slot = { options: [] };
 
   valueInitialized = false;
+  association = null;
 
   constructor(settings = {}) {
     super(settings);
@@ -41,54 +41,23 @@ export default class MultiReferenceWidget extends BaseWidget {
   overrideConfigSection(configSectionWidgets) {
     if (!this.isWidgetWithField()) {
       Object.assign(configSectionWidgets, {
-        'widgetSettings.relation_type': {
-          fieldName: 'widgetSettings.relation_type',
-          widgetAlias: WIDGETS.select,
-          widgetSettings: {
-            labelWidth: 100,
-            span: 24,
-            label: 'Relation Type',
-            advance: true
-          },
-          slot: {
-            options: [{
-              label: 'Belongs To Many',
-              value: 'belongs_to_many'
-            }, {
-              label: 'Morph To Many',
-              value: 'morph_to_many'
-            }]
-          }
-        },
-        'widgetSettings.referenced_model_alias': {
-          fieldName: 'widgetSettings.referenced_model_alias',
+        'widgetSettings.model_association_id': {
+          fieldName: 'widgetSettings.model_association_id',
           widgetAlias: WIDGETS.reference,
           widgetSettings: {
             labelWidth: 100,
             span: 24,
-            label: 'Reference Model',
+            label: 'Association',
             advance: true,
-            referenced_model_alias: 'engine_models',
-            referenced_field_name: 'alias',
-            display_field_name: 'label'
-          }
-        },
-        'widgetSettings.referenced_field_name': {
-          fieldName: 'widgetSettings.referenced_field_name',
-          widgetAlias: WIDGETS.reference,
-          widgetSettings: {
-            labelWidth: 100,
-            span: 24,
-            label: 'Reference Field',
-            advance: true,
-            referenced_model_alias: 'engine_fields',
-            referenced_field_name: 'name',
+            referenced_model_alias: 'engine_model_associations',
+            referenced_field_name: 'id',
             display_field_name: 'label'
           }
         },
         'widgetSettings.display_field_name': {
           fieldName: 'widgetSettings.display_field_name',
           widgetAlias: WIDGETS.reference,
+          fieldSettings: {},
           widgetSettings: {
             labelWidth: 100,
             span: 24,
@@ -99,39 +68,36 @@ export default class MultiReferenceWidget extends BaseWidget {
             display_field_name: 'label'
           }
         },
-        'widgetSettings.through_model_alias': {
-          fieldName: 'widgetSettings.through_model_alias',
-          widgetAlias: WIDGETS.reference,
+        'widgetSettings.source_field_value': {
+          fieldName: 'widgetSettings.source_field_value',
+          widgetAlias: WIDGETS.input,
+          fieldSettings: {},
           widgetSettings: {
             labelWidth: 100,
             span: 24,
-            label: 'Through Model',
-            advance: true,
-            referenced_model_alias: 'engine_models',
-            referenced_field_name: 'name',
-            display_field_name: 'label'
+            label: 'Source Value',
+            advance: true
           }
         },
-        'widgetSettings.through_source_field_name': {
-          fieldName: 'widgetSettings.through_source_field_name',
-          widgetAlias: WIDGETS.reference,
+        'widgetSettings.sortable': {
+          fieldName: 'widgetSettings.sortable',
+          widgetAlias: WIDGETS.switch,
+          fieldSettings: {},
           widgetSettings: {
             labelWidth: 100,
             span: 24,
-            label: 'Through Source Field',
-            advance: true,
-            referenced_model_alias: 'engine_fields',
-            referenced_field_name: 'name',
-            display_field_name: 'label'
+            label: 'Sortable',
+            advance: true
           }
         },
-        'widgetSettings.through_target_field_name': {
-          fieldName: 'widgetSettings.through_target_field_name',
+        'widgetSettings.sort_field': {
+          fieldName: 'widgetSettings.sort_field',
           widgetAlias: WIDGETS.reference,
+          fieldSettings: {},
           widgetSettings: {
             labelWidth: 100,
             span: 24,
-            label: 'Through Target Field',
+            label: 'Sort Field',
             advance: true,
             referenced_model_alias: 'engine_fields',
             referenced_field_name: 'name',
@@ -155,7 +121,7 @@ export default class MultiReferenceWidget extends BaseWidget {
   }
 
   overrideFieldSettings(fieldSettings) {
-    const _this = this;
+    /* const _this = this;
     if (!fieldSettings.interceptor) {
       fieldSettings.interceptor = async(query, resolve) => {
         return await resolve(query);
@@ -171,51 +137,59 @@ export default class MultiReferenceWidget extends BaseWidget {
         fieldSettings.loading = true;
         const result = await fieldSettings.interceptor({
           where: {
-            [_this.widgetSettings.display_field_name]: {
+            [_this.association.display_field_name]: {
               '$regex': value
             }
           },
-          fields: [_this.widgetSettings.referenced_field_name, _this.widgetSettings.display_field_name]
+          fields: [_this.association.referenced_field_name, _this.association.display_field_name]
         }, async(query) => {
-          const response = await new RestQuery(_this.widgetSettings.referenced_model_alias).findAll(query);
+          const response = await new RestQuery(_this.association.referenced_model_alias).findAll(query);
           return response.contents;
         });
         _this.renderComponent.$set(_this.slot, 'options', result.map(rec => {
           return {
-            label: rec[_this.widgetSettings.display_field_name],
-            value: rec[_this.widgetSettings.referenced_field_name]
+            label: rec[_this.association.display_field_name],
+            value: rec[_this.association.referenced_field_name]
           };
         }));
         fieldSettings.loading = false;
         _this.repaint();
       },
       props: {
-        key: _this.widgetSettings.through_target_field_id,
-        label: _this.widgetSettings.display_field_name
+        key: _this.association.through_target_field_id,
+        label: _this.association.display_field_name
       },
       filterable: true,
       remote: true,
       reserveKeyword: true,
       loading: false
-    });
+    });*/
+    return fieldSettings;
   }
 
   async mounted() {
     this.loading = true;
-    const result = await new RestQuery(this.widgetSettings.referenced_model_alias).findAll({
-      fields: ['id', this.widgetSettings.referenced_display_field],
+    let association = await new RestQuery('engine_model_associations').findById(this.widgetSettings.model_association_id);
+    association = this.association = association.contents;
+    const result = await new RestQuery(this.association.referenced_model_alias).findAll({
+      fields: ['id', this.widgetSettings.display_field_name || '$display_field'],
       include: [{
-        fields: ['id'],
-        as: 'ref_' + this.widgetSettings.through_model_alias,
-        reference: this.widgetSettings.through_referenced_field,
-        modelAlias: this.widgetSettings.through_model_alias,
+        $fields: [association.through_target_field_id, association.through_source_field_id],
+        fields: this.widgetSettings.sortable ? ['id', this.widgetSettings.sort_field] : ['id'],
+        as: 'ref_through_records',
+        $reference: association.through_target_field_id,
+        $modelAlias: association.through_model_id,
         required: false,
         where: {
-          [this.widgetSettings.through_source_field]: this.widgetSettings.source_field_value
+          ['$' + association.through_source_field_id]: this.widgetSettings.source_field_value
         }
       }]
     });
     this.multiReferenceData = result.contents;
+    const selected = this.multiReferenceData.filter(data => data.ref_through_records.length > 0);
+    this.setValue(selected.map(function(s) {
+      return s.id;
+    }));
     super.mounted();
     this.loading = false;
     this.repaint();
@@ -223,34 +197,67 @@ export default class MultiReferenceWidget extends BaseWidget {
 
   componentRender(component, h) {
     //  await this.waitFor('mounted');
+
+    return this.jsxRender(h, component);
+  }
+
+  checkedForSort = [];
+  sortedValue;
+
+  jsxRender(h, component) {
     const config = this.getComponentConfig(component);
+    /* const value = this.getValue();
+    if (this.widgetSettings.sortable && value) {
+
+    }*/
     Object.assign(config.attrs, {
       data: this.multiReferenceData,
       titles: ['Available', 'Selected'],
+      rightDefaultChecked: this.checkedForSort,
       props: {
         key: 'id',
-        label: this.widgetSettings.referenced_display_field
+        label: this.widgetSettings.display_field_name || 'label'
+      },
+      on: {
+        rightCheckChange(selected) {
+          this.selected = selected;
+        }
       },
       'v-loading': this.loading
     });
-    return h('el-transfer', config, this.getChildren(h));
+    const $transfer = h('el-transfer', config, this.getChildren(h));
+    if (this.widgetSettings.sortable) {
+      return (
+        <div class='transfer-wrapper'>
+          {$transfer}
+          <div class='sort-wrapper'>
+            <div class='actions'>
+              <el-button class='move-up' type='primary' size='small' icon='el-icon-arrow-up' onClick={event => {
+
+              }}></el-button>
+              <el-button class='move-down' type='primary' size='small' icon='el-icon-arrow-down' onClick={event => {
+              }}></el-button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div class='transfer-wrapper'>
+        {$transfer}
+      </div>
+    );
   }
 
   async save() {
     const assigned = this.getValue();
     // const previous = this.multiReferenceData.filter(d => d[through] && d[through].length > 0).map(d => d.id);
     await new RestQuery().request({
-      url: '/api/engine/models/' + this.widgetSettings.referenced_model_alias + '/bulk-assign',
+      url: '/api/engine/associations/' + this.association.id + '/bulk-assign',
       method: 'post',
       data: {
         assigned,
-        associations: {
-          referenced_model_alias: this.widgetSettings.referenced_model_alias,
-          through_referenced_field: this.widgetSettings.through_referenced_field,
-          through_model_alias: this.widgetSettings.through_model_alias,
-          through_source_field: this.widgetSettings.through_source_field,
-          source_field_value: this.widgetSettings.source_field_value
-        }
+        sourceValue: this.widgetSettings.source_field_value
       }
     });
   }
