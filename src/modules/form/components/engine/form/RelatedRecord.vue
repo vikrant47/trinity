@@ -79,7 +79,7 @@ export default {
             as: 'ref_through_records',
             $reference: association.through_target_field_id,
             $modelAlias: association.through_model_id,
-            required: false,
+            required: true,
             where: {
               ['$' + association.through_source_field_id]: this.engineForm.getOriginalValue(association.source_field_name || 'id')
             }

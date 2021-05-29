@@ -60,6 +60,10 @@ export class EngineDefinitionService extends EngineObservable {
     return this.definition;
   }
 
+  getModel() {
+    return this.definition.model;
+  }
+
   getFields() {
     return this.definition.fields;
   }
@@ -74,6 +78,10 @@ export class EngineDefinitionService extends EngineObservable {
 
   getFieldsByType(type) {
     return this.getFields().filter(field => field.type === WIDGETS.reference);
+  }
+
+  getFieldById(id) {
+    return this.getFields().find(field => field.id === id);
   }
 
   getFieldByName(name) {
