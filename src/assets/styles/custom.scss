@@ -99,6 +99,7 @@
 .list-container .el-icon-loading {
   font-size: 40px;
 }
+
 .list-container button.el-icon-loading {
   font-size: 11px;
 }
@@ -226,27 +227,35 @@
 /**Transfer/ Multi Select*/
 
 .transfer-wrapper {
+  .el-transfer {
+    .el-transfer-panel {
+      width: 42%;
+      .el-checkbox{
+        margin-right: 18px;
+      }
+    }
+    .el-transfer-panel:first-child .sort-order {
+      display: none;
+    }
+  }
+  .sort-order {
+    float: right;
+    width: 50px;
+    padding: 0;
+    input{
+      padding: 0;
+      width: 50px;
+      height: 28px;
+    }
+    .el-input-number__decrease, .el-input-number__increase {
+      display: none;
+    }
+  }
+
   display: flex;
 
   .el-transfer {
     width: 100%;
-    margin-right: -40px;
-  }
-
-  .sort-wrapper {
-    position: relative;
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    .actions {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      button {
-        margin: 6px 0 0;
-      }
-    }
   }
 }
 

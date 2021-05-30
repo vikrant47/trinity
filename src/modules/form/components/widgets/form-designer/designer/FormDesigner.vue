@@ -78,7 +78,7 @@
               :list="drawingList"
               :animation="340"
               group="componentsGroup"
-              @change="saveDrawingListDebounce"
+              @change="saveDrawingListDebounce(drawingList)"
             >
               <draggable-item
                 v-for="(item, index) in drawingList"
@@ -208,7 +208,7 @@ export default {
       showFileName: false,
       activeWidget: drawingDefalut[0],
       saveDrawingListDebounce: debounce(340, (list) => {
-        list = list || this.drawingList;
+        this.drawingList = list || this.drawingList;
         const newHash = JSON.stringify(list);
         if (this.hash !== newHash) {
           this.updateValue();
@@ -374,7 +374,7 @@ export default {
         const widget = this.findWidgetByKey(widgetInstance.widgetSettings.renderKey, this.drawingList);
         if (widget) {
           const value = Engine.clone(_.get(widgetInstance, property));
-          widget.$set(property, value);
+          _.set(widget, property, value);
           this.saveDrawingListDebounce(this.drawingList);
           console.log('config synced', widgetInstance.fieldName, property, value);
         } else {
