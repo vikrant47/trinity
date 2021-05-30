@@ -16,9 +16,18 @@ export class EngineDefinitionService extends EngineObservable {
   loadingBackground = 'rgb(255 255 255 / 55%)';
   definitionLoaded = false;
   model = null;
+  context = {};
 
   getModelAlias() {
     return this.modelAlias;
+  }
+
+  addContext(name, value) {
+    this.context[name] = value;
+  }
+
+  setContext(context) {
+    this.context = context;
   }
 
   /** Add widget instance ref in engine form*/
@@ -149,6 +158,7 @@ export class EngineDefinitionService extends EngineObservable {
    * @param {Object} context
    **/
   async triggerProcessors(event, context = {}) {
+    // Object.assign(context, this.context);
     for (const processor of this.processors) {
       if (processor.events && processor.events.indexOf(event.getName()) >= 0) {
         try {
