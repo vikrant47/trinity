@@ -225,12 +225,20 @@ export default class MultiReferenceWidget extends BaseWidget {
       },
       'v-loading': this.loading
     });
+    Object.assign(config, {
+      scopedSlots: {
+        default: props => <div>
+          <span>{props.option[this.widgetSettings.display_field_name || 'label']}</span>
+          <el-input-number min='0' max='1000' class='sort-order' value={props.option[this.widgetSettings.sort_field]}/>
+        </div>
+      }
+    });
     const $transfer = h('el-transfer', config, this.getChildren(h));
     if (this.widgetSettings.sortable) {
       return (
         <div class='transfer-wrapper'>
           {$transfer}
-          <div class='sort-wrapper'>
+          {/* <div class='sort-wrapper'>
             <div class='actions'>
               <el-button class='move-up' type='primary' size='small' icon='el-icon-arrow-up' onClick={event => {
 
@@ -238,7 +246,7 @@ export default class MultiReferenceWidget extends BaseWidget {
               <el-button class='move-down' type='primary' size='small' icon='el-icon-arrow-down' onClick={event => {
               }}></el-button>
             </div>
-          </div>
+          </div>*/}
         </div>
       );
     }

@@ -70,6 +70,7 @@ export default {
     async listMounted(list, relatedRecord) {
       // await this.engineForm.waitFor(FORM_EVENTS.model.fetch);
       if (relatedRecord.type === 'association') {
+        list.addContext('relatedListParentForm', this.engineForm);
         list.setModelAssociation(relatedRecord.ref_model_association_id);
         const association = relatedRecord.ref_model_association_id;
         list.on('beforeQuery', (query) => {
