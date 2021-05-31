@@ -24,7 +24,7 @@ export default class SelectWidget extends BaseWidget {
     if (!this.isWidgetWithField()) {
       return Object.assign(configSectionWidgets, {
         'slot.options': {
-          fieldName: 'widgetSettings.slot.options',
+          fieldName: 'slot.options',
           widgetAlias: WIDGETS.repeater,
           widgetSettings: {
             span: 24,
