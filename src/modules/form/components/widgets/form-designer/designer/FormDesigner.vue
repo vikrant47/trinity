@@ -152,6 +152,7 @@ import { FormWidgetService } from '@/modules/form/services/form.widget.service';
 import { Engine } from '@/modules/engine/core/engine';
 import _ from 'lodash';
 import { LAYOUT_WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { TemplateEngine } from '@/modules/engine/core/template.engine';
 
 let beautifier;
 let oldActiveId;
@@ -374,7 +375,13 @@ export default {
         const widget = this.findWidgetByKey(widgetInstance.widgetSettings.renderKey, this.drawingList);
         if (widget) {
           const value = Engine.clone(_.get(widgetInstance, property));
-          _.set(widget, property, value);
+          if (property.indexOf('.') > 0) {
+            const result = TemplateEngine.walk(property, widget, -1);
+            delete result.value[result.prop];
+            _.set(result.value, result.prop, value);
+          } else {
+            _.set(widget, property, value);
+          }
           this.saveDrawingListDebounce(this.drawingList);
           console.log('config synced', widgetInstance.fieldName, property, value);
         } else {

@@ -78,7 +78,9 @@ export default class RepeaterWidget extends FormDesignerWidget {
       value[index] = itemValue;
     }
     const form = new EngineForm();
-    form.setFormConfig({ widgets: this.unmarshallWidgets(config.widgets) });
+    if (config) {
+      form.setFormConfig({ widgets: this.unmarshallWidgets(config.widgets) });
+    }
     form.setRecord(value[index]);
     return form;
   }
