@@ -30,6 +30,14 @@ export class EngineDefinitionService extends EngineObservable {
     this.context = context;
   }
 
+  getContextValue(name) {
+    return this.context[name];
+  }
+
+  getContext() {
+    return this.context;
+  }
+
   /** Add widget instance ref in engine form*/
   addWidgetRef(widget) {
     this.$widgetRefs[widget.getFieldName()] = widget;

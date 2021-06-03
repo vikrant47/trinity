@@ -129,6 +129,7 @@ export default {
       this.engineList.loadDefinition().then(() => {
         this.listFields = this.engineList.getWidgets();
         this.engineList.$viewRef = this.$refs.viewRef;
+        this.$emit('definitionLoaded', this.engineList);
       });
     },
     async cellClick($event, row, column) {

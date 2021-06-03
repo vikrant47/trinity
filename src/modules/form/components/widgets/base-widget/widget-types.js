@@ -25,4 +25,5 @@ export const WidgetTypes = {
   [WIDGETS.codeEditor]: require('../code-editor/code-editor-widget').default,
   [WIDGETS.fileUpload]: require('../fileupload/file-upload-widget').default,
   [WIDGETS.multiReference]: require('../multi-reference/multi-reference-widget').default,
+  [WIDGETS.fileReference]: require('../file-reference/file-reference-widget').default,
 };

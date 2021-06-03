@@ -18,6 +18,7 @@
       >
         <div class="selection">
           <input
+            v-if="fileService.isSelectable(file)"
             v-model="file.selected"
             type="checkbox"
             @change="selectionChanged()"
@@ -85,6 +86,9 @@ export default {
     }
   },
   created() {
+    if (this.engineList) {
+      this.engineList.addContext('fileService', this.fileService);
+    }
     this.$emit('created', { service: this.fileService });
   },
   async mounted() {
@@ -110,7 +114,6 @@ export default {
       this.currentPath = this.fileService.rootFolder.path;
     },
     toggleSelect(file) {
-      file.selected = !file.selected;
     },
     selectionChanged() {
       if (this.engineList) {

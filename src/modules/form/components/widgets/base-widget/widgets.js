@@ -25,7 +25,8 @@ export const WIDGETS = {
   repeater: 'repeater',
   codeEditor: 'codeEditor',
   fileUpload: 'fileUpload',
-  multiReference: 'multiReference'
+  multiReference: 'multiReference',
+  fileReference: 'fileReference'
 };
 export const LAYOUT_WIDGETS = [WIDGETS.row];
 

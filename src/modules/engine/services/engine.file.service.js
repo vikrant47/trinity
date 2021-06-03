@@ -5,13 +5,46 @@ import { Pagination } from '@/modules/list/models/pagination';
 import { Engine } from '@/modules/engine/core/engine';
 
 export class EngineFile {
+  static FILE_CONTENT_TYPES = {
+    'image/jpeg': 'image',
+    'image/png': 'image',
+    'image/gif': 'image',
+    'application/xml': 'xml',
+    'application/pdf': 'pdf',
+    'application/json': 'json'
+  };
+  static FILE_TYPES = {
+    'jpg': 'image',
+    'png': 'image',
+    'jpeg': 'image',
+    'gif': 'image'
+  };
+
+  static getFileTypeByPath(filePath) {
+    const extension = filePath.split('.').pop();
+    if (extension) {
+      return this.FILE_TYPES[extension] || 'file';
+    }
+    return 'file';
+  }
+
   selected = false;
+
   constructor(file) {
     Object.assign(this, file);
   }
+
+  getType() {
+    if (this.path) {
+      return EngineFile.getFileTypeByPath(this.path);
+    }
+    return null;
+  }
+
   isImage(file) {
     return this.content_type.indexOf('image') > -1;
   }
+
   getUrl() {
     return Engine.getMediaServerUrl(this.path);
   }
@@ -31,6 +64,7 @@ export class EngineFileService {
     return this.getApiUrl(this.APIS.upload);
   }
 
+  selectableTypes = ['all'];
   loading = false;
   files = [];
   pagination;
@@ -47,10 +81,12 @@ export class EngineFileService {
       this.loading = false;
     }
   }
+
   async getFile(fileId) {
     const result = await new RestQuery('engine_system_files').findById(fileId);
     return result.contents;
   }
+
   async listFiles(query = {}) {
     this.loading = true;
     try {
@@ -65,6 +101,7 @@ export class EngineFileService {
   }
 
   async refresh(query = {}) {
+    this.clearSelection();
     let condition = {
       parent_folder_id: this.rootFolder.id
     };
@@ -104,5 +141,23 @@ export class EngineFileService {
 
   getSelected() {
     return this.files.filter(f => f.selected);
+  }
+
+  clearSelection() {
+    for (const file of this.files) {
+      file.selected = false;
+    }
+    return this;
+  }
+
+  isSelectable(file) {
+    if (this.selectableTypes.indexOf('all') >= 0) {
+      return true;
+    }
+    return this.selectableTypes.indexOf(file.content_type) >= 0;
+  }
+
+  allowSelections(contentTypes) {
+    this.selectableTypes = contentTypes;
   }
 }
