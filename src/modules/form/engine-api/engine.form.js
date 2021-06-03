@@ -361,6 +361,10 @@ export class EngineForm extends EngineDefinitionService {
     return _.get(this.original, fieldName);
   }
 
+  setModelValue(fieldName, value) {
+    return _.set(this.record, fieldName, value);
+  }
+
   getModelValue(fieldName) {
     return _.get(this.record, fieldName);
   }

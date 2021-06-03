@@ -95,12 +95,14 @@ export class EnginePopup extends EngineObservable {
   }
 
   initSettings(settings) {
-    settings.actions = settings.actions.map((action) => {
-      if (!(action instanceof EngineAction)) {
-        return new EngineAction(action);
-      }
-      return action;
-    });
+    if (settings.actions) {
+      settings.actions = settings.actions.map((action) => {
+        if (!(action instanceof EngineAction)) {
+          return new EngineAction(action);
+        }
+        return action;
+      });
+    }
     return settings;
   }
 
