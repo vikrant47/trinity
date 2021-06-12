@@ -297,4 +297,8 @@ export class EngineList extends EngineDefinitionService {
   getSelected() {
     return this.selection;
   }
+  clearSelection() {
+    this.selection.length = 0;
+    return this;
+  }
 }

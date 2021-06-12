@@ -27,8 +27,8 @@
         <div v-if="file.content_type==='folder'" class="folder file-item">
           <span>
             <i class="el-icon-folder" />
-            <span class="icon-name">{{ file.name }}</span>
           </span>
+          <span class="icon-name">{{ file.name }}</span>
         </div>
         <div v-else class="file file-item">
           <div
