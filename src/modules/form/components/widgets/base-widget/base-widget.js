@@ -18,7 +18,7 @@ export class BaseWidget extends EngineObservable {
   };
   static defaultWidgetSettings = {
     referenced_field_name: 'id',
-    span: 12,
+    span: 24,
     label: null,
     formId: null,
     layout: ITEM_LAYOUT.colFormItem,
@@ -58,7 +58,7 @@ export class BaseWidget extends EngineObservable {
     showStops: false,
     range: false,
     multiple: false,
-    size: 'medium'
+    size: 'mini'
   };
   designMode = false;
   static transient = [

@@ -92,6 +92,8 @@ export default class SelectWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return h('el-select', this.getComponentConfig(component), this.getChildren(h));
+    const config = this.getComponentConfig();
+    Object.assign(config, { filterable: true });
+    return h('el-select', config, this.getChildren(h));
   }
 }

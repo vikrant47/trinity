@@ -1,6 +1,6 @@
 <template>
-  <el-row :gutter="10">
-    <el-col :span="18">
+  <el-row :gutter="24">
+    <el-col :span="17">
       <div class="action-list-wrapper" style="display: flex;">
         <EnAction
           v-for="action in actions"
@@ -14,7 +14,7 @@
         />
       </div>
     </el-col>
-    <el-col :span="6">
+    <el-col :span="7">
       <div class="list-operations">
         <el-input
           v-model="search"
@@ -33,6 +33,7 @@
           >
             <el-button
               slot="reference"
+              :type="!allColumnsSelected?'info':''"
               size="mini"
               icon="el-icon-s-grid"
             >
@@ -49,8 +50,8 @@
               Select All
             </el-checkbox>
             <el-checkbox
-              v-for="item in tableColumns"
-              :key="item.field"
+              v-for="item in fields"
+              :key="item.name"
               v-model="item.visible"
               @change="handleCheckedTableColumnsChange(item)"
             >
@@ -58,8 +59,33 @@
             </el-checkbox>
           </el-popover>
         </el-button-group>
+        <el-badge :value="engineList.filterQuery && engineList.filterQuery.rules.length" class="item" type="primary">
+          <el-button
+            class="search-button"
+            @click="openSearchDrawer"
+          ><i class="el-icon-search" /></el-button>
+        </el-badge>
+
       </div>
     </el-col>
+    <el-drawer
+      title="Search"
+      :visible.sync="showSearchDrawer"
+      direction="rtl"
+      :before-close="handleSearchClose"
+      :modal-append-to-body="false"
+      variant="temporary"
+      size="40%"
+    >
+      <div class="list-filter">
+        <query-builder
+          v-model="filterQuery"
+          :fields="engineList.getFields()"
+          show-apply
+          @apply="$emit('applyFilter', $event)"
+        />
+      </div>
+    </el-drawer>
   </el-row>
 
 </template>
@@ -70,14 +96,15 @@ import { Engine } from '@/modules/engine/core/engine';
 import EnAction from '@/modules/engine/components/EnAction';
 import { LIST_EVENTS, ListEvent } from '@/modules/list/engine-api/list-events';
 import { EngineList } from '@/modules/list/engine-api/engine.list';
+import QueryBuilder from '@/modules/engine/components/query-builder/QueryBuilder';
 
 export default {
   name: 'EnListToolbar',
-  components: { EnAction },
+  components: { QueryBuilder, EnAction },
   props: {
     engineList: {
       type: EngineList,
-      required: true,
+      required: true
     },
     searchValue: {
       type: String,
@@ -98,20 +125,18 @@ export default {
   },
   data() {
     return {
+      filterQuery: { condition: 'AND' },
+      showSearchDrawer: false,
       listEventHandler: null,
       allColumnsSelected: true,
       allColumnsSelectedIndeterminate: false,
       tableUnwatcher: null,
       // Ignore the next table column change
       ignoreNextTableColumnsChange: false,
-      tableColumns: [],
+      fields: this.engineList.getWidgets(),
       search: '',
       actionEvent: new ListEvent(LIST_EVENTS.action.click, this.engineList)
     };
-  }, watch: {
-    'engineList.definition.list.columns'() {
-      this.tableColumns = this.engineList.definition.fields;
-    }
   },
   created() {
     const listEventHandler = this.$parent.listEventHandler;
@@ -131,7 +156,7 @@ export default {
     handleCheckedTableColumnsChange(item) {
       let totalCount = 0;
       let selectedCount = 0;
-      this.tableColumns.forEach(column => {
+      this.fields.forEach(column => {
         ++totalCount;
         selectedCount += column.visible ? 1 : 0;
       });
@@ -148,15 +173,29 @@ export default {
       this.allColumnsSelected = selectedCount === totalCount;
       this.allColumnsSelectedIndeterminate = selectedCount !== totalCount && selectedCount !== 0;
     },
+    handleSearchClose() {
+      this.showSearchDrawer = false;
+      return true;
+    },
+    openSearchDrawer() {
+      this.showSearchDrawer = true;
+    },
     toggleSearch() {
-      this.crud.props.searchToggle = !this.crud.props.searchToggle;
+      this.showSearchDrawer = !this.showSearchDrawer;
+    },
+    applyFilter(query) {
+
     }
   }
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .list-operations {
   float: right;
+}
+
+.list-filter {
+
 }
 </style>

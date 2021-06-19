@@ -18,6 +18,14 @@ export class RestQuery {
       }
       clonedQuery.where = this.mongoParser.getRulesFromMongo(mongoQuery);
     }
+    if (clonedQuery.normalizedWhere) {
+      if (!_.isEmpty(clonedQuery.where)) {
+        clonedQuery.where.rules.push(clonedQuery.normalizedWhere);
+      } else {
+        clonedQuery.where = clonedQuery.normalizedWhere;
+      }
+      delete clonedQuery.normalizedWhere;
+    }
     if (clonedQuery.include && clonedQuery.include.length > 0) {
       clonedQuery.include = clonedQuery.include.map((query) => {
         return this.toQueryBuilderRules(query);

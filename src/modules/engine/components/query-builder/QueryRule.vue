@@ -1,0 +1,143 @@
+<template>
+  <div class="rule-wrapper">
+    <div v-if="rule.rules" class="nested-rule">
+      <query-builder
+        v-model="rule"
+        :operator-mappings="operatorMappings"
+        :fields="fields"
+        :inner="true"
+        @remove-group="removeRule(rule)"
+        @input="ruleUpdated"
+      />
+    </div>
+    <div v-else class="simple-rule">
+      <el-row :gutter="24">
+        <el-col :span="6">
+          <el-select v-model="rule.field" placeholder="Select" filterable @input="ruleUpdated">
+            <el-option v-for="field in fields" :key="field.id" :value="field.name" :label="field.label" />
+          </el-select>
+        </el-col>
+        <el-col :span="6">
+          <el-select v-model="rule.operator" placeholder="Select" filterable @input="ruleUpdated">
+            <el-option
+              v-for="operator in operators"
+              :key="operator.type"
+              :value="operator.type"
+              :label="operator.label"
+            />
+          </el-select>
+        </el-col>
+        <el-col :span="8">
+          <en-field v-if="widget" v-model="rule.value" :widget="widget" @input="ruleUpdated" />
+        </el-col>
+        <el-col :span="4">
+          <div class="action-wrapper">
+            <el-button type="danger" plain icon="el-icon-delete" size="mini" @click="removeRule(rule)" />
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import EnField from '@/modules/form/components/engine/field/EnField';
+import { FieldTypeWidget } from '@/modules/engine/components/query-builder/models/QueryFieldTypeWdiegt';
+import { Engine } from '@/modules/engine/core/engine';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
+
+export default {
+  name: 'QueryRule',
+  components: {
+    EnField,
+    QueryBuilder: () => {
+      return import('@/modules/engine/components/query-builder/QueryBuilder');
+    }
+  },
+  props: {
+    fields: {
+      type: Array,
+      required: true
+    },
+    operatorMappings: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    value: { // {"id":"category","field":"category","type":"integer","input":"select","operator":"equal","value":2}
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      rule: Engine.clone(Object.assign({ operator: 'equal' }, this.value))
+    };
+  },
+  computed: {
+    widget() {
+      if (this.rule.operator && this.operatorMappings[this.rule.operator].nb_inputs === 0) {
+        return null;
+      }
+      return this.rule.field && this.getFieldWidget(this.rule.field) || null;
+    },
+    operators() {
+      const field = this.fields.find(field => field.name === this.rule.field);
+      if (field) {
+        return Object.values(this.operatorMappings).filter(operator => operator.apply_to.indexOf(field.type) >= 0);
+      }
+      return [];
+    }
+  },
+  watch: {
+    rule(val, oldVal) {
+      if (val !== oldVal) {
+        this.$emit('input');
+      }
+    }
+  },
+  methods: {
+    getFieldWidget(fieldName) {
+      const field = this.fields.find(field => field.name === fieldName);
+      if (!field) {
+        return null;
+      }
+      const widget = Object.assign({}, FieldTypeWidget[field.type]);
+      const engineForm = new EngineForm();
+      engineForm.setDefinition({ fields: [field] });
+      engineForm.fillFieldConfig(fieldName, widget);
+      return widget;
+    },
+    updateValue(widget, value) {
+      this.rule.value = value;
+      this.ruleUpdated();
+    },
+    addRule(rule) {
+      this.$emit('add-rule');
+    },
+    removeRule() {
+      this.$emit('remove-rule');
+    },
+    ruleUpdated() {
+      this.$emit('input', this.rule);
+    }
+  }
+};
+</script>
+
+<style scoped lang="scss">
+.action-wrapper {
+  display: flex;
+
+  button {
+    margin: 2px;
+  }
+}
+
+.rule-wrapper {
+  padding: 5px 5px 0;
+  margin-left: 5px;
+}
+</style>

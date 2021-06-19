@@ -49,6 +49,17 @@ export class EngineForm extends EngineDefinitionService {
   }
 
   setRecord(record) {
+    if (this.isNew()) {
+      const fieldNames = this.getSelectedFieldNames();
+      for (const fieldName of fieldNames) {
+        if (typeof record[fieldName] === 'undefined') {
+          const field = this.getFieldByName(fieldName);
+          if (field && typeof field.default_value !== 'undefined' && field.default_value !== null) {
+            record[fieldName] = field.default_value;
+          }
+        }
+      }
+    }
     this.record = record;
   }
 

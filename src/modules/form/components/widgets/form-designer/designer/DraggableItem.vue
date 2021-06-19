@@ -50,7 +50,7 @@ const layouts = {
           <render key={config.renderKey} wrapper = {false} widget={widgetInstance}
             form-model = {this.formModel}
             field-name = {config.renderKey}
-            onInput={event => {
+            onInputUpdate={event => {
               this.$set(this.formModel, widgetInstance.fieldName, event);
               this.$set(widgetInstance.widgetSettings, 'defaultValue', event);
             }}

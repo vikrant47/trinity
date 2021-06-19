@@ -35,7 +35,21 @@
 }
 
 /**List css*/
-
+.list-container{
+  .list-view-wrapper{
+    position: relative;
+    .filter-button{
+      position: absolute;
+      right: 0px;
+      z-index: 999;
+      -webkit-transform: rotate(90deg);
+      -moz-transform: rotate(90deg);
+      -o-transform: rotate(90deg);
+      -ms-transform: rotate(90deg);
+      transform: rotate(90deg);
+    }
+  }
+}
 .list-container .el-table--border th:not(:first-child) .cell .header-label {
   display: inherit;
   /*background-color: #f3f3f3;*/
