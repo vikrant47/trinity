@@ -126,7 +126,7 @@ export class FormWidgetService {
       Widget = this.getWidgetByClass(widgetJSON.widgetClass);
     }
     if (!Widget) {
-      throw new Error('Invalid json,No matching widgetAlias / widgetClass found', widgetJSON);
+      throw new Error('Invalid json,No matching widgetAlias / widgetClass found ' + JSON.stringify(widgetJSON));
     }
     widgetJSON = Engine.clone(widgetJSON);
     const widget = Engine.unmarshall(widgetJSON, new Widget());

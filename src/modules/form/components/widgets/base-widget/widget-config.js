@@ -241,37 +241,38 @@ export const DEFAULT_CONFIG_SECTION = {
     }
   }
 };
-export const DEFAULT_FORM_CONFIG = [{
-  fieldName: 'labelSuffix',
-  widgetSettings: {
-    labelWidth: 0,
-    label: 'Label Suffix',
-    required: true
-  }
-}, {
-  widgetAlias: WIDGETS.number,
+export const DEFAULT_FORM_CONFIG = [
+  {
+    fieldName: 'labelSuffix',
+    widgetSettings: {
+      labelWidth: 0,
+      label: 'Label Suffix',
+      required: true
+    }
+  }, {
+    widgetAlias: WIDGETS.number,
 
-  fieldName: 'labelWidth',
-  widgetSettings: {
-    labelWidth: 0,
-    label: 'Label Width',
-    required: true
-  }
-}, {
-  fieldName: 'labelPosition',
-  widgetSettings: {
-    labelWidth: 0,
-    label: 'Label Position'
-  },
-  widgetAlias: WIDGETS.select,
+    fieldName: 'labelWidth',
+    widgetSettings: {
+      labelWidth: 0,
+      label: 'Label Width',
+      required: true
+    }
+  }, {
+    fieldName: 'labelPosition',
+    widgetSettings: {
+      labelWidth: 0,
+      label: 'Label Position'
+    },
+    widgetAlias: WIDGETS.select,
 
-  slot: {
-    options: [{
-      label: 'Left', value: 'left'
-    }, {
-      label: 'Right', value: 'right'
-    }, {
-      label: 'Top', value: 'top'
-    }]
-  }
-}];
+    slot: {
+      options: [{
+        label: 'Left', value: 'left'
+      }, {
+        label: 'Right', value: 'right'
+      }, {
+        label: 'Top', value: 'top'
+      }]
+    }
+  }];

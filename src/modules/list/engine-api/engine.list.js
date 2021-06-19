@@ -48,7 +48,7 @@ export class EngineList extends EngineDefinitionService {
   selection = [];
   lazy = false;
   modelAssociation = null;
-
+  filterQuery = null;
   constructor(settings) {
     super();
     this.settings = Object.assign(this.settings, settings);
@@ -171,6 +171,11 @@ export class EngineList extends EngineDefinitionService {
     return this.condition;
   }
 
+  applyFilter(query) {
+    this.filterQuery = query;
+    return this.refresh();
+  }
+
   search(value) {
     this.quickSearchValue = value;
     return this.refresh();
@@ -195,6 +200,7 @@ export class EngineList extends EngineDefinitionService {
         limit: this.pagination.limit,
         where: await this.getQuery(),
         include: this.getIncludeStatement(selectedFieldNames),
+        normalizedWhere: this.filterQuery,
         order: [{
           field: this.order.attribute,
           direction: this.order.direction
@@ -297,6 +303,7 @@ export class EngineList extends EngineDefinitionService {
   getSelected() {
     return this.selection;
   }
+
   clearSelection() {
     this.selection.length = 0;
     return this;

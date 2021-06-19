@@ -167,7 +167,7 @@ function setValue(event, config, widget) {
       if (widget.fieldName.indexOf('.') > 0) {
         const result = TemplateEngine.walk(widget.fieldName, this.formData, -1);
         this.$set(result.value, result.prop, event);
-        delete this.formData['widget.fieldName'];
+        delete this.formData[widget.fieldName];
       } else {
         this.$set(this.formData, widget.fieldName, event);
       }

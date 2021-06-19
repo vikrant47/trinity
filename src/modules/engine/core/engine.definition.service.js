@@ -71,6 +71,10 @@ export class EngineDefinitionService extends EngineObservable {
     this.fields = this.definition.fields;
   }
 
+  setDefinition(definition) {
+    this.definition = definition;
+  }
+
   sanitizeDefinition() {
     this.populateModel();
     this.populateFields();

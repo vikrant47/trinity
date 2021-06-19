@@ -9,6 +9,7 @@
           :search-value="engineList.quickSearchValue"
           :actions="engineList.actions"
           @on-search="engineList.search($event)"
+          @applyFilter="engineList.applyFilter($event)"
         />
         <slot name="toolbar" />
       </div>

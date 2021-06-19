@@ -1,8 +1,8 @@
-import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import MonacoEditor from 'vue-monaco';
 import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import RicheditorWidget from '@/modules/form/components/widgets/richeditor/richeditor-widget';
 
-export default class CodeEditorWidget extends BaseWidget {
+export default class CodeEditorWidget extends RicheditorWidget {
   formItemConfig = {};
   palletSettings = {
     label: 'Rich Editor',
@@ -28,6 +28,8 @@ export default class CodeEditorWidget extends BaseWidget {
           label: 'Plain', value: 'plain'
         }, {
           label: 'JSON', value: 'json'
+        }, {
+          label: 'Rich Editor', value: 'rich_editor'
         }]
       }
     };
@@ -47,6 +49,9 @@ export default class CodeEditorWidget extends BaseWidget {
 
   getEvents(config) {
     const _this = this;
+    if (this.widgetSettings.language === 'rich_editor') {
+      return super.getEvents();
+    }
     return {
       change(value) {
         if (typeof value === 'string' && config.parse === true) {
@@ -61,8 +66,12 @@ export default class CodeEditorWidget extends BaseWidget {
     };
   }
 
-  jsxRender(h) {
-    const config = this.getComponentConfig();
+  updateLanguage(language) {
+    this.widgetSettings.language = language;
+    this.repaint();
+  }
+
+  jsxRender(h, config) {
     this.width = config.width;
     this.height = config.height;
     let value = config.attrs.value;
@@ -78,10 +87,14 @@ export default class CodeEditorWidget extends BaseWidget {
       props: {
         language: config.language,
         options: { automaticLayout: true },
-        value: value
+        value: value || ''
       }
     };
     const vEditor = h(MonacoEditor, options);
+    setTimeout(() => {
+      const editor = vEditor.componentInstance.getEditor();
+      editor.layout();
+    }, 500); // render issue fixed
     return (<div class='code-editor-wrapper' id={'code-editor-wrapper' + this.id}>
       <el-button
         type='button'
@@ -111,6 +124,10 @@ export default class CodeEditorWidget extends BaseWidget {
   }
 
   componentRender(component, h) {
-    return this.jsxRender(h);
+    const config = this.getComponentConfig();
+    if (config.language === 'rich_editor') {
+      return super.componentRender(component, h);
+    }
+    return this.jsxRender(h, config);
   }
 }
