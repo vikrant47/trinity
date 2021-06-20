@@ -26,7 +26,8 @@ export const WIDGETS = {
   codeEditor: 'codeEditor',
   fileUpload: 'fileUpload',
   multiReference: 'multiReference',
-  fileReference: 'fileReference'
+  fileReference: 'fileReference',
+  queryBuilder: 'queryBuilder'
 };
 export const LAYOUT_WIDGETS = [WIDGETS.row];
 

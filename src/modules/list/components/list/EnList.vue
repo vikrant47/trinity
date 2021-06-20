@@ -135,7 +135,7 @@ export default {
     },
     async cellClick($event, row, column) {
       const listEvent = new ListEvent(LIST_EVENTS.cell.click, this.engineList);
-      Object.assign(listEvent, { rowData: row, columnData: column });
+      Object.assign(listEvent, { rowData: row, columnData: column, original: $event });
       await this.engineList.triggerProcessors(listEvent, {});
       this.$emit('cellClick', $event, row, column);
     },

@@ -209,12 +209,20 @@ export class NavigationService {
     return $router.push(url);
   }
 
-  navigateToForm(modelAlias, formId = 'default', recordId = 'new', view = 'edit', params = {}) {
-    return this.navigate('/models/' + modelAlias + '/form/' + formId + '/' + recordId + '/' + view + '?' + Engine.toUrlParam(params));
+  navigateToForm(modelAlias, formId = 'default', recordId = 'new', view = 'edit', params = {}, newWindow = false) {
+    const url = '/models/' + modelAlias + '/form/' + formId + '/' + recordId + '/' + view + '?' + Engine.toUrlParam(params);
+    if (newWindow) {
+      return window.open(url);
+    }
+    return this.navigate(url);
   }
 
-  navigateToList(modelAlias, listId = 'default', view = 'details', params = {}) {
-    return this.navigate('/models/' + modelAlias + '/form/' + listId + '/' + view + '?' + Engine.toUrlParam(params));
+  navigateToList(modelAlias, listId = 'default', view = 'details', params = {}, newWindow = false) {
+    const url = '/models/' + modelAlias + '/form/' + listId + '/' + view + '?' + Engine.toUrlParam(params);
+    if (newWindow) {
+      return window.open(url);
+    }
+    return this.navigate(url);
   }
 
   refresh() {

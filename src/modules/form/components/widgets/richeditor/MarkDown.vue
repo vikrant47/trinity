@@ -59,8 +59,7 @@ export default {
     'value': {
       handler(value) {
         this.$refs.toastuiEditor.invoke('setHtml', value);
-      },
-      deep: true
+      }
     },
   },
   methods: {

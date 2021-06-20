@@ -161,6 +161,7 @@ export class EngineForm extends EngineDefinitionService {
           break;
         case 'enum':
           widgetConfig.slot.options = field.choices;
+          widgetConfig.fieldSettings.multiple = field.multiple;
           break;
       }
       widgetConfig.fieldRecord = field;

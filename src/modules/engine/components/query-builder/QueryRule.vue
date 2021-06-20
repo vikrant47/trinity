@@ -28,7 +28,7 @@
           </el-select>
         </el-col>
         <el-col :span="8">
-          <en-field v-if="widget" v-model="rule.value" :widget="widget" @input="ruleUpdated" />
+          <en-field v-if="widget" :value="rule.data.value" :widget="widget" @input="valueUpdated" />
         </el-col>
         <el-col :span="4">
           <div class="action-wrapper">
@@ -46,6 +46,7 @@ import EnField from '@/modules/form/components/engine/field/EnField';
 import { FieldTypeWidget } from '@/modules/engine/components/query-builder/models/QueryFieldTypeWdiegt';
 import { Engine } from '@/modules/engine/core/engine';
 import { EngineForm } from '@/modules/form/engine-api/engine.form';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
 
 export default {
   name: 'QueryRule',
@@ -73,7 +74,7 @@ export default {
   },
   data() {
     return {
-      rule: Engine.clone(Object.assign({ operator: 'equal' }, this.value))
+      rule: Engine.clone(Object.assign({ operator: 'equal', data: { value: this.value.value }}, this.value))
     };
   },
   computed: {
@@ -92,10 +93,8 @@ export default {
     }
   },
   watch: {
-    rule(val, oldVal) {
-      if (val !== oldVal) {
-        this.$emit('input');
-      }
+    value(newVal, oldVal) {
+      this.rule = Object.assign({ operator: 'equal', data: { value: this.value.value }}, this.value);
     }
   },
   methods: {
@@ -108,6 +107,13 @@ export default {
       const engineForm = new EngineForm();
       engineForm.setDefinition({ fields: [field] });
       engineForm.fillFieldConfig(fieldName, widget);
+      Object.assign(widget.fieldSettings, {
+        readOnly: false,
+        disabled: false
+      });
+      widget.fieldName = 'ruleValue';
+      widget.fieldRecord = null;
+      widget.id = Engine.generateUniqueString('rule_widget_');
       return widget;
     },
     updateValue(widget, value) {
@@ -121,6 +127,16 @@ export default {
       this.$emit('remove-rule');
     },
     ruleUpdated() {
+      this.$emit('input', this.rule);
+    },
+    valueUpdated(value) {
+      if (this.widget.widgetAlias === WIDGETS.reference) {
+        value = JSON.parse(value);
+        this.rule.value = value.value;
+        // this.rule.data.label = value.label;
+      } else {
+        this.rule.value = value;
+      }
       this.$emit('input', this.rule);
     }
   }

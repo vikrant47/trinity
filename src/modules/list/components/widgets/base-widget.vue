@@ -27,8 +27,8 @@ export default {
     }
   },
   methods: {
-    click() {
-      this.$emit('click', this.row, this.column);
+    click($event) {
+      this.$emit('click', $event, this.row, this.column);
     }
   }
 };

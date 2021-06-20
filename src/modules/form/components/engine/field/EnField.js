@@ -32,8 +32,13 @@ export default {
   },
   data() {
     return {
-      formData: {}
+      formData: { [this.widget.fieldName]: this.value }
     };
+  },
+  watch: {
+    value(newValue) {
+      this.formData = { [this.widget.fieldName]: newValue };
+    }
   },
   mounted() {
 
@@ -57,8 +62,6 @@ export default {
       return widget;
     },
     getWidgetInstance(widgetJson, engineForm) {
-      const fieldName = widgetJson.fieldName;
-      engineForm.fillFieldConfig(fieldName, widgetJson);
       const widgetInstance = new FormWidgetService().getWidgetInstance(widgetJson);
       widgetInstance.setFormId(engineForm.getId());
       engineForm.addWidgetRef(widgetInstance);
