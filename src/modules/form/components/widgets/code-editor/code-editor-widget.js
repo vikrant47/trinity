@@ -93,14 +93,16 @@ export default class CodeEditorWidget extends RicheditorWidget {
     const vEditor = h(MonacoEditor, options);
     setTimeout(() => {
       const editor = vEditor.componentInstance.getEditor();
-      editor.layout();
+      if (editor) {
+        editor.layout();
+      }
     }, 500); // render issue fixed
-    return (<div class='code-editor-wrapper' id={'code-editor-wrapper' + this.id}>
+    return (<div class='code-editor-wrapper' id={'code-editor-wrapper' + this.id} style={{ width: this.width }}>
       <el-button
         type='button'
         class='el-button'
         icon='el-icon-full-screen'
-        style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '9999' }}
+        style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '99' }}
         onClick={event => {
           event.stopPropagation();
           // console.log(this);
@@ -126,7 +128,7 @@ export default class CodeEditorWidget extends RicheditorWidget {
   componentRender(component, h) {
     const config = this.getComponentConfig();
     if (config.language === 'rich_editor') {
-      return super.componentRender(component, h);
+      return RicheditorWidget.prototype.componentRender.call(this, component, h);
     }
     return this.jsxRender(h, config);
   }

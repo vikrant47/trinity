@@ -26,4 +26,5 @@ export const WidgetTypes = {
   [WIDGETS.fileUpload]: require('../fileupload/file-upload-widget').default,
   [WIDGETS.multiReference]: require('../multi-reference/multi-reference-widget').default,
   [WIDGETS.fileReference]: require('../file-reference/file-reference-widget').default,
+  [WIDGETS.queryBuilder]: require('../query-builder/query-builder-widget').default,
 };

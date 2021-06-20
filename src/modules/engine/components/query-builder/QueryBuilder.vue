@@ -85,6 +85,17 @@ export default {
       operators: Object.assign({}, OPERATORS, this.operatorMappings)
     };
   },
+  watch: {
+    value(newVal, oldVal) {
+      if (!newVal) {
+        newVal = {
+          condition: 'AND',
+          rules: [{ field: '', operator: '', value: null, id: Engine.generateUniqueString('rule_') }]
+        };
+      }
+      this.query = newVal;
+    }
+  },
   methods: {
     addGroup(condition = 'OR') {
       this.query.rules.push({ id: Engine.generateUniqueString('group_'), condition: condition, rules: [{}] });

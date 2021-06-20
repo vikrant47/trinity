@@ -123,9 +123,18 @@ export default class ReferenceWidget extends BaseWidget {
           return response.contents;
         });
         _this.renderComponent.$set(_this.slot, 'options', result.map(rec => {
+          if (_this.isWidgetWithField()) { // store only id
+            return {
+              label: rec[_this.widgetSettings.display_field_name],
+              value: rec[_this.widgetSettings.referenced_field_name]
+            };
+          }
           return {
             label: rec[_this.widgetSettings.display_field_name],
-            value: rec[_this.widgetSettings.referenced_field_name]
+            value: JSON.stringify({
+              label: rec[_this.widgetSettings.display_field_name],
+              value: rec[_this.widgetSettings.referenced_field_name]
+            })
           };
         }));
         fieldSettings.loading = false;
@@ -140,9 +149,9 @@ export default class ReferenceWidget extends BaseWidget {
 
   componentRender(component, h) {
     if (!this.valueInitialized) {
+      const value = this.getValue();
       const refModel = this.formModel['ref_' + this.fieldName];
       if (refModel) {
-        const value = refModel[this.widgetSettings.referenced_field_name || 'id'];
         if (this.slot.options.findIndex(option => option.value === value) < 0) {
           this.slot.options.push({
             label: refModel[this.widgetSettings.display_field_name],
@@ -150,6 +159,10 @@ export default class ReferenceWidget extends BaseWidget {
           });
         }
         this.valueInitialized = true;
+      }
+      else if (!this.isWidgetWithField() && value) {
+        const parsedValue = JSON.parse(value);
+        this.slot.options.push({ label: parsedValue.label, value: value });
       }
     }
     return h('el-select', this.getComponentConfig(component), this.getChildren(h));

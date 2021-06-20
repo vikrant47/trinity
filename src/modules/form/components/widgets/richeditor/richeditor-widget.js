@@ -1,8 +1,12 @@
 import { BaseWidget } from '@/modules/form/components/widgets/base-widget/base-widget';
 import Markdown from '@/modules/form/components/widgets/richeditor/MarkDown';
+import { EngineForm } from '@/modules/form/engine-api/engine.form';
+import { FormWidgetService } from '@/modules/form/services/form.widget.service';
+import { WIDGETS } from '@/modules/form/components/widgets/base-widget/widgets';
+import { EnginePopup } from '@/modules/engine/services/engine.popup';
 
 export default class RicheditorWidget extends BaseWidget {
-  static heights = { small: '150px', medium: '200px', large: '300px' };
+  static heights = { small: '200px', medium: '300px', large: '500px' };
   palletSettings = {
     label: 'Rich Editor',
     icon: 'edit'
@@ -41,15 +45,94 @@ export default class RicheditorWidget extends BaseWidget {
     };
   }
 
-  componentRender(component, h) {
-    const config = this.getComponentConfig(component);
+  fullscreen = false;
+  codeView = false;
+  getHeight(config) {
+    if (this.fullscreen) {
+      return '100%';
+    }
+    return RicheditorWidget.heights[config.attrs.size] || RicheditorWidget.heights.small;
+  }
+
+  jsxRichEditorRender(h, config) {
     const options = {
       on: this.getEvents(),
       props: {
-        height: RicheditorWidget.heights[config.attrs.size] || RicheditorWidget.heights.small,
-        value: config.attrs.value,
+        height: this.getHeight(config),
+        value: config.attrs.value
       }
     };
-    return h(Markdown, options, this.getChildren());
+    const markDown = h(Markdown, options, this.getChildren());
+    return (<div class='rich-editor-wrapper' id={'rich-editor-wrapper' + this.id}>
+      <el-button
+        type='button'
+        class='el-button'
+        icon='el-icon-full-screen'
+        style={{ position: 'absolute', right: '0px', top: '0px', 'z-index': '99' }}
+        onClick={event => {
+          event.stopPropagation();
+          // console.log(this);
+          const wrapper = document.getElementById('rich-editor-wrapper' + this.id);
+          if (!this.fullscreen) {
+            wrapper.className = 'rich-editor-wrapper full-screen';
+            this.fullscreen = true;
+          } else {
+            wrapper.className = 'rich-editor-wrapper';
+            this.fullscreen = false;
+          }
+          // markDown.props.height = '100%';
+          this.repaint();
+          return false;
+        }}/>
+      <el-button
+        type='button'
+        class='el-button'
+        icon='el-icon-edit'
+        style={{ position: 'absolute', right: '50px', top: '0px', 'z-index': '99' }}
+        onClick={event => {
+          const model = { [this.fieldName]: this.getValue() };
+          const form = new EngineForm();
+          form.setRecord(model);
+          form.setFormConfig({
+            widgets: new FormWidgetService().toWidgetInstance([{
+              id: 'html-code-editor' + this.id,
+              fieldName: this.fieldName,
+              widgetAlias: WIDGETS.codeEditor,
+              widgetSettings: {
+                width: '100%',
+                span: 24,
+                label: '',
+                showLabel: false,
+                language: 'plain',
+              }
+            }]),
+          });
+          const popup = EnginePopup.open({
+            destroyOnClose: true,
+            id: 'code-view-' + this.id,
+            size: 'large',
+            title: 'Raw',
+            component: {
+              type: 'Parser',
+              props: {
+                engineForm: form
+              },
+            },
+            actions: [{
+              label: 'OK',
+              script: () => {
+                this.setValue(form.getValue(this.fieldName));
+                popup.hide();
+              }
+            }],
+          });
+        }}/>
+      {markDown}
+    </div>);
+  }
+
+  componentRender(component, h) {
+    const config = this.getComponentConfig(component);
+    return this.jsxRichEditorRender(h, config);
   }
 }
