@@ -103,7 +103,7 @@ export default class RicheditorWidget extends BaseWidget {
                 span: 24,
                 label: '',
                 showLabel: false,
-                language: 'plain',
+                language: 'html',
               }
             }]),
           });
