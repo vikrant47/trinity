@@ -53,14 +53,25 @@ export default {
   computed: {
     editorHtml: function() {
       return this.value;
-    },
+    }
   },
   watch: {
     'value': {
       handler(value) {
         this.$refs.toastuiEditor.invoke('setHtml', value);
       }
-    },
+    }
+  },
+  mounted() {
+    this.$refs.toastuiEditor.editor.eventManager.listen('pasteBefore', function(event) {
+      /* var html = event.clipboardContainer.innerHTML;
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('span').forEach(function(el) {
+        el.outerHTML = el.textContent;
+      });
+      html = doc.body;
+      event.clipboardContainer.innerHTML = html.outerHTML;*/
+    });
   },
   methods: {
     onEditorChange() {

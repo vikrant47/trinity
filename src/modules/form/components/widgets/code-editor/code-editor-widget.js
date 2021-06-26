@@ -29,6 +29,8 @@ export default class CodeEditorWidget extends RicheditorWidget {
         }, {
           label: 'JSON', value: 'json'
         }, {
+          label: 'Php', value: 'php'
+        }, {
           label: 'Rich Editor', value: 'rich_editor'
         }]
       }
