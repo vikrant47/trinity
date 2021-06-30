@@ -36,6 +36,9 @@ export default {
     };
   },
   watch: {
+    widget() {
+      // this.$forceUpdate();
+    },
     value(newValue) {
       this.formData = { [this.widget.fieldName]: newValue };
     }

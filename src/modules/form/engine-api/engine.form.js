@@ -48,6 +48,33 @@ export class EngineForm extends EngineDefinitionService {
     return this.id;
   }
 
+  static parseFieldValueByType(field, value) {
+    if (typeof value !== 'undefined') {
+      let parsedValue = value;
+      switch (field.type) {
+        case 'string':
+          parsedValue = value + '';
+          break;
+        case 'json':
+          parsedValue = typeof parsedValue === 'string' ? JSON.parse(parsedValue) : parsedValue;
+          break;
+        case 'boolean':
+          parsedValue = typeof parsedValue === 'string' ? parsedValue === 'true' : !!parsedValue;
+          break;
+        case 'integer':
+        case 'bigInteger':
+        case 'number':
+          parsedValue = typeof parsedValue === 'string' ? parsedValue * 1 : parsedValue;
+          break;
+        default:
+          parsedValue = value;
+          break;
+      }
+      return parsedValue;
+    }
+    return value;
+  }
+
   setRecord(record) {
     if (this.isNew()) {
       const fieldNames = this.getSelectedFieldNames();
@@ -55,7 +82,7 @@ export class EngineForm extends EngineDefinitionService {
         if (typeof record[fieldName] === 'undefined') {
           const field = this.getFieldByName(fieldName);
           if (field && typeof field.default_value !== 'undefined' && field.default_value !== null) {
-            record[fieldName] = field.default_value;
+            record[fieldName] = EngineForm.parseFieldValueByType(field, field.default_value);
           }
         }
       }

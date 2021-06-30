@@ -27,4 +27,5 @@ export const WidgetTypes = {
   [WIDGETS.multiReference]: require('../multi-reference/multi-reference-widget').default,
   [WIDGETS.fileReference]: require('../file-reference/file-reference-widget').default,
   [WIDGETS.queryBuilder]: require('../query-builder/query-builder-widget').default,
+  [WIDGETS.crontab]: require('../crontab/crontab-widget').default,
 };

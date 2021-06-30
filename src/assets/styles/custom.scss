@@ -237,7 +237,15 @@
     height: 100%;
   }
 }
-
+.crontab-wrapper {
+  .crontab-detail {
+    /*padding-left: 14px;*/
+    font-size: 13px;
+  }
+}
+.simple-rule  .form-container .form-parser .el-form-item{
+    padding: 0;
+}
 /**Transfer/ Multi Select*/
 
 .transfer-wrapper {
