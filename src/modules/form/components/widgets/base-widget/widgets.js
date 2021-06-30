@@ -27,7 +27,8 @@ export const WIDGETS = {
   fileUpload: 'fileUpload',
   multiReference: 'multiReference',
   fileReference: 'fileReference',
-  queryBuilder: 'queryBuilder'
+  queryBuilder: 'queryBuilder',
+  crontab: 'crontab'
 };
 export const LAYOUT_WIDGETS = [WIDGETS.row];
 

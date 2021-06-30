@@ -26,7 +26,9 @@
       </div>
     </div>
     <div v-if="!inner" class="footer-actions">
-      <el-button v-if="showApply" class="apply-filter" type="primary" icon="el-icon-success" @click="applyFilter">Apply</el-button>
+      <el-button v-if="showApply" class="apply-filter" type="primary" icon="el-icon-success" @click="applyFilter">
+        Apply
+      </el-button>
     </div>
   </div>
 </template>
@@ -94,6 +96,9 @@ export default {
         };
       }
       this.query = newVal;
+      if (!this.query.rules) {
+        this.query.rules = [];
+      }
     }
   },
   methods: {
@@ -154,9 +159,10 @@ export default {
   padding-bottom: 10px;
 }
 
-.footer-actions{
+.footer-actions {
   padding-right: 10px;
-  .apply-filter{
+
+  .apply-filter {
     float: right;
   }
 }
