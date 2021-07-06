@@ -11,30 +11,40 @@ export default class CodeEditorWidget extends RicheditorWidget {
   fullscreen = false;
 
   overrideConfigSection(configSectionWidgets) {
-    configSectionWidgets['widgetSettings.language'] = {
-      fieldName: 'widgetSettings.language',
-      widgetAlias: WIDGETS.select,
-      widgetSettings: {
-        label: 'Language'
+    Object.assign(configSectionWidgets, {
+      'widgetSettings.parse': {
+        fieldName: 'widgetSettings.parse',
+        widgetAlias: WIDGETS.switch,
+        widgetSettings: {
+          label: 'Parse JSON',
+          advance: true
+        }
       },
-      slot: {
-        options: [{
-          label: 'Javascript', value: 'javascript'
-        }, {
-          label: 'Html', value: 'html'
-        }, {
-          label: 'Css', value: 'css'
-        }, {
-          label: 'Plain', value: 'plain'
-        }, {
-          label: 'JSON', value: 'json'
-        }, {
-          label: 'Php', value: 'php'
-        }, {
-          label: 'Rich Editor', value: 'rich_editor'
-        }]
+      'widgetSettings.language': {
+        fieldName: 'widgetSettings.language',
+        widgetAlias: WIDGETS.select,
+        widgetSettings: {
+          label: 'Language'
+        },
+        slot: {
+          options: [{
+            label: 'Javascript', value: 'javascript'
+          }, {
+            label: 'Html', value: 'html'
+          }, {
+            label: 'Css', value: 'css'
+          }, {
+            label: 'Plain', value: 'plain'
+          }, {
+            label: 'JSON', value: 'json'
+          }, {
+            label: 'Php', value: 'php'
+          }, {
+            label: 'Rich Editor', value: 'rich_editor'
+          }]
+        }
       }
-    };
+    });
     return configSectionWidgets;
   }
 

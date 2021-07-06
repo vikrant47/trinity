@@ -360,12 +360,16 @@ export default {
       this.configVisible = true;
     },
     findWidgetByKey(renderKey, drawingList) {
-      for (const item of drawingList) {
+      for (let i = 0; i < drawingList.length; i++) {
+        const item = drawingList[i];
         if (item.widgetSettings.renderKey === renderKey) {
           return item;
         }
         if (LAYOUT_WIDGETS.indexOf(item.widgetAlias) >= 0 && item.widgetSettings.children) {
-          return this.findWidgetByKey(renderKey, item.widgetSettings.children);
+          const childItem = this.findWidgetByKey(renderKey, item.widgetSettings.children);
+          if (childItem) {
+            return childItem;
+          }
         }
       }
       return null;
