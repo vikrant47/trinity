@@ -159,10 +159,14 @@ export default class ReferenceWidget extends BaseWidget {
           });
         }
         this.valueInitialized = true;
-      }
-      else if (!this.isWidgetWithField() && value) {
-        const parsedValue = JSON.parse(value);
-        this.slot.options.push({ label: parsedValue.label, value: value });
+      } else if (!this.isWidgetWithField() && value) {
+        let parsedValue = value;
+        try {
+          parsedValue = JSON.parse(parsedValue);
+          this.slot.options.push({ label: parsedValue.label, value: value });
+        } catch (e) {
+          this.slot.options.push({ label: value, value: value });
+        }
       }
     }
     return h('el-select', this.getComponentConfig(component), this.getChildren(h));
