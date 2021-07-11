@@ -35,10 +35,11 @@
 }
 
 /**List css*/
-.list-container{
-  .list-view-wrapper{
+.list-container {
+  .list-view-wrapper {
     position: relative;
-    .filter-button{
+
+    .filter-button {
       position: absolute;
       right: 0px;
       z-index: 999;
@@ -50,6 +51,7 @@
     }
   }
 }
+
 .list-container .el-table--border th:not(:first-child) .cell .header-label {
   display: inherit;
   /*background-color: #f3f3f3;*/
@@ -190,6 +192,21 @@
   border: 1px solid #dadcdd;
   border-radius: 5px;
   padding: 10px;
+  background: #1e1d1d08;
+
+  .el-form-item--small.el-form-item {
+    margin-bottom: 0;
+
+  }
+  .form-parser > div.el-row {
+    padding: 5px;
+    .el-form-item{
+      cursor: move;
+      label{
+        cursor: move;
+      }
+    }
+  }
 }
 
 .repeater-wrapper-no-repeat {
@@ -237,15 +254,18 @@
     height: 100%;
   }
 }
+
 .crontab-wrapper {
   .crontab-detail {
     /*padding-left: 14px;*/
     font-size: 13px;
   }
 }
-.simple-rule  .form-container .form-parser .el-form-item{
-    padding: 0;
+
+.simple-rule .form-container .form-parser .el-form-item {
+  padding: 0;
 }
+
 /**Transfer/ Multi Select*/
 
 .transfer-wrapper {
@@ -426,15 +446,18 @@ ul.icon-list {
     transition: color .15s linear;
   }
 }
-.file-reference-wrapper{
-  .select-file{
+
+.file-reference-wrapper {
+  .select-file {
     display: flex;
     padding: 0px 5px 5px 5px;
-    .el-upload__tip{
+
+    .el-upload__tip {
       margin-left: 10px;
     }
   }
-  .preview{
+
+  .preview {
     padding: 0px 5px 5px 5px;
   }
 }

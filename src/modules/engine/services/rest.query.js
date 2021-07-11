@@ -79,8 +79,19 @@ export class RestQuery {
     this.modelAlias = modelAlias;
   }
 
+  count(query) {
+    return this.execute({
+      method: 'get',
+      params: {
+        query: query,
+        queryMethod: 'count'
+      }
+    });
+  }
+
   findOne(query) {
     return this.execute({
+      method: 'get',
       params: {
         query: query,
         queryMethod: 'findOne'
