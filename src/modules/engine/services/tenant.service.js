@@ -33,8 +33,8 @@ export class TenantService {
   }
 
   getBaseTenantUrl() {
-    const tenantCode = this.tenant.code;
-    return '/tenant/' + tenantCode;
+    // const tenantCode = this.tenant.code;
+    return '';// '/tenant/' + tenantCode;
   }
 
   /** Make request to current tenant*/
