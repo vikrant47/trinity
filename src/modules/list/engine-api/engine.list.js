@@ -49,6 +49,7 @@ export class EngineList extends EngineDefinitionService {
   lazy = false;
   modelAssociation = null;
   filterQuery = null;
+
   constructor(settings) {
     super();
     this.settings = Object.assign(this.settings, settings);
@@ -56,6 +57,7 @@ export class EngineList extends EngineDefinitionService {
     this.rows = this.settings.rows;
     this.definition.list.config = { widgets: this.settings.columns };
     this.pagination = this.settings.pagination || new Pagination();
+    this.condition = this.settings.filter;
     this.registerEvents();
   }
 
@@ -101,6 +103,10 @@ export class EngineList extends EngineDefinitionService {
 
   populateProcessors() {
     this.processors = this.buildProcessors(this.definition.list.processors);
+  }
+
+  populateFilter() {
+    this.filterQuery = this.definition.list.filter;
   }
 
   isAssociatedList() {
@@ -256,6 +262,7 @@ export class EngineList extends EngineDefinitionService {
     this.addColumnFormatters();
     this.populateActions();
     this.populateProcessors();
+    this.populateFilter();
     return this.definition;
   }
 
